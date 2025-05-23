@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using FluentAssertions;
 using Moq;
 using VirtoCommerce.CatalogCsvImportModule.Core;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
+using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model.Search;
@@ -32,6 +34,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 {
     public class ImporterTests
     {
+        private readonly IMapper _mapper;
+
         private readonly Catalog _catalog = CreateCatalog();
 
         private readonly List<Category> _categoriesInternal = new List<Category>();
@@ -43,11 +47,17 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
         private List<CatalogProduct> _savedProducts;
 
-        static ImporterTests()
+        public ImporterTests()
         {
             // To fix the error:  'Cyrillic' is not a supported encoding name. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method. (Parameter 'name')
             // https://github.com/dotnet/runtime/issues/17516
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            var configuration = new MapperConfiguration(cfg => {
+                cfg.AddProfile<CatalogProductMappingProfile>();
+            });
+
+            _mapper = configuration.CreateMapper();
         }
 
         [Theory]
@@ -1582,6 +1592,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
             #endregion IFulfillmentCenterSearchService
 
+            var csvProductConverter = new CsvProductConverter(_mapper);
+
             var target = new CsvCatalogImporter(catalogService.Object,
                 categoryService.Object,
                 itemService.Object,
@@ -1595,7 +1607,9 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 propDictItemSearchService,
                 propDictItemService,
                 storeSearchService.Object,
-                categorySearchService.Object
+                categorySearchService.Object,
+                csvProductConverter,
+                null
             );
 
             target.CreatePropertyDictionatyValues = createDictionayValues ?? false;
@@ -1852,10 +1866,12 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
         private CsvImportInfo GetCsvImportInfo()
         {
+            var configuration = new CsvProductMappingConfiguration();
+
             return new CsvImportInfo
             {
                 CatalogId = _catalog.Id,
-                Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration(),
+                Configuration = configuration.GetDefaultConfiguration(),
             };
         }
     }

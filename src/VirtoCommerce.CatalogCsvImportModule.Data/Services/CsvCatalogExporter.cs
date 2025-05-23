@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -9,6 +10,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogCsvImportModule.Core.Extensions;
+using VirtoCommerce.CatalogCsvImportModule.Core.Helpers;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -25,29 +27,15 @@ using VirtoCommerce.PricingModule.Core.Services;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 {
-    public sealed class CsvCatalogExporter : ICsvCatalogExporter
+    public class CsvCatalogExporter(
+        IProductSearchService productSearchService,
+        IItemService productService,
+        IPricingEvaluatorService pricingEvaluatorService,
+        IInventorySearchService inventorySearchService,
+        IBlobUrlResolver blobUrlResolver,
+        Func<CsvProductMappingConfiguration, ClassMap> getClassMap) : ICsvCatalogExporter
     {
-        private readonly IProductSearchService _productSearchService;
-        private readonly IItemService _productService;
-        private readonly IPricingEvaluatorService _pricingEvaluatorService;
-        private readonly IBlobUrlResolver _blobUrlResolver;
-        private readonly IInventorySearchService _inventorySearchService;
-
         private const int _batchSize = 50;
-
-        public CsvCatalogExporter(
-            IProductSearchService productSearchService,
-            IItemService productService,
-            IPricingEvaluatorService pricingEvaluatorService,
-            IInventorySearchService inventorySearchService,
-            IBlobUrlResolver blobUrlResolver)
-        {
-            _productSearchService = productSearchService;
-            _productService = productService;
-            _pricingEvaluatorService = pricingEvaluatorService;
-            _inventorySearchService = inventorySearchService;
-            _blobUrlResolver = blobUrlResolver;
-        }
 
         public async Task DoExportAsync(Stream outStream, CsvExportInfo exportInfo, Action<ExportImportProgressInfo> progressCallback)
         {
@@ -81,9 +69,12 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             var streamWriter = new StreamWriter(outStream, Encoding.UTF8, 1024, true) { AutoFlush = true };
             await using var csvWriter = new CsvWriter(streamWriter, writerConfig);
-            csvWriter.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
 
-            csvWriter.WriteHeader<CsvProduct>();
+            var classMap = getClassMap(exportInfo.Configuration);
+            csvWriter.Context.RegisterClassMap(classMap);
+
+            var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
+            csvWriter.WriteHeader(csvProductType);
             await csvWriter.NextRecordAsync();
 
             await ProcessProductsByPage(exportInfo, progressInfo, progressCallback,
@@ -100,7 +91,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             if (TryGetProductSearchCriteria(exportInfo, take: 0, out var criteria))
             {
-                result += (await _productSearchService.SearchNoCloneAsync(criteria)).TotalCount;
+                result += (await productSearchService.SearchNoCloneAsync(criteria)).TotalCount;
             }
 
             return result;
@@ -131,7 +122,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             priceEvaluationContext.PricelistIds = exportInfo.PriceListId == null ? null : [exportInfo.PriceListId];
             priceEvaluationContext.Currency = exportInfo.Currency;
 
-            var allPrices = await _pricingEvaluatorService.EvaluateProductPricesAsync(priceEvaluationContext);
+            var allPrices = await pricingEvaluatorService.EvaluateProductPricesAsync(priceEvaluationContext);
 
             // Load inventories
             var inventorySearchCriteria = AbstractTypeFactory<InventorySearchCriteria>.TryCreateInstance();
@@ -139,7 +130,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             inventorySearchCriteria.FulfillmentCenterIds = string.IsNullOrWhiteSpace(exportInfo.FulfilmentCenterId) ? null : [exportInfo.FulfilmentCenterId];
             inventorySearchCriteria.Take = _batchSize;
 
-            var allInventories = await _inventorySearchService.SearchAllNoCloneAsync(inventorySearchCriteria);
+            var allInventories = await inventorySearchService.SearchAllNoCloneAsync(inventorySearchCriteria);
 
             // Convert to dictionary for faster search
             var pricesByProductIds = allPrices.GroupBy(x => x.ProductId).ToDictionary(x => x.Key, x => x.First());
@@ -155,8 +146,22 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                     foreach (var seoInfo in seoInfos)
                     {
-                        var csvProduct = new CsvProduct(product, _blobUrlResolver, price, inventory, seoInfo);
-                        await csvWriter.WriteRecordsAsync([csvProduct]);
+                        var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
+                        csvProduct.Initialize(product, price, inventory, seoInfo);
+
+                        if (!string.IsNullOrEmpty(csvProduct.PrimaryImage))
+                        {
+                            csvProduct.PrimaryImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.PrimaryImage);
+                        }
+
+                        if (!string.IsNullOrEmpty(csvProduct.AltImage))
+                        {
+                            csvProduct.AltImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.AltImage);
+                        }
+
+                        // IEnumerable must be used for records to prevent stack overflow in CsvHelper 
+                        IEnumerable records = new[] { csvProduct };
+                        await csvWriter.WriteRecordsAsync(records);
                     }
                 }
                 catch (Exception ex)
@@ -178,7 +183,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             if (TryGetProductSearchCriteria(exportInfo, take: _batchSize, out var criteria))
             {
-                await foreach (var searchResult in _productSearchService.SearchBatchesNoCloneAsync(criteria))
+                await foreach (var searchResult in productSearchService.SearchBatchesNoCloneAsync(criteria))
                 {
                     var productIds = searchResult.Results.Select(x => x.Id).ToArray();
                     await ProcessProducts(productIds);
@@ -265,7 +270,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             foreach (var ids in productIds.Paginate(batchSize))
             {
-                var products = await _productService.GetAsync(ids, ItemResponseGroup.ItemLarge.ToString());
+                var products = await productService.GetAsync(ids, ItemResponseGroup.ItemLarge.ToString());
                 allProducts.AddRange(products);
             }
 

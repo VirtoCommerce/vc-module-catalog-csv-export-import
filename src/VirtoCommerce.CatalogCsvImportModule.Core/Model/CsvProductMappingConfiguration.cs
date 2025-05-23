@@ -18,11 +18,20 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
         public ICollection<CsvProductPropertyMap> PropertyMaps { get; set; }
         public string[] PropertyCsvColumns { get; set; } = Array.Empty<string>();
 
-        public static CsvProductMappingConfiguration GetDefaultConfiguration()
+        public CsvProductMappingConfiguration GetDefaultConfiguration()
         {
             var retVal = new CsvProductMappingConfiguration { Delimiter = ";" };
 
             var requiredFields = new List<string>();
+            var optionalFields = GetOptionalFields();
+
+            retVal.PropertyMaps = requiredFields.Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = true }).ToList();
+            retVal.PropertyMaps.AddRange(optionalFields.Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = false }));
+            return retVal;
+        }
+
+        public virtual IList<string> GetOptionalFields()
+        {
             var optionalFields = ReflectionUtility.GetPropertyNames<CsvProduct>(x => x.Name, x => x.Id, x => x.Sku, x => x.CategoryPath, x => x.CategoryId, x => x.MainProductId,
                                                                                 x => x.PrimaryImage, x => x.PrimaryImageGroup, x => x.AltImage, x => x.AltImageGroup,
                                                                                 x => x.SeoUrl, x => x.SeoTitle, x => x.SeoDescription, x => x.SeoLanguage, x => x.SeoStore, x => x.SeoMetaKeywords, x => x.SeoImageAlternativeText,
@@ -33,9 +42,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
                                                                                 x => x.Height, x => x.Length, x => x.Width, x => x.TaxType, x => x.ProductType, x => x.ShippingType,
                                                                                 x => x.Vendor, x => x.DownloadType, x => x.DownloadExpiration, x => x.HasUserAgreement, x => x.MaxNumberOfDownload, x => x.StartDate, x => x.EndDate);
 
-            retVal.PropertyMaps = requiredFields.Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = true }).ToList();
-            retVal.PropertyMaps.AddRange(optionalFields.Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = false }));
-            return retVal;
+            return optionalFields.ToList();
         }
 
         public void AutoMap(IEnumerable<string> csvColumns)

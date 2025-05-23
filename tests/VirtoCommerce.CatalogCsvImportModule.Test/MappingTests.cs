@@ -11,6 +11,7 @@ using FluentAssertions;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
+using VirtoCommerce.Platform.Core.Common;
 using Xunit;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Tests
@@ -20,7 +21,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasPropertyValues_PropertyValuesMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.CsvColumns = new[] { "Sku" };
             importInfo.Configuration.PropertyCsvColumns = new[] { "ProductProperty", "ProductProperty_Multivalue" };
             importInfo.Configuration.Delimiter = ",";
@@ -43,7 +45,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasProductProperties_PropertiesMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties.csv");
@@ -76,7 +79,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasPriceAndQuantity_PriceAndQuantityMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties-priceQuantity.csv");
@@ -96,7 +100,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasSeoInfo_SeoInfoMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties-seoInfo.csv");
@@ -121,7 +126,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasReview_ReviewMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties-review.csv");
@@ -137,7 +143,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasCategorypath_CategoryPathMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties-categoryPath.csv");
@@ -153,7 +160,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         {
             var defaultValue = "Custom_category_path_value";
 
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             var categoryPathMapping = importInfo.Configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "CategoryPath");
@@ -173,7 +181,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         {
             var defaultValue = true;
 
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             var categoryPathMapping = importInfo.Configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "IsBuyable");
@@ -190,7 +199,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasBooleanValues_BooleanFieldsMapped()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties-boolean.csv");
@@ -208,7 +218,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         [Fact]
         public void CsvProductMapTest_CsvHasMultipleLines_LineNumberMapTest()
         {
-            var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var importInfo = new CsvImportInfo { Configuration = configuration.GetDefaultConfiguration() };
             importInfo.Configuration.Delimiter = ",";
 
             string path = GetDataFilePath("product-productproperties-twoproducts.csv");
@@ -225,7 +236,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
         {
             using (var sw = new StringWriter())
             {
-                var exportInfo = new CsvExportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+                var configuration = new CsvProductMappingConfiguration();
+                var exportInfo = new CsvExportInfo { Configuration = configuration.GetDefaultConfiguration() };
                 var writerConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
                     Delimiter = exportInfo.Configuration.Delimiter
@@ -233,7 +245,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
                 using (var csv = new CsvWriter(sw, writerConfig))
                 {
-                    csv.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+                    csv.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(exportInfo.Configuration));
 
                     csv.WriteHeader<CsvProduct>();
                     csv.Flush();
@@ -359,7 +371,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 };
                 using (var reader = new CsvReader(new StreamReader(fs), readerConfig))
                 {
-                    reader.Context.RegisterClassMap(new CsvProductMap(importInfo.Configuration));
+                    reader.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(importInfo.Configuration));
 
                     while (reader.Read())
                     {
@@ -389,7 +401,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
         private CsvProduct ExportAndImportProduct(CatalogProduct product)
         {
-            var exportInfo = new CsvExportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
+            var configuration = new CsvProductMappingConfiguration();
+            var exportInfo = new CsvExportInfo { Configuration = configuration.GetDefaultConfiguration() };
             using (var stream = new MemoryStream())
             {
                 var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true) { AutoFlush = true };
@@ -401,11 +414,12 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
                 using (var csvWriter = new CsvWriter(streamWriter, writerConfig))
                 {
-                    csvWriter.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+                    csvWriter.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(exportInfo.Configuration));
 
                     csvWriter.WriteHeader<CsvProduct>();
                     csvWriter.NextRecord();
-                    var csvProduct = new CsvProduct(product, null, null, null, null);
+                    var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
+                    csvProduct.Initialize(product, null, null, null);
                     csvWriter.WriteRecord(csvProduct);
                     csvWriter.Flush();
                     stream.Position = 0;
@@ -419,7 +433,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 };
                 using (var reader = new CsvReader(new StreamReader(stream, Encoding.UTF8), readerConfig))
                 {
-                    reader.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+                    reader.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(exportInfo.Configuration));
                     reader.Read();
                     return reader.GetRecord<CsvProduct>();
                 }
