@@ -15,9 +15,9 @@ public class ExCsvProductConverter : CsvProductConverter
     {
         var result =  base.GetCatalogProduct(csvProduct);
 
-        if (csvProduct is Core.ExCsvProduct exCsvProduct && result is ExCatalogProduct catalogProductExtension)
+        if (csvProduct is ExCsvProduct exCsvProduct && result is ExCatalogProduct catalogProductExtension)
         {
-            catalogProductExtension.ItemLineNOM = exCsvProduct.ItemLineNOM;
+            catalogProductExtension.ItemLineNumber = exCsvProduct.ItemLineNumber;
         }
 
         return result;

@@ -8,7 +8,7 @@ public class ExCsvProductMappingConfiguration : CsvProductMappingConfiguration
     {
         var result = base.GetOptionalFields();
 
-        var extendedOptionlaFields = ReflectionUtility.GetPropertyNames<ExCsvProduct>(x => x.ItemLineNOM);
+        var extendedOptionlaFields = ReflectionUtility.GetPropertyNames<ExCsvProduct>(x => x.ItemLineNumber);
         result.AddRange(extendedOptionlaFields);
 
         return result;

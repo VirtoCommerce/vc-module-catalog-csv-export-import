@@ -148,17 +148,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                     {
                         var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
                         csvProduct.Initialize(product, price, inventory, seoInfo);
-
-                        if (!string.IsNullOrEmpty(csvProduct.PrimaryImage))
-                        {
-                            csvProduct.PrimaryImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.PrimaryImage);
-                        }
-
-                        if (!string.IsNullOrEmpty(csvProduct.AltImage))
-                        {
-                            csvProduct.AltImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.AltImage);
-                        }
-
+                        SetImages(csvProduct);
+                        
                         // IEnumerable must be used for records to prevent stack overflow in CsvHelper 
                         IEnumerable records = new[] { csvProduct };
                         await csvWriter.WriteRecordsAsync(records);
@@ -275,6 +266,19 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             }
 
             return allProducts;
+        }
+
+        private void SetImages(CsvProduct csvProduct)
+        {
+            if (!string.IsNullOrEmpty(csvProduct.PrimaryImage))
+            {
+                csvProduct.PrimaryImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.PrimaryImage);
+            }
+
+            if (!string.IsNullOrEmpty(csvProduct.AltImage))
+            {
+                csvProduct.AltImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.AltImage);
+            }
         }
     }
 }

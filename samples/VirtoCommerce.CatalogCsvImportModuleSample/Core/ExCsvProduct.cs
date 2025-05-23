@@ -7,7 +7,7 @@ using VirtoCommerce.PricingModule.Core.Model;
 namespace VirtoCommerce.CatalogCsvImportModuleSample.Core;
 public class ExCsvProduct : CsvProduct
 {
-    public string ItemLineNOM { get; set; }
+    public string ItemLineNumber { get; set; }
 
     public override void MergeFrom(CatalogProduct product)
     {
@@ -15,9 +15,9 @@ public class ExCsvProduct : CsvProduct
 
         if (product is ExCatalogProduct catalogProductExtension)
         {
-            if (string.IsNullOrEmpty(ItemLineNOM))
+            if (string.IsNullOrEmpty(ItemLineNumber))
             {
-                ItemLineNOM = catalogProductExtension.ItemLineNOM;
+                ItemLineNumber = catalogProductExtension.ItemLineNumber;
             }
         }
     }
@@ -28,7 +28,7 @@ public class ExCsvProduct : CsvProduct
 
         if (product is ExCatalogProduct catalogProductExtension)
         {
-            ItemLineNOM = catalogProductExtension.ItemLineNOM;
+            ItemLineNumber = catalogProductExtension.ItemLineNumber;
         }
     }
 }
