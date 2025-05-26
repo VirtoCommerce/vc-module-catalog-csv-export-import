@@ -80,8 +80,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Web.Controllers.Api
         [Route("export/mappingconfiguration")]
         public ActionResult<CsvProductMappingConfiguration> GetExportMappingConfiguration([FromQuery] string delimiter = ";")
         {
-            var configuration = AbstractTypeFactory<CsvProductMappingConfiguration>.TryCreateInstance();
-            var result = configuration.GetDefaultConfiguration();
+            var result = CsvProductMappingConfiguration.GetDefaultConfiguration();
             var decodedDelimiter = HttpUtility.UrlDecode(delimiter);
             result.Delimiter = decodedDelimiter;
 
@@ -153,8 +152,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Web.Controllers.Api
         [Route("import/mappingconfiguration")]
         public async Task<ActionResult<CsvProductMappingConfiguration>> GetImportMappingConfiguration([FromQuery] string fileUrl, [FromQuery] string delimiter = ";")
         {
-            var configuration = AbstractTypeFactory<CsvProductMappingConfiguration>.TryCreateInstance();
-            var result = configuration.GetDefaultConfiguration();
+            var result = CsvProductMappingConfiguration.GetDefaultConfiguration();
             var decodedDelimiter = HttpUtility.UrlDecode(delimiter);
             result.Delimiter = decodedDelimiter;
 
@@ -286,8 +284,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Web.Controllers.Api
 
                 if (exportInfo.Configuration == null)
                 {
-                    var configuration = AbstractTypeFactory<CsvProductMappingConfiguration>.TryCreateInstance();
-                    exportInfo.Configuration = configuration.GetDefaultConfiguration();
+                    exportInfo.Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration();
                 }
 
                 var fileNameTemplate = await _settingsManager.GetValueAsync<string>(CsvModuleConstants.Settings.General.ExportFileNameTemplate);

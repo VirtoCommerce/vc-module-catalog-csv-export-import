@@ -5,21 +5,19 @@ using VirtoCommerce.CatalogCsvImportModuleSample.Core;
 using VirtoCommerce.CatalogModule.Core.Model;
 
 namespace VirtoCommerce.CatalogCsvImportModuleSample.Data;
-public class ExCsvProductConverter : CsvProductConverter
-{
-    public ExCsvProductConverter(IMapper mapper) : base(mapper)
-    {
-    }
 
+public class ExCsvProductConverter(IMapper mapper)
+    : CsvProductConverter(mapper)
+{
     public override CatalogProduct GetCatalogProduct(CsvProduct csvProduct)
     {
-        var result =  base.GetCatalogProduct(csvProduct);
+        var catalogProduct = base.GetCatalogProduct(csvProduct);
 
-        if (csvProduct is ExCsvProduct exCsvProduct && result is ExCatalogProduct catalogProductExtension)
+        if (csvProduct is ExCsvProduct exCsvProduct && catalogProduct is ExCatalogProduct exCatalogProduct)
         {
-            catalogProductExtension.ItemLineNumber = exCsvProduct.ItemLineNumber;
+            exCatalogProduct.ExProperty = exCsvProduct.ExProperty;
         }
 
-        return result;
+        return catalogProduct;
     }
 }

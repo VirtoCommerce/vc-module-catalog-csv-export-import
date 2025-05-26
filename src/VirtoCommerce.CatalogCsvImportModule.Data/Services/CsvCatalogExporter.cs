@@ -27,15 +27,32 @@ using VirtoCommerce.PricingModule.Core.Services;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 {
-    public class CsvCatalogExporter(
-        IProductSearchService productSearchService,
-        IItemService productService,
-        IPricingEvaluatorService pricingEvaluatorService,
-        IInventorySearchService inventorySearchService,
-        IBlobUrlResolver blobUrlResolver,
-        Func<CsvProductMappingConfiguration, ClassMap> getClassMap) : ICsvCatalogExporter
+    public class CsvCatalogExporter : ICsvCatalogExporter
     {
+        private readonly IProductSearchService _productSearchService;
+        private readonly IItemService _productService;
+        private readonly IPricingEvaluatorService _pricingEvaluatorService;
+        private readonly IInventorySearchService _inventorySearchService;
+        private readonly IBlobUrlResolver _blobUrlResolver;
+        private readonly Func<CsvProductMappingConfiguration, ClassMap> _getClassMap;
+
         private const int _batchSize = 50;
+
+        public CsvCatalogExporter(
+            IProductSearchService productSearchService,
+            IItemService productService,
+            IPricingEvaluatorService pricingEvaluatorService,
+            IInventorySearchService inventorySearchService,
+            IBlobUrlResolver blobUrlResolver,
+            Func<CsvProductMappingConfiguration, ClassMap> getClassMap)
+        {
+            _productSearchService = productSearchService;
+            _productService = productService;
+            _pricingEvaluatorService = pricingEvaluatorService;
+            _inventorySearchService = inventorySearchService;
+            _blobUrlResolver = blobUrlResolver;
+            _getClassMap = getClassMap;
+        }
 
         public async Task DoExportAsync(Stream outStream, CsvExportInfo exportInfo, Action<ExportImportProgressInfo> progressCallback)
         {
@@ -70,7 +87,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             var streamWriter = new StreamWriter(outStream, Encoding.UTF8, 1024, true) { AutoFlush = true };
             await using var csvWriter = new CsvWriter(streamWriter, writerConfig);
 
-            var classMap = getClassMap(exportInfo.Configuration);
+            var classMap = _getClassMap(exportInfo.Configuration);
             csvWriter.Context.RegisterClassMap(classMap);
 
             var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
@@ -91,7 +108,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             if (TryGetProductSearchCriteria(exportInfo, take: 0, out var criteria))
             {
-                result += (await productSearchService.SearchNoCloneAsync(criteria)).TotalCount;
+                result += (await _productSearchService.SearchNoCloneAsync(criteria)).TotalCount;
             }
 
             return result;
@@ -122,7 +139,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             priceEvaluationContext.PricelistIds = exportInfo.PriceListId == null ? null : [exportInfo.PriceListId];
             priceEvaluationContext.Currency = exportInfo.Currency;
 
-            var allPrices = await pricingEvaluatorService.EvaluateProductPricesAsync(priceEvaluationContext);
+            var allPrices = await _pricingEvaluatorService.EvaluateProductPricesAsync(priceEvaluationContext);
 
             // Load inventories
             var inventorySearchCriteria = AbstractTypeFactory<InventorySearchCriteria>.TryCreateInstance();
@@ -130,7 +147,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             inventorySearchCriteria.FulfillmentCenterIds = string.IsNullOrWhiteSpace(exportInfo.FulfilmentCenterId) ? null : [exportInfo.FulfilmentCenterId];
             inventorySearchCriteria.Take = _batchSize;
 
-            var allInventories = await inventorySearchService.SearchAllNoCloneAsync(inventorySearchCriteria);
+            var allInventories = await _inventorySearchService.SearchAllNoCloneAsync(inventorySearchCriteria);
 
             // Convert to dictionary for faster search
             var pricesByProductIds = allPrices.GroupBy(x => x.ProductId).ToDictionary(x => x.Key, x => x.First());
@@ -149,7 +166,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                         var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
                         csvProduct.Initialize(product, price, inventory, seoInfo);
                         SetImages(csvProduct);
-                        
+
                         // IEnumerable must be used for records to prevent stack overflow in CsvHelper 
                         IEnumerable records = new[] { csvProduct };
                         await csvWriter.WriteRecordsAsync(records);
@@ -174,7 +191,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             if (TryGetProductSearchCriteria(exportInfo, take: _batchSize, out var criteria))
             {
-                await foreach (var searchResult in productSearchService.SearchBatchesNoCloneAsync(criteria))
+                await foreach (var searchResult in _productSearchService.SearchBatchesNoCloneAsync(criteria))
                 {
                     var productIds = searchResult.Results.Select(x => x.Id).ToArray();
                     await ProcessProducts(productIds);
@@ -261,7 +278,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             foreach (var ids in productIds.Paginate(batchSize))
             {
-                var products = await productService.GetAsync(ids, ItemResponseGroup.ItemLarge.ToString());
+                var products = await _productService.GetAsync(ids, ItemResponseGroup.ItemLarge.ToString());
                 allProducts.AddRange(products);
             }
 
@@ -272,12 +289,12 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
         {
             if (!string.IsNullOrEmpty(csvProduct.PrimaryImage))
             {
-                csvProduct.PrimaryImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.PrimaryImage);
+                csvProduct.PrimaryImage = _blobUrlResolver.GetAbsoluteUrl(csvProduct.PrimaryImage);
             }
 
             if (!string.IsNullOrEmpty(csvProduct.AltImage))
             {
-                csvProduct.AltImage = blobUrlResolver.GetAbsoluteUrl(csvProduct.AltImage);
+                csvProduct.AltImage = _blobUrlResolver.GetAbsoluteUrl(csvProduct.AltImage);
             }
         }
     }

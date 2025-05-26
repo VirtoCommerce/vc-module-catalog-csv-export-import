@@ -14,16 +14,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
     public class CsvProductMap<T> : ClassMap<T>
         where T : CsvProduct
     {
-        public CsvProductMap()
-        {
-        }
-
         public CsvProductMap(CsvProductMappingConfiguration mappingCfg)
-        {
-            Initialize(mappingCfg);
-        }
-
-        public void Initialize(CsvProductMappingConfiguration mappingCfg)
         {
             //Dynamical map scalar product fields use by manual mapping information
             var index = 0;
@@ -88,7 +79,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                                          .Distinct()
                                          .ToArray();
                                  }
-                                 else if(property.Multilanguage)
+                                 else if (property.Multilanguage)
                                  {
                                      propertyValues = property.Values.Select(v => string.Join(null, v.LanguageCode, CsvReaderExtension.InnerDelimiter, v.Value)).ToArray();
                                  }
@@ -103,7 +94,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                              return string.Join(mappingCfg.Delimiter, propertyValues);
                          });
-                    
+
                     MemberMaps.Add(csvPropertyMap);
                 }
 

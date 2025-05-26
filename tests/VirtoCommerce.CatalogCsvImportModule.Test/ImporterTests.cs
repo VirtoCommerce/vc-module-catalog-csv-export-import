@@ -8,7 +8,6 @@ using FluentAssertions;
 using Moq;
 using VirtoCommerce.CatalogCsvImportModule.Core;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
-using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model.Search;
@@ -53,7 +52,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
             // https://github.com/dotnet/runtime/issues/17516
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            var configuration = new MapperConfiguration(cfg => {
+            var configuration = new MapperConfiguration(cfg =>
+            {
                 cfg.AddProfile<CatalogProductMappingProfile>();
             });
 
@@ -1866,12 +1866,10 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
         private CsvImportInfo GetCsvImportInfo()
         {
-            var configuration = new CsvProductMappingConfiguration();
-
             return new CsvImportInfo
             {
                 CatalogId = _catalog.Id,
-                Configuration = configuration.GetDefaultConfiguration(),
+                Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration(),
             };
         }
     }

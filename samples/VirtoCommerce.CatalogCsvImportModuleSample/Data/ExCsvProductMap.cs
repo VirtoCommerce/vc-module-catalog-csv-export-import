@@ -4,10 +4,5 @@ using VirtoCommerce.CatalogCsvImportModuleSample.Core;
 
 namespace VirtoCommerce.CatalogCsvImportModuleSample.Data;
 
-public class ExCsvProductMap : CsvProductMap<ExCsvProduct>
-{
-    public ExCsvProductMap(CsvProductMappingConfiguration mappingCfg)
-    {
-        Initialize(mappingCfg);
-    }
-}
+public class ExCsvProductMap(CsvProductMappingConfiguration mappingCfg)
+    : CsvProductMap<ExCsvProduct>(mappingCfg);

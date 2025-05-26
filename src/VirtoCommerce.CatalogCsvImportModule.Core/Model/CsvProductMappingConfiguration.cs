@@ -18,16 +18,14 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
         public ICollection<CsvProductPropertyMap> PropertyMaps { get; set; }
         public string[] PropertyCsvColumns { get; set; } = Array.Empty<string>();
 
-        public CsvProductMappingConfiguration GetDefaultConfiguration()
+        public static CsvProductMappingConfiguration GetDefaultConfiguration()
         {
-            var retVal = new CsvProductMappingConfiguration { Delimiter = ";" };
+            var configuration = AbstractTypeFactory<CsvProductMappingConfiguration>.TryCreateInstance();
 
-            var requiredFields = new List<string>();
-            var optionalFields = GetOptionalFields();
+            configuration.Delimiter = ";";
+            configuration.PropertyMaps = configuration.GetOptionalFields().Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = false }).ToList();
 
-            retVal.PropertyMaps = requiredFields.Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = true }).ToList();
-            retVal.PropertyMaps.AddRange(optionalFields.Select(x => new CsvProductPropertyMap { EntityColumnName = x, CsvColumnName = x, IsRequired = false }));
-            return retVal;
+            return configuration;
         }
 
         public virtual IList<string> GetOptionalFields()
