@@ -32,8 +32,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
         private readonly IProductSearchService _productSearchService;
         private readonly IItemService _productService;
         private readonly IPricingEvaluatorService _pricingEvaluatorService;
-        private readonly IInventorySearchService _inventorySearchService;
         private readonly IBlobUrlResolver _blobUrlResolver;
+        private readonly IInventorySearchService _inventorySearchService;
         private readonly Func<CsvProductMappingConfiguration, ClassMap> _getClassMap;
 
         private const int _batchSize = 50;

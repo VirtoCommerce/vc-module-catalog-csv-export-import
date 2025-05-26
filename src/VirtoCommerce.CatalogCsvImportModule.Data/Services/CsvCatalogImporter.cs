@@ -40,15 +40,15 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
         private readonly IItemService _productService;
         private readonly ISkuGenerator _skuGenerator;
         private readonly IPriceService _priceService;
-        private readonly IInventoryService _inventoryService;
-        private readonly IFulfillmentCenterSearchService _fulfillmentCenterSearchService;
-        private readonly Func<ICatalogRepository> _catalogRepositoryFactory;
         private readonly IPriceSearchService _priceSearchService;
         private readonly ISettingsManager _settingsManager;
+        private readonly IInventoryService _inventoryService;
+        private readonly IFulfillmentCenterSearchService _fulfillmentCenterSearchService;
+        private readonly ICategorySearchService _categorySearchService;
+        private readonly Func<ICatalogRepository> _catalogRepositoryFactory;
         private readonly IPropertyDictionaryItemSearchService _propDictItemSearchService;
         private readonly IPropertyDictionaryItemService _propDictItemService;
         private readonly IStoreSearchService _storeSearchService;
-        private readonly ICategorySearchService _categorySearchService;
         private readonly ICsvProductConverter _csvProductConverter;
         private readonly Func<CsvProductMappingConfiguration, ClassMap> _getClassMap;
         private readonly object _lockObject = new object();
@@ -67,9 +67,9 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             Func<ICatalogRepository> catalogRepositoryFactory,
             IPriceSearchService priceSearchService,
             ISettingsManager settingsManager,
+            IStoreSearchService storeSearchService,
             IPropertyDictionaryItemSearchService propDictItemSearchService,
             IPropertyDictionaryItemService propDictItemService,
-            IStoreSearchService storeSearchService,
             ICategorySearchService categorySearchService,
             ICsvProductConverter csvProductConverter,
             Func<CsvProductMappingConfiguration, ClassMap> getClassMap)
@@ -134,13 +134,11 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                     try
                     {
                         var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
-                        var csvProduct = reader.GetRecord(csvProductType);
+                        var csvProduct = (CsvProduct)reader.GetRecord(csvProductType);
 
-                        if (csvProduct is CsvProduct product)
-                        {
-                            ReplaceEmptyStringsWithNull(product);
-                            csvProducts.Add(product);
-                        }
+                        ReplaceEmptyStringsWithNull(csvProduct);
+
+                        csvProducts.Add(csvProduct);
                     }
                     catch (TypeConverterException ex)
                     {
