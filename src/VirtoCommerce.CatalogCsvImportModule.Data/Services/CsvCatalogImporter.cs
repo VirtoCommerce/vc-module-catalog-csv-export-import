@@ -67,9 +67,9 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             Func<ICatalogRepository> catalogRepositoryFactory,
             IPriceSearchService priceSearchService,
             ISettingsManager settingsManager,
-            IStoreSearchService storeSearchService,
             IPropertyDictionaryItemSearchService propDictItemSearchService,
             IPropertyDictionaryItemService propDictItemService,
+            IStoreSearchService storeSearchService,
             ICategorySearchService categorySearchService,
             ICsvProductConverter csvProductConverter,
             Func<CsvProductMappingConfiguration, ClassMap> getClassMap)
@@ -84,9 +84,9 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             _catalogRepositoryFactory = catalogRepositoryFactory;
             _priceSearchService = priceSearchService;
             _settingsManager = settingsManager;
+            _storeSearchService = storeSearchService;
             _propDictItemSearchService = propDictItemSearchService;
             _propDictItemService = propDictItemService;
-            _storeSearchService = storeSearchService;
             _categorySearchService = categorySearchService;
             _csvProductConverter = csvProductConverter;
             _getClassMap = getClassMap;
