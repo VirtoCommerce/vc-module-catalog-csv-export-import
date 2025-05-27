@@ -1,10 +1,7 @@
-using System;
-using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
-using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogCsvImportModuleSample.Core;
 using VirtoCommerce.CatalogCsvImportModuleSample.Data;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -23,9 +20,7 @@ public class Module : IModule
         AbstractTypeFactory<CsvProduct>.OverrideType<CsvProduct, ExCsvProduct>();
         AbstractTypeFactory<CsvProductMappingConfiguration>.OverrideType<CsvProductMappingConfiguration, ExCsvProductMappingConfiguration>();
 
-        serviceCollection.AddAutoMapper(typeof(DataAssemblyMarker).Assembly);
-        serviceCollection.AddSingleton<Func<CsvProductMappingConfiguration, ClassMap>>(CsvProductMap<ExCsvProduct>.Create);
-
+        serviceCollection.AddAutoMapper(typeof(ExDataAssemblyMarker).Assembly);
         serviceCollection.AddTransient<ICsvProductConverter, ExCsvProductConverter>();
     }
 

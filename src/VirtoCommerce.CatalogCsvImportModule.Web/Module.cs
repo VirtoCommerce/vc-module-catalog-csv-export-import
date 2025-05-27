@@ -1,9 +1,6 @@
-using System;
-using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.CatalogCsvImportModule.Core;
-using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogCsvImportModule.Data;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
@@ -22,8 +19,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Web
             serviceCollection.AddTransient<ICsvCatalogImporter, CsvCatalogImporter>();
 
             serviceCollection.AddAutoMapper(typeof(DataAssemblyMarker).Assembly);
-            serviceCollection.AddSingleton<Func<CsvProductMappingConfiguration, ClassMap>>(CsvProductMap<CsvProduct>.Create);
-
             serviceCollection.AddTransient<ICsvProductConverter, CsvProductConverter>();
         }
 

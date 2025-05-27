@@ -1608,8 +1608,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 propDictItemService,
                 storeSearchService.Object,
                 categorySearchService.Object,
-                csvProductConverter,
-                null
+                csvProductConverter
             );
 
             target.CreatePropertyDictionatyValues = createDictionayValues ?? false;

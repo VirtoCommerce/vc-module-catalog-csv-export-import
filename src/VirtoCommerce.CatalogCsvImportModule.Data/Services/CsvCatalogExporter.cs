@@ -34,7 +34,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
         private readonly IPricingEvaluatorService _pricingEvaluatorService;
         private readonly IBlobUrlResolver _blobUrlResolver;
         private readonly IInventorySearchService _inventorySearchService;
-        private readonly Func<CsvProductMappingConfiguration, ClassMap> _getClassMap;
 
         private const int _batchSize = 50;
 
@@ -43,15 +42,13 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             IItemService productService,
             IPricingEvaluatorService pricingEvaluatorService,
             IInventorySearchService inventorySearchService,
-            IBlobUrlResolver blobUrlResolver,
-            Func<CsvProductMappingConfiguration, ClassMap> getClassMap)
+            IBlobUrlResolver blobUrlResolver)
         {
             _productSearchService = productSearchService;
             _productService = productService;
             _pricingEvaluatorService = pricingEvaluatorService;
             _inventorySearchService = inventorySearchService;
             _blobUrlResolver = blobUrlResolver;
-            _getClassMap = getClassMap;
         }
 
         public async Task DoExportAsync(Stream outStream, CsvExportInfo exportInfo, Action<ExportImportProgressInfo> progressCallback)
@@ -86,9 +83,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             var streamWriter = new StreamWriter(outStream, Encoding.UTF8, 1024, true) { AutoFlush = true };
             await using var csvWriter = new CsvWriter(streamWriter, writerConfig);
-
-            var classMap = _getClassMap(exportInfo.Configuration);
-            csvWriter.Context.RegisterClassMap(classMap);
+            csvWriter.Context.RegisterClassMap(CsvProductMap.Create(exportInfo.Configuration));
 
             var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
             csvWriter.WriteHeader(csvProductType);
@@ -163,9 +158,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                     foreach (var seoInfo in seoInfos)
                     {
-                        var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
-                        csvProduct.Initialize(product, price, inventory, seoInfo);
-                        SetImages(csvProduct);
+                        var csvProduct = CsvProduct.Create(product, price, inventory, seoInfo, _blobUrlResolver);
 
                         // IEnumerable must be used for records to prevent stack overflow in CsvHelper 
                         IEnumerable records = new[] { csvProduct };
@@ -283,19 +276,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             }
 
             return allProducts;
-        }
-
-        private void SetImages(CsvProduct csvProduct)
-        {
-            if (!string.IsNullOrEmpty(csvProduct.PrimaryImage))
-            {
-                csvProduct.PrimaryImage = _blobUrlResolver.GetAbsoluteUrl(csvProduct.PrimaryImage);
-            }
-
-            if (!string.IsNullOrEmpty(csvProduct.AltImage))
-            {
-                csvProduct.AltImage = _blobUrlResolver.GetAbsoluteUrl(csvProduct.AltImage);
-            }
         }
     }
 }

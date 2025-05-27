@@ -50,7 +50,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
         private readonly IPropertyDictionaryItemService _propDictItemService;
         private readonly IStoreSearchService _storeSearchService;
         private readonly ICsvProductConverter _csvProductConverter;
-        private readonly Func<CsvProductMappingConfiguration, ClassMap> _getClassMap;
         private readonly object _lockObject = new object();
 
         private readonly List<Store> _stores = new List<Store>();
@@ -71,8 +70,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             IPropertyDictionaryItemService propDictItemService,
             IStoreSearchService storeSearchService,
             ICategorySearchService categorySearchService,
-            ICsvProductConverter csvProductConverter,
-            Func<CsvProductMappingConfiguration, ClassMap> getClassMap)
+            ICsvProductConverter csvProductConverter)
         {
             _catalogService = catalogService;
             _categoryService = categoryService;
@@ -89,7 +87,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             _propDictItemService = propDictItemService;
             _categorySearchService = categorySearchService;
             _csvProductConverter = csvProductConverter;
-            _getClassMap = getClassMap;
         }
 
         public bool CreatePropertyDictionatyValues
@@ -126,14 +123,13 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             using (var reader = new CsvReader(new StreamReader(inputStream, encoding), readerConfig))
             {
-                var classMap = _getClassMap(importInfo.Configuration);
-                reader.Context.RegisterClassMap(classMap);
+                reader.Context.RegisterClassMap(CsvProductMap.Create(importInfo.Configuration));
+                var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
 
                 while (reader.Read())
                 {
                     try
                     {
-                        var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
                         var csvProduct = (CsvProduct)reader.GetRecord(csvProductType);
 
                         ReplaceEmptyStringsWithNull(csvProduct);

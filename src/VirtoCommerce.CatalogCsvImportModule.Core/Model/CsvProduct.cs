@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Omu.ValueInjecter;
+using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogModule.Core.Model;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.InventoryModule.Core.Model;
@@ -14,6 +15,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
     public class CsvProduct : CatalogProduct
     {
         private readonly string[] _csvCellDelimiter = { "--", "|" };
+        private IBlobUrlResolver _blobUrlResolver;
 
         public CsvProduct()
         {
@@ -31,8 +33,18 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
             SeoInfos = new List<SeoInfo> { SeoInfo };
         }
 
-        public virtual void Initialize(CatalogProduct product, Price price, InventoryInfo inventory, SeoInfo seoInfo)
+        public static CsvProduct Create(CatalogProduct product, Price price, InventoryInfo inventory, SeoInfo seoInfo, IBlobUrlResolver blobUrlResolver)
         {
+            var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
+            csvProduct.Initialize(product, price, inventory, seoInfo, blobUrlResolver);
+
+            return csvProduct;
+        }
+
+        public virtual void Initialize(CatalogProduct product, Price price, InventoryInfo inventory, SeoInfo seoInfo, IBlobUrlResolver blobUrlResolver)
+        {
+            _blobUrlResolver = blobUrlResolver;
+
             this.InjectFrom(product);
 
             Properties = product.Properties;
@@ -170,7 +182,9 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
                     var primaryImage = Images.OrderBy(x => x.SortOrder).FirstOrDefault();
                     if (primaryImage != null)
                     {
-                        _primaryImage = primaryImage.Url;
+                        _primaryImage = _blobUrlResolver != null
+                            ? _blobUrlResolver.GetAbsoluteUrl(primaryImage.Url)
+                            : primaryImage.Url;
                     }
                 }
                 return _primaryImage;
@@ -212,7 +226,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
                 {
                     var altImageUrls = Images
                         .OrderBy(x => x.SortOrder)
-                        .Select(x => x.Url)
+                        .Select(x => _blobUrlResolver != null ? _blobUrlResolver.GetAbsoluteUrl(x.Url) : x.Url)
                         .Skip(1)
                         .ToArray();
 
