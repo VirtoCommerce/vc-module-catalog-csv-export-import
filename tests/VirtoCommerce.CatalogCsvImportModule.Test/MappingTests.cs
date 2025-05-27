@@ -234,7 +234,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
                 using (var csv = new CsvWriter(sw, writerConfig))
                 {
-                    csv.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(exportInfo.Configuration));
+                    csv.Context.RegisterClassMap(CsvProductMap<CsvProduct>.Create(exportInfo.Configuration));
 
                     csv.WriteHeader<CsvProduct>();
                     csv.Flush();
@@ -360,7 +360,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 };
                 using (var reader = new CsvReader(new StreamReader(fs), readerConfig))
                 {
-                    reader.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(importInfo.Configuration));
+                    reader.Context.RegisterClassMap(CsvProductMap<CsvProduct>.Create(importInfo.Configuration));
 
                     while (reader.Read())
                     {
@@ -402,7 +402,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
                 using (var csvWriter = new CsvWriter(streamWriter, writerConfig))
                 {
-                    csvWriter.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(exportInfo.Configuration));
+                    csvWriter.Context.RegisterClassMap(CsvProductMap<CsvProduct>.Create(exportInfo.Configuration));
 
                     csvWriter.WriteHeader<CsvProduct>();
                     csvWriter.NextRecord();
@@ -421,7 +421,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 };
                 using (var reader = new CsvReader(new StreamReader(stream, Encoding.UTF8), readerConfig))
                 {
-                    reader.Context.RegisterClassMap(new CsvProductMap<CsvProduct>(exportInfo.Configuration));
+                    reader.Context.RegisterClassMap(CsvProductMap<CsvProduct>.Create(exportInfo.Configuration));
                     reader.Read();
                     return reader.GetRecord<CsvProduct>();
                 }

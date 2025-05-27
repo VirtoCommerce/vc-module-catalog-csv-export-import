@@ -8,13 +8,22 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 {
     public class CsvProductMap<T> : ClassMap<T>
         where T : CsvProduct
     {
-        public CsvProductMap(CsvProductMappingConfiguration mappingCfg)
+        public static CsvProductMap<T> Create(CsvProductMappingConfiguration mappingCfg)
+        {
+            var map = AbstractTypeFactory<CsvProductMap<T>>.TryCreateInstance();
+            map.Initialize(mappingCfg);
+
+            return map;
+        }
+
+        public virtual void Initialize(CsvProductMappingConfiguration mappingCfg)
         {
             //Dynamical map scalar product fields use by manual mapping information
             var index = 0;

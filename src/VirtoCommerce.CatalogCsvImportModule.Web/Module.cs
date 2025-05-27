@@ -22,7 +22,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Web
             serviceCollection.AddTransient<ICsvCatalogImporter, CsvCatalogImporter>();
 
             serviceCollection.AddAutoMapper(typeof(DataAssemblyMarker).Assembly);
-            serviceCollection.AddSingleton<Func<CsvProductMappingConfiguration, ClassMap>>(configuration => new CsvProductMap<CsvProduct>(configuration));
+            serviceCollection.AddSingleton<Func<CsvProductMappingConfiguration, ClassMap>>(CsvProductMap<CsvProduct>.Create);
 
             serviceCollection.AddTransient<ICsvProductConverter, CsvProductConverter>();
         }

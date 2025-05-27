@@ -24,12 +24,10 @@ public class ExCsvProduct : CsvProduct
     {
         base.MergeFrom(product);
 
-        if (product is ExCatalogProduct catalogProductExtension)
+        if (product is ExCatalogProduct catalogProductExtension &&
+            string.IsNullOrEmpty(ExProperty))
         {
-            if (string.IsNullOrEmpty(ExProperty))
-            {
-                ExProperty = catalogProductExtension.ExProperty;
-            }
+            ExProperty = catalogProductExtension.ExProperty;
         }
     }
 }
