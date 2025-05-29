@@ -233,7 +233,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
                 using (var csv = new CsvWriter(sw, writerConfig))
                 {
-                    csv.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+                    csv.Context.RegisterClassMap(CsvProductMap.Create(exportInfo.Configuration));
 
                     csv.WriteHeader<CsvProduct>();
                     csv.Flush();
@@ -359,7 +359,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 };
                 using (var reader = new CsvReader(new StreamReader(fs), readerConfig))
                 {
-                    reader.Context.RegisterClassMap(new CsvProductMap(importInfo.Configuration));
+                    reader.Context.RegisterClassMap(CsvProductMap.Create(importInfo.Configuration));
 
                     while (reader.Read())
                     {
@@ -401,11 +401,11 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
                 using (var csvWriter = new CsvWriter(streamWriter, writerConfig))
                 {
-                    csvWriter.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+                    csvWriter.Context.RegisterClassMap(CsvProductMap.Create(exportInfo.Configuration));
 
                     csvWriter.WriteHeader<CsvProduct>();
                     csvWriter.NextRecord();
-                    var csvProduct = new CsvProduct(product, null, null, null, null);
+                    var csvProduct = CsvProduct.Create(product, null, null, null, null);
                     csvWriter.WriteRecord(csvProduct);
                     csvWriter.Flush();
                     stream.Position = 0;
@@ -419,7 +419,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 };
                 using (var reader = new CsvReader(new StreamReader(stream, Encoding.UTF8), readerConfig))
                 {
-                    reader.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+                    reader.Context.RegisterClassMap(CsvProductMap.Create(exportInfo.Configuration));
                     reader.Read();
                     return reader.GetRecord<CsvProduct>();
                 }

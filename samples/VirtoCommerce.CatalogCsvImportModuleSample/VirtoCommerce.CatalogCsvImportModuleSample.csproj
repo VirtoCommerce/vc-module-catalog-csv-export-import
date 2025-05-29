@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VirtoCommerce.CatalogCsvImportModule.Core\VirtoCommerce.CatalogCsvImportModule.Core.csproj" />
+    <ProjectReference Include="..\..\src\VirtoCommerce.CatalogCsvImportModule.Data\VirtoCommerce.CatalogCsvImportModule.Data.csproj" />
+  </ItemGroup>
+
+</Project>

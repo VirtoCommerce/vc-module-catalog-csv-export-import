@@ -12,10 +12,11 @@ using VirtoCommerce.PricingModule.Core.Model;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
 {
-    public sealed class CsvProduct : CatalogProduct
+    public class CsvProduct : CatalogProduct
     {
         private readonly string[] _csvCellDelimiter = { "--", "|" };
-        private readonly IBlobUrlResolver _blobUrlResolver;
+        private IBlobUrlResolver _blobUrlResolver;
+
         public CsvProduct()
         {
             SeoInfos = new List<SeoInfo>();
@@ -32,8 +33,15 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
             SeoInfos = new List<SeoInfo> { SeoInfo };
         }
 
-        public CsvProduct(CatalogProduct product, IBlobUrlResolver blobUrlResolver, Price price, InventoryInfo inventory, SeoInfo seoInfo)
-            : this()
+        public static CsvProduct Create(CatalogProduct product, Price price, InventoryInfo inventory, SeoInfo seoInfo, IBlobUrlResolver blobUrlResolver)
+        {
+            var csvProduct = AbstractTypeFactory<CsvProduct>.TryCreateInstance();
+            csvProduct.Initialize(product, price, inventory, seoInfo, blobUrlResolver);
+
+            return csvProduct;
+        }
+
+        public virtual void Initialize(CatalogProduct product, Price price, InventoryInfo inventory, SeoInfo seoInfo, IBlobUrlResolver blobUrlResolver)
         {
             _blobUrlResolver = blobUrlResolver;
 
@@ -60,6 +68,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
                 SeoInfo = seoInfo;
             }
         }
+
         public Price Price { get; set; }
         public InventoryInfo Inventory { get; set; }
         public EditorialReview EditorialReview { get; set; }
@@ -355,7 +364,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
         ///
         /// </summary>
         /// <param name="product"></param>
-        public void MergeFrom(CatalogProduct product)
+        public virtual void MergeFrom(CatalogProduct product)
         {
             Id = product.Id;
 
@@ -501,7 +510,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
             }
             SeoInfos = SeoInfos.Where(x => !x.SemanticUrl.IsNullOrEmpty()).Concat(product.SeoInfos).ToList();
         }
-
 
         public void CreateImagesFromFlatData()
         {

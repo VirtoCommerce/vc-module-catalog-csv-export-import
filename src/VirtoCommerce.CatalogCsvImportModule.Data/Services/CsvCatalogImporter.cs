@@ -9,6 +9,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using VirtoCommerce.CatalogCsvImportModule.Core;
+using VirtoCommerce.CatalogCsvImportModule.Core.Helpers;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -31,7 +32,7 @@ using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 {
-    public sealed class CsvCatalogImporter : ICsvCatalogImporter
+    public class CsvCatalogImporter : ICsvCatalogImporter
     {
         private readonly char[] _categoryDelimiters = { '/', '|', '\\', '>' };
         private readonly ICatalogService _catalogService;
@@ -48,12 +49,14 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
         private readonly IPropertyDictionaryItemSearchService _propDictItemSearchService;
         private readonly IPropertyDictionaryItemService _propDictItemService;
         private readonly IStoreSearchService _storeSearchService;
+        private readonly ICsvProductConverter _csvProductConverter;
         private readonly object _lockObject = new object();
 
         private readonly List<Store> _stores = new List<Store>();
         private bool? _createPropertyDictionatyValues;
 
-        public CsvCatalogImporter(ICatalogService catalogService,
+        public CsvCatalogImporter(
+            ICatalogService catalogService,
             ICategoryService categoryService,
             IItemService productService,
             ISkuGenerator skuGenerator,
@@ -66,8 +69,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             IPropertyDictionaryItemSearchService propDictItemSearchService,
             IPropertyDictionaryItemService propDictItemService,
             IStoreSearchService storeSearchService,
-            ICategorySearchService categorySearchService
-            )
+            ICategorySearchService categorySearchService,
+            ICsvProductConverter csvProductConverter)
         {
             _catalogService = catalogService;
             _categoryService = categoryService;
@@ -83,6 +86,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             _propDictItemSearchService = propDictItemSearchService;
             _propDictItemService = propDictItemService;
             _categorySearchService = categorySearchService;
+            _csvProductConverter = csvProductConverter;
         }
 
         public bool CreatePropertyDictionatyValues
@@ -119,13 +123,14 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             using (var reader = new CsvReader(new StreamReader(inputStream, encoding), readerConfig))
             {
-                reader.Context.RegisterClassMap(new CsvProductMap(importInfo.Configuration));
+                reader.Context.RegisterClassMap(CsvProductMap.Create(importInfo.Configuration));
+                var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
 
                 while (reader.Read())
                 {
                     try
                     {
-                        var csvProduct = reader.GetRecord<CsvProduct>();
+                        var csvProduct = (CsvProduct)reader.GetRecord(csvProductType);
 
                         ReplaceEmptyStringsWithNull(csvProduct);
 
@@ -506,7 +511,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                 try
                 {
-                    await _productService.SaveChangesAsync(products.ToArray());
+                    var catalogProducts = products.Select(x => _csvProductConverter.GetCatalogProduct(x)).ToArray();
+                    await _productService.SaveChangesAsync(catalogProducts);
 
                     await SaveProductInventories(products, defaultFulfilmentCenter);
 

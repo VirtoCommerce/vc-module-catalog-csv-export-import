@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -9,6 +10,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogCsvImportModule.Core.Extensions;
+using VirtoCommerce.CatalogCsvImportModule.Core.Helpers;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -25,7 +27,7 @@ using VirtoCommerce.PricingModule.Core.Services;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 {
-    public sealed class CsvCatalogExporter : ICsvCatalogExporter
+    public class CsvCatalogExporter : ICsvCatalogExporter
     {
         private readonly IProductSearchService _productSearchService;
         private readonly IItemService _productService;
@@ -81,9 +83,10 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
             var streamWriter = new StreamWriter(outStream, Encoding.UTF8, 1024, true) { AutoFlush = true };
             await using var csvWriter = new CsvWriter(streamWriter, writerConfig);
-            csvWriter.Context.RegisterClassMap(new CsvProductMap(exportInfo.Configuration));
+            csvWriter.Context.RegisterClassMap(CsvProductMap.Create(exportInfo.Configuration));
 
-            csvWriter.WriteHeader<CsvProduct>();
+            var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
+            csvWriter.WriteHeader(csvProductType);
             await csvWriter.NextRecordAsync();
 
             await ProcessProductsByPage(exportInfo, progressInfo, progressCallback,
@@ -155,8 +158,11 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                     foreach (var seoInfo in seoInfos)
                     {
-                        var csvProduct = new CsvProduct(product, _blobUrlResolver, price, inventory, seoInfo);
-                        await csvWriter.WriteRecordsAsync([csvProduct]);
+                        var csvProduct = CsvProduct.Create(product, price, inventory, seoInfo, _blobUrlResolver);
+
+                        // IEnumerable must be used for records to prevent stack overflow in CsvHelper 
+                        IEnumerable records = new[] { csvProduct };
+                        await csvWriter.WriteRecordsAsync(records);
                     }
                 }
                 catch (Exception ex)

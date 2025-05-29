@@ -6,24 +6,35 @@ using System.Linq;
 using System.Linq.Expressions;
 using CsvHelper;
 using CsvHelper.Configuration;
+using VirtoCommerce.CatalogCsvImportModule.Core.Helpers;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 {
-    public sealed class CsvProductMap : ClassMap<CsvProduct>
+    public class CsvProductMap : ClassMap<CsvProduct>
     {
-        public CsvProductMap(CsvProductMappingConfiguration mappingCfg)
+        public static CsvProductMap Create(CsvProductMappingConfiguration mappingCfg)
+        {
+            var map = AbstractTypeFactory<CsvProductMap>.TryCreateInstance();
+            map.Initialize(mappingCfg);
+
+            return map;
+        }
+
+        public virtual void Initialize(CsvProductMappingConfiguration mappingCfg)
         {
             //Dynamical map scalar product fields use by manual mapping information
             var index = 0;
+            var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
 
             foreach (var mappingItem in mappingCfg.PropertyMaps.Where(x => !string.IsNullOrEmpty(x.CsvColumnName) || !string.IsNullOrEmpty(x.CustomValue)))
             {
-                var propertyInfo = typeof(CsvProduct).GetProperty(mappingItem.EntityColumnName);
+                var propertyInfo = csvProductType.GetProperty(mappingItem.EntityColumnName);
                 if (propertyInfo != null)
                 {
-                    var newMap = MemberMap.CreateGeneric(typeof(CsvProduct), propertyInfo);
+                    var newMap = MemberMap.CreateGeneric(csvProductType, propertyInfo);
 
                     newMap.Data.TypeConverterOptions.CultureInfo = CultureInfo.InvariantCulture;
                     newMap.Data.TypeConverterOptions.NumberStyles = NumberStyles.Any;
@@ -56,8 +67,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                     // create CsvPropertyMap manually, because this.Map(x =>...) does not allow
                     // to export multiple entries for the same property
 
-                    var propertyValuesInfo = typeof(CsvProduct).GetProperty(nameof(CsvProduct.Properties));
-                    var csvPropertyMap = MemberMap.CreateGeneric(typeof(CsvProduct), propertyValuesInfo);
+                    var propertyValuesInfo = csvProductType.GetProperty(nameof(CsvProduct.Properties));
+                    var csvPropertyMap = MemberMap.CreateGeneric(csvProductType, propertyValuesInfo);
                     csvPropertyMap.Name(propertyCsvColumn);
 
                     csvPropertyMap.Data.Index = ++index;
@@ -77,7 +88,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                                          .Distinct()
                                          .ToArray();
                                  }
-                                 else if(property.Multilanguage)
+                                 else if (property.Multilanguage)
                                  {
                                      propertyValues = property.Values.Select(v => string.Join(null, v.LanguageCode, CsvReaderExtension.InnerDelimiter, v.Value)).ToArray();
                                  }
@@ -92,12 +103,12 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                              return string.Join(mappingCfg.Delimiter, propertyValues);
                          });
-                    
+
                     MemberMaps.Add(csvPropertyMap);
                 }
 
-                var newPropInfo = typeof(CsvProduct).GetProperty(nameof(CsvProduct.Properties));
-                var newPropMap = MemberMap.CreateGeneric(typeof(CsvProduct), newPropInfo);
+                var newPropInfo = csvProductType.GetProperty(nameof(CsvProduct.Properties));
+                var newPropMap = MemberMap.CreateGeneric(csvProductType, newPropInfo);
                 newPropMap.Data.ReadingConvertExpression =
                     (Expression<Func<ConvertFromStringArgs, object>>)(x => mappingCfg.PropertyCsvColumns.Select(column =>
                         (Property)new CsvProperty
