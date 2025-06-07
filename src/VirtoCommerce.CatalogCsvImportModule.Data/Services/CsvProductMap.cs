@@ -90,7 +90,10 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                                  }
                                  else if (property.Multilanguage)
                                  {
-                                     propertyValues = property.Values.Select(v => string.Join(null, v.LanguageCode, CsvReaderExtension.InnerDelimiter, v.Value)).ToArray();
+                                     propertyValues = property
+                                         .Values
+                                         .Select(value => $"{value.LanguageCode}{CsvReaderExtension.InnerDelimiter}{value.Value}")
+                                         .ToArray();
                                  }
                                  else
                                  {
@@ -101,7 +104,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                                  }
                              }
 
-                             return string.Join(mappingCfg.Delimiter, propertyValues);
+                             return string.Join(CsvReaderExtension.Delimiter, propertyValues);
                          });
 
                     MemberMaps.Add(csvPropertyMap);
