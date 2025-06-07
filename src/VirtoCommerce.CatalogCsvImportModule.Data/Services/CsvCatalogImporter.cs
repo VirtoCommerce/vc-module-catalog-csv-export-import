@@ -760,8 +760,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                             propertyValue.PropertyId = inheritedProperty.Id;
                         }
 
-                        //Try to split the one value to multiple values for Multivalue properties
-                        if (inheritedProperty.Multivalue)
+                        //Try to split the one value to multiple values for Multivalue/Multilanguage properties
+                        if (inheritedProperty.Multivalue || inheritedProperty.Multilanguage)
                         {
                             var parsedValues = new List<PropertyValue>();
 
