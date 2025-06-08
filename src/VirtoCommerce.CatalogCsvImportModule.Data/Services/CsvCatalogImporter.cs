@@ -410,7 +410,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                     // For existing propertyValue Alias should be already filled, we shouldn't rewrite it.
                     propertyValue.Alias = string.IsNullOrEmpty(propertyValue.Alias) ? propertyValue.Value.ToString() : propertyValue.Alias;
 
-                    var existentDictItem = allDictItems.FirstOrDefault(x => x.PropertyId == propertyValue.PropertyId && x.Alias.EqualsInvariant(propertyValue.Alias));
+                    var existentDictItem = allDictItems.FirstOrDefault(x => x.PropertyId == propertyValue.PropertyId && x.Alias.EqualsIgnoreCase(propertyValue.Alias));
 
                     if (existentDictItem == null)
                     {
@@ -671,7 +671,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             var result = new List<Price>();
             foreach (var price in pricesWithPriceListIds)
             {
-                var existPrice = existentPrices.FirstOrDefault(x => x.ProductId.EqualsInvariant(price.ProductId) && x.PricelistId.EqualsInvariant(price.PricelistId));
+                var existPrice = existentPrices.FirstOrDefault(x => x.ProductId.EqualsIgnoreCase(price.ProductId) && x.PricelistId.EqualsIgnoreCase(price.PricelistId));
 
                 if (existPrice != null)
                 {
@@ -701,8 +701,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             var existPrices = (await _priceSearchService.SearchAsync(criteria)).Results;
             foreach (var price in restPrices)
             {
-                var existPrice = existPrices.FirstOrDefault(x => x.Currency.EqualsInvariant(price.Currency)
-                    && x.ProductId.EqualsInvariant(price.ProductId));
+                var existPrice = existPrices.FirstOrDefault(x => x.Currency.EqualsIgnoreCase(price.Currency)
+                    && x.ProductId.EqualsIgnoreCase(price.ProductId));
 
                 if (existPrice != null)
                 {
@@ -732,7 +732,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
 
                 //Try to set parent relations
                 //By id or code reference
-                var parentProduct = csvProducts.FirstOrDefault(x => !string.IsNullOrEmpty(csvProduct.MainProductId) && (x.Id.EqualsInvariant(csvProduct.MainProductId) || x.Code.EqualsInvariant(csvProduct.MainProductId)));
+                var parentProduct = csvProducts.FirstOrDefault(x => !string.IsNullOrEmpty(csvProduct.MainProductId) && (x.Id.EqualsIgnoreCase(csvProduct.MainProductId) || x.Code.EqualsIgnoreCase(csvProduct.MainProductId)));
                 csvProduct.MainProduct = parentProduct;
                 csvProduct.MainProductId = parentProduct != null ? parentProduct.Id : null;
 
@@ -746,7 +746,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                 foreach (var property in csvProduct.Properties.ToArray())
                 {
                     //Try to find property for product
-                    var inheritedProperty = inheritedProperties.FirstOrDefault(x => x.Name.EqualsInvariant(property.Name));
+                    var inheritedProperty = inheritedProperties.FirstOrDefault(x => x.Name.EqualsIgnoreCase(property.Name));
                     if (inheritedProperty != null)
                     {
                         property.ValueType = inheritedProperty.ValueType;
@@ -839,7 +839,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
             }
             foreach (var csvProduct in csvProducts)
             {
-                var existProduct = csvProduct.IsTransient() ? alreadyExistProducts.FirstOrDefault(x => x.Code.EqualsInvariant(csvProduct.Code)) : alreadyExistProducts.FirstOrDefault(x => x.Id == csvProduct.Id);
+                var existProduct = csvProduct.IsTransient() ? alreadyExistProducts.FirstOrDefault(x => x.Code.EqualsIgnoreCase(csvProduct.Code)) : alreadyExistProducts.FirstOrDefault(x => x.Id == csvProduct.Id);
                 if (existProduct != null)
                 {
                     csvProduct.MergeFrom(existProduct);

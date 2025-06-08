@@ -30,7 +30,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
 
         public virtual IList<string> GetOptionalFields()
         {
-            var optionalFields = ReflectionUtility.GetPropertyNames<CsvProduct>(x => x.Name, x => x.Id, x => x.Sku, x => x.CategoryPath, x => x.CategoryId, x => x.MainProductId,
+            var optionalFields = ReflectionUtility.GetPropertyNames<CsvProduct>(x => x.LocalizedNameString, x => x.Id, x => x.Sku, x => x.CategoryPath, x => x.CategoryId, x => x.MainProductId,
                                                                                 x => x.PrimaryImage, x => x.PrimaryImageGroup, x => x.AltImage, x => x.AltImageGroup,
                                                                                 x => x.SeoUrl, x => x.SeoTitle, x => x.SeoDescription, x => x.SeoLanguage, x => x.SeoStore, x => x.SeoMetaKeywords, x => x.SeoImageAlternativeText,
                                                                                 x => x.Review, x => x.ReviewType, x => x.IsActive, x => x.IsBuyable, x => x.TrackInventory,

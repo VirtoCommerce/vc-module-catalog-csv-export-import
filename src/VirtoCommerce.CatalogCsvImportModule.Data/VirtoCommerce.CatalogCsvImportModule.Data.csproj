@@ -19,8 +19,8 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="VirtoCommerce.CatalogModule.Data" Version="3.822.0" />
-    <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.809.0" />
+    <PackageReference Include="VirtoCommerce.CatalogModule.Data" Version="3.867.0" />
+    <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.817.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.CatalogCsvImportModule.Core\VirtoCommerce.CatalogCsvImportModule.Core.csproj" />
