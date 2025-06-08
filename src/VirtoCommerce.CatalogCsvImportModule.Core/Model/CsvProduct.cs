@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Omu.ValueInjecter;
 using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -15,6 +16,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
     public class CsvProduct : CatalogProduct
     {
         private readonly string[] _csvCellDelimiter = { "--", "|" };
+        private readonly string _localizedNameDelimiter = ";";
+        private readonly string _cultureValueDelimiter = "__";
         private IBlobUrlResolver _blobUrlResolver;
 
         public CsvProduct()
@@ -544,6 +547,60 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
             });
 
             this.Images.AddRange(images);
+        }
+
+        public string LocalizedNameString
+        {
+            get
+            {
+                if (LocalizedName == null || LocalizedName.Values.Count == 0)
+                {
+                    return Name;
+                }
+
+                var result = new StringBuilder(Name ?? string.Empty);
+
+                foreach (var localizedName in LocalizedName.Values)
+                {
+                    if (!string.IsNullOrEmpty(localizedName.Key) && !string.IsNullOrEmpty(localizedName.Value))
+                    {
+                        result.Append(_localizedNameDelimiter);
+                        result.Append(localizedName.Key);
+                        result.Append(_cultureValueDelimiter);
+                        result.Append(localizedName.Value);
+                    }
+                }
+
+                return result.ToString();
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    return;
+                }
+
+                var parts = value.Split(new[] { _localizedNameDelimiter }, StringSplitOptions.None);
+
+                if (parts.Length > 0)
+                {
+                    Name = parts[0];
+
+                    if (parts.Length > 1)
+                    {
+                        LocalizedName = LocalizedName ?? new LocalizedString();
+
+                        for (int i = 1; i < parts.Length; i++)
+                        {
+                            var cultureParts = parts[i].Split(new[] { _cultureValueDelimiter }, StringSplitOptions.None);
+                            if (cultureParts.Length == 2)
+                            {
+                                LocalizedName.SetValue(cultureParts[0], cultureParts[1]);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

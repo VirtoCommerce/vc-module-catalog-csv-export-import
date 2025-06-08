@@ -1,3 +1,3 @@
-HasUserAgreement,IsBuyable,TrackInventory,Sku,Name
+HasUserAgreement,IsBuyable,TrackInventory,Sku,LocalizedNameString
 false,no,false,CBLK21111,cblk21113-product-1
 yes,true,yes,CBLK21112,cblk21113-product-2
