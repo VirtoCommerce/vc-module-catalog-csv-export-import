@@ -82,6 +82,56 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
             Assert.Equal(expectedFileName, result);
         }
 
+        [Theory]
+        [InlineData(",")]
+        [InlineData(";")]
+        public async Task DoImport_NewProductMultilanguageProperty_ValuesCreated(string delimiter)
+        {
+            //Arrange
+            var product = GetCsvProductBase();
+            product.Properties = new List<Property>
+            {
+                new CsvProperty
+                {
+                    Name = "CatalogProductProperty_Multilanguage",
+                    Multilanguage = true,
+                    Values = new List<PropertyValue>
+                    {
+                        new()
+                        {
+                            PropertyName = "CatalogProductProperty_Multilanguage",
+                            LanguageCode = "en-US",
+                            Value = "value-en",
+                            ValueType = PropertyValueType.ShortText,
+                        },
+                        new()
+                        {
+                            PropertyName = "CatalogProductProperty_Multilanguage",
+                            LanguageCode = "de-DE",
+                            Value = "value-de",
+                            ValueType = PropertyValueType.ShortText,
+                        },
+                    }
+                },
+            };
+
+            var target = GetImporter();
+
+            var progressInfo = new ExportImportProgressInfo();
+
+            //Act
+            await target.DoImport([product], GetCsvImportInfo(delimiter), progressInfo, _ => { });
+
+            //Assert
+            Action<PropertyValue>[] inspectors =
+            [
+                x => Assert.True(x.PropertyName == "CatalogProductProperty_Multilanguage" && x.LanguageCode == "en-US" && (string)x.Value == "value-en"),
+                x => Assert.True(x.PropertyName == "CatalogProductProperty_Multilanguage" && x.LanguageCode == "de-DE" && (string)x.Value == "value-de"),
+            ];
+            Assert.Collection(product.Properties.SelectMany(x => x.Values), inspectors);
+            Assert.Empty(progressInfo.Errors);
+        }
+
         [Fact]
         public async Task DoImport_NewProductMultivalueDictionaryProperties_PropertyValuesCreated()
         {
@@ -1770,6 +1820,16 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
                 ValueType = PropertyValueType.ShortText
             };
 
+            var catalogProductProperty9 = new Property
+            {
+                Name = "CatalogProductProperty_Multilanguage",
+                Id = "CatalogProductProperty_Multilanguage",
+                CatalogId = catalog.Id,
+                Multilanguage = true,
+                Type = PropertyType.Product,
+                ValueType = PropertyValueType.ShortText,
+            };
+
             catalog.Properties.Add(catalogProductProperty);
             catalog.Properties.Add(catalogProductProperty2);
 
@@ -1781,6 +1841,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
 
             catalog.Properties.Add(catalogProductProperty7);
             catalog.Properties.Add(catalogProductProperty8);
+
+            catalog.Properties.Add(catalogProductProperty9);
 
             return catalog;
         }
@@ -1863,12 +1925,15 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests
             return category;
         }
 
-        private CsvImportInfo GetCsvImportInfo()
+        private CsvImportInfo GetCsvImportInfo(string delimiter = ";")
         {
+            var configuration = CsvProductMappingConfiguration.GetDefaultConfiguration();
+            configuration.Delimiter = delimiter;
+
             return new CsvImportInfo
             {
                 CatalogId = _catalog.Id,
-                Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration(),
+                Configuration = configuration,
             };
         }
     }
