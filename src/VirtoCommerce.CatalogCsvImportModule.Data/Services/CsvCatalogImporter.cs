@@ -776,7 +776,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                         else if (property.Values.Count > 1)
                         {
                             var propertyValue = property.Values.First();
-                            propertyValue.Value = string.Join(CsvReaderExtension.Delimiter, property.Values.Select(x => x.Value));
+                            propertyValue.Value = property.Values.Join();
                             property.Values = new List<PropertyValue> { propertyValue };
                         }
                     }
