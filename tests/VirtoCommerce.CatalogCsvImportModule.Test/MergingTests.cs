@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model;
-using VirtoCommerce.CoreModule.Core.Seo;
+using VirtoCommerce.Seo.Core.Models;
 using Xunit;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Tests

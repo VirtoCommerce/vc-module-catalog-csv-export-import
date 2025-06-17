@@ -5,10 +5,10 @@ using System.Linq;
 using Omu.ValueInjecter;
 using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogModule.Core.Model;
-using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.InventoryModule.Core.Model;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.PricingModule.Core.Model;
+using VirtoCommerce.Seo.Core.Models;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
 {
