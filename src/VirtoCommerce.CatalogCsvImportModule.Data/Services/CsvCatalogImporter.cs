@@ -760,8 +760,8 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                             propertyValue.PropertyId = inheritedProperty.Id;
                         }
 
-                        //Try to split the one value to multiple values for Multivalue properties
-                        if (inheritedProperty.Multivalue)
+                        //Try to split the one value to multiple values for Multivalue/Multilanguage properties
+                        if (inheritedProperty.Multivalue || inheritedProperty.Multilanguage)
                         {
                             var parsedValues = new List<PropertyValue>();
 
@@ -776,7 +776,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
                         else if (property.Values.Count > 1)
                         {
                             var propertyValue = property.Values.First();
-                            propertyValue.Value = string.Join(CsvReaderExtension.Delimiter, property.Values.Select(x => x.Value));
+                            propertyValue.Value = property.Values.Join();
                             property.Values = new List<PropertyValue> { propertyValue };
                         }
                     }
