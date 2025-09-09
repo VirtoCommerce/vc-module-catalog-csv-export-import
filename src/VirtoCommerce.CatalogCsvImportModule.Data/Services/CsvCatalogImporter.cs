@@ -27,7 +27,6 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.PricingModule.Core.Model;
 using VirtoCommerce.PricingModule.Core.Model.Search;
 using VirtoCommerce.PricingModule.Core.Services;
-using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
@@ -45,7 +44,7 @@ public class CsvCatalogImporter(
     ISettingsManager settingsManager,
     IPropertyDictionaryItemSearchService propDictItemSearchService,
     IPropertyDictionaryItemService propDictItemService,
-    IStoreSearchService storeSearchService,
+    IStoreService storeService,
     ICategorySearchService categorySearchService,
     ICsvProductConverter csvProductConverter)
     : ICsvCatalogImporter
@@ -389,18 +388,25 @@ public class CsvCatalogImporter(
 
     private async Task<IList<PropertyDictionaryItem>> GetExistingDictionaryItems(List<CsvProduct> csvProducts)
     {
-        var dictionaryPropertyIds = csvProducts
+        var dictionaryItems = new List<PropertyDictionaryItem>();
+
+        var propertyIds = csvProducts
             .SelectMany(x => x.Properties)
             .Where(x => x.Dictionary)
             .Select(x => x.Id)
-            .Distinct()
-            .ToArray();
+            .Distinct();
 
-        var searchCriteria = AbstractTypeFactory<PropertyDictionaryItemSearchCriteria>.TryCreateInstance();
-        searchCriteria.PropertyIds = dictionaryPropertyIds;
-        searchCriteria.Take = _searchAllBatchSize;
+        foreach (var propertyIdsBatch in propertyIds.Paginate(_searchAllBatchSize))
+        {
+            var searchCriteria = AbstractTypeFactory<PropertyDictionaryItemSearchCriteria>.TryCreateInstance();
+            searchCriteria.PropertyIds = propertyIdsBatch;
+            searchCriteria.Take = _searchAllBatchSize;
 
-        var dictionaryItems = await propDictItemSearchService.SearchAllNoCloneAsync(searchCriteria);
+            await foreach (var searchResult in propDictItemSearchService.SearchBatchesNoCloneAsync(searchCriteria))
+            {
+                dictionaryItems.AddRange(searchResult.Results);
+            }
+        }
 
         return dictionaryItems;
     }
@@ -629,25 +635,22 @@ public class CsvCatalogImporter(
 
     private async Task<IList<Price>> GetMergedPricesByPricelistId(IList<CsvPrice> pricesWithPricelistId)
     {
+        var result = new List<Price>();
+
         if (pricesWithPricelistId.Count == 0)
         {
-            return new List<Price>();
+            return result;
         }
 
         var existingPrices = new List<Price>();
 
         foreach (var group in pricesWithPricelistId.GroupBy(x => x.PricelistId))
         {
-            var searchCriteria = AbstractTypeFactory<PricesSearchCriteria>.TryCreateInstance();
-            searchCriteria.PriceListId = group.Key;
-            searchCriteria.ProductIds = group.Select(x => x.ProductId).ToArray();
-            searchCriteria.Take = _searchAllBatchSize;
-
-            var prices = await priceSearchService.SearchAllNoCloneAsync(searchCriteria);
+            var pricelistId = group.Key;
+            var productIds = group.Select(x => x.ProductId).Distinct().ToArray();
+            var prices = await GetExistingPrices(productIds, pricelistId);
             existingPrices.AddRange(prices);
         }
-
-        var result = new List<Price>();
 
         foreach (var price in pricesWithPricelistId)
         {
@@ -665,22 +668,21 @@ public class CsvCatalogImporter(
 
     private async Task<IList<Price>> GetMergedPriceDefault(IList<CsvPrice> restPrices)
     {
+        var result = new List<Price>();
+
         if (restPrices.Count == 0)
         {
-            return new List<Price>();
+            return result;
         }
 
-        var searchCriteria = AbstractTypeFactory<PricesSearchCriteria>.TryCreateInstance();
-        searchCriteria.ProductIds = restPrices.Select(x => x.ProductId).ToArray();
-        searchCriteria.Take = _searchAllBatchSize;
-
-        var result = new List<Price>();
-        var existingPrices = await priceSearchService.SearchAllNoCloneAsync(searchCriteria);
+        var productIds = restPrices.Select(x => x.ProductId).Distinct().ToArray();
+        var existingPrices = await GetExistingPrices(productIds);
 
         foreach (var price in restPrices)
         {
-            var existingPrice = existingPrices.FirstOrDefault(x => x.Currency.EqualsIgnoreCase(price.Currency)
-                                                                   && x.ProductId.EqualsIgnoreCase(price.ProductId));
+            var existingPrice = existingPrices.FirstOrDefault(x =>
+                x.Currency.EqualsIgnoreCase(price.Currency) &&
+                x.ProductId.EqualsIgnoreCase(price.ProductId));
 
             if (existingPrice != null)
             {
@@ -693,6 +695,25 @@ public class CsvCatalogImporter(
         return result;
     }
 
+    private async Task<IList<Price>> GetExistingPrices(IList<string> productIds, string pricelistId = null)
+    {
+        var result = new List<Price>();
+
+        foreach (var productIdsBatch in productIds.Paginate(_searchAllBatchSize))
+        {
+            var searchCriteria = AbstractTypeFactory<PricesSearchCriteria>.TryCreateInstance();
+            searchCriteria.PriceListId = pricelistId;
+            searchCriteria.ProductIds = productIdsBatch;
+            searchCriteria.Take = _searchAllBatchSize;
+
+            await foreach (var searchResult in priceSearchService.SearchBatchesNoCloneAsync(searchCriteria))
+            {
+                result.AddRange(searchResult.Results);
+            }
+        }
+
+        return result;
+    }
 
     private async Task LoadProductDependencies(List<CsvProduct> csvProducts, Catalog catalog, CsvImportInfo importInfo)
     {
@@ -869,16 +890,11 @@ public class CsvCatalogImporter(
 
         var productsWithSeoStore = csvProducts
             .Where(x => !x.SeoStore.IsNullOrEmpty())
-            .ToArray();
+            .ToList();
 
-        var searchCriteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
-        searchCriteria.ObjectIds = productsWithSeoStore.Select(x => x.SeoStore).Distinct().ToArray();
-        searchCriteria.Take = _searchAllBatchSize;
+        var existingStoreIds = await GetExistingStoreIds(productsWithSeoStore);
 
-        var stores = await storeSearchService.SearchAllNoCloneAsync(searchCriteria);
-        var storeIds = stores.Select(x => x.Id).ToArray();
-
-        foreach (var product in productsWithSeoStore.Where(x => !storeIds.ContainsIgnoreCase(x.SeoStore)))
+        foreach (var product in productsWithSeoStore.Where(x => !existingStoreIds.ContainsIgnoreCase(x.SeoStore)))
         {
             progressInfo.Errors.Add($"Cannot find store with Id '{product.SeoStore}'. Line number: {product.LineNumber}");
             valid = false;
@@ -887,6 +903,23 @@ public class CsvCatalogImporter(
         progressCallback(progressInfo);
 
         return valid;
+    }
+
+    private async Task<IList<string>> GetExistingStoreIds(List<CsvProduct> csvProducts)
+    {
+        var existingStoreIds = new List<string>();
+
+        var storeIds = csvProducts
+            .Select(x => x.SeoStore)
+            .Distinct();
+
+        foreach (var storeIdsBatch in storeIds.Paginate(_searchAllBatchSize))
+        {
+            var stores = await storeService.GetNoCloneAsync(storeIdsBatch);
+            existingStoreIds.AddRange(stores.Select(x => x.Id));
+        }
+
+        return existingStoreIds;
     }
 
     #endregion

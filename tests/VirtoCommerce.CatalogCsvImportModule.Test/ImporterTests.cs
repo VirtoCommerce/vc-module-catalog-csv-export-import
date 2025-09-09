@@ -26,7 +26,6 @@ using VirtoCommerce.PricingModule.Core.Model;
 using VirtoCommerce.PricingModule.Core.Model.Search;
 using VirtoCommerce.PricingModule.Core.Services;
 using VirtoCommerce.Seo.Core.Models;
-using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
 using Xunit;
 
@@ -1478,12 +1477,12 @@ public class ImporterTests
     private CsvCatalogImporter GetImporter(IPropertyDictionaryItemService propDictItemService = null, IPropertyDictionaryItemSearchService propDictItemSearchService = null, bool? createDictionaryValues = false)
     {
 
-        #region StoreServise
+        #region StoreService
 
-        var storeSearchService = new Mock<IStoreSearchService>();
-        storeSearchService
-            .Setup(x => x.SearchAsync(It.IsAny<StoreSearchCriteria>(), It.IsAny<bool>()))
-            .ReturnsAsync(new StoreSearchResult());
+        var storeService = new Mock<IStoreService>();
+        storeService
+            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync([]);
 
         #endregion
 
@@ -1729,7 +1728,7 @@ public class ImporterTests
             settingsManager.Object,
             propDictItemSearchService,
             propDictItemService,
-            storeSearchService.Object,
+            storeService.Object,
             categorySearchService.Object,
             csvProductConverter
         )
