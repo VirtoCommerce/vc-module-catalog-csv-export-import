@@ -374,7 +374,7 @@ public class ImporterTests
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
         //Assert
-        Assert.True(product.Name == existingProduct.Name);
+        Assert.Equal(existingProduct.Name, product.Name);
     }
 
 
@@ -636,8 +636,8 @@ public class ImporterTests
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
         //Assert
-        Assert.True(product.SeoInfos.Count == 1);
-        Assert.True(product.SeoInfos.First().Id == existingProduct.SeoInfos.First().Id);
+        product.SeoInfos.Should().HaveCount(1);
+        Assert.Equal(existingProduct.SeoInfos.First().Id, product.SeoInfos.First().Id);
     }
 
     [Fact]
@@ -667,8 +667,8 @@ public class ImporterTests
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
         //Assert
-        Assert.True(product.Reviews.Count == 1);
-        Assert.True(product.Reviews.First().Id == existingProduct.Reviews.First().Id);
+        product.Reviews.Should().HaveCount(1);
+        Assert.Equal(existingProduct.Reviews.First().Id, product.Reviews.First().Id);
     }
 
     [Fact]
@@ -1431,8 +1431,8 @@ public class ImporterTests
         Action<CatalogProduct>[] inspectors =
         [
             x => Assert.True(x.Code == "TST1" && x.Id == "1"),
-            x => Assert.True(x.Code != "TST1"),
-            x => Assert.True(x.Code != "TST1"),
+            x => Assert.NotEqual("TST1", x.Code),
+            x => Assert.NotEqual("TST1", x.Code),
         ];
         Assert.Collection(_savedProducts, inspectors);
     }
@@ -1470,7 +1470,7 @@ public class ImporterTests
         await target.DoImport([mainProduct, variationProduct], GetCsvImportInfo(), exportInfo, _ => { });
 
         //Assert
-        Assert.True(variationProduct.MainProductId == mainProduct.Id);
+        Assert.Equal(mainProduct.Id, variationProduct.MainProductId);
     }
 
 

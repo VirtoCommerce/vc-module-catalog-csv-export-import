@@ -112,7 +112,7 @@ public class MappingTests
         var path = GetDataFilePath("product-productproperties-seoInfo.csv");
         var csvProducts = ReadCsvFile(path, importInfo);
 
-        Assert.NotEmpty(csvProducts);
+        csvProducts.Should().HaveCount(2);
 
         var product = csvProducts.First(x => x.Code == "cblk21113-product-1");
 
@@ -127,8 +127,6 @@ public class MappingTests
         Assert.Equal("Seo_Meta", product.SeoInfo.MetaKeywords);
         Assert.Equal("Seo_Alt_text", product.SeoImageAlternativeText);
         Assert.Equal("Seo_Alt_text", product.SeoInfo.ImageAltDescription);
-
-        Assert.True(csvProducts.Count == 2);
     }
 
     [Fact]
