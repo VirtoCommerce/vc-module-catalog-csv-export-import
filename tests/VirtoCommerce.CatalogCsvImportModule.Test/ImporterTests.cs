@@ -139,7 +139,7 @@ public class ImporterTests
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1_MultivalueDictionary",
                 Dictionary = true,
@@ -149,7 +149,7 @@ public class ImporterTests
                     new() { PropertyName = "CatalogProductProperty_1_MultivalueDictionary", Value = "1, 3", ValueType = PropertyValueType.ShortText },
                 },
             },
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_2_MultivalueDictionary",
                 Dictionary = true,
@@ -187,7 +187,7 @@ public class ImporterTests
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1_MultivalueDictionary",
                 Dictionary = true,
@@ -216,7 +216,7 @@ public class ImporterTests
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1_MultivalueDictionary",
                 Dictionary = true,
@@ -294,7 +294,7 @@ public class ImporterTests
 
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_2_MultivalueDictionary",
                 Values = new List<PropertyValue>
@@ -302,7 +302,7 @@ public class ImporterTests
                     new() { PropertyName = "CatalogProductProperty_2_MultivalueDictionary", Value = "2,3", ValueType = PropertyValueType.ShortText },
                 },
             },
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "TestCategory_ProductProperty_MultivalueDictionary",
                 Values = new List<PropertyValue>
@@ -429,7 +429,7 @@ public class ImporterTests
 
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_2_Multivalue",
                 Values = new List<PropertyValue>
@@ -437,7 +437,7 @@ public class ImporterTests
                     new() { PropertyName = "CatalogProductProperty_2_Multivalue", Value = "TestValue1, TestValue2", ValueType = PropertyValueType.ShortText },
                 },
             },
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "TestCategory_ProductProperty_Multivalue",
                 Values = new List<PropertyValue>
@@ -472,7 +472,7 @@ public class ImporterTests
 
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1_Dictionary",
                 Values = new List<PropertyValue>
@@ -480,7 +480,7 @@ public class ImporterTests
                     new() { PropertyName = "CatalogProductProperty_1_Dictionary", Value = "1", ValueType = PropertyValueType.ShortText },
                 },
             },
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_2_Dictionary",
                 Values = new List<PropertyValue>
@@ -512,7 +512,7 @@ public class ImporterTests
 
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1_Dictionary",
                 Dictionary = true,
@@ -543,7 +543,7 @@ public class ImporterTests
 
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1_Dictionary",
                 Dictionary = true,
@@ -579,7 +579,7 @@ public class ImporterTests
 
         product.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_1",
                 Values =
@@ -587,7 +587,7 @@ public class ImporterTests
                     new PropertyValue{ PropertyName = "CatalogProductProperty_1", Value = "1", ValueType = PropertyValueType.ShortText },
                 ],
             },
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_2",
                 Values =
@@ -922,7 +922,7 @@ public class ImporterTests
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
-        existingProduct.SeoInfos = new List<SeoInfo>() { new() { Id = "1", LanguageCode = "en-US", SemanticUrl = "SemanticsUrl3" } };
+        existingProduct.SeoInfos = new List<SeoInfo> { new() { Id = "1", LanguageCode = "en-US", SemanticUrl = "SemanticsUrl3" } };
 
         var existingCategory = CreateCategory(existingProduct);
         _categoriesInternal.Add(existingCategory);
@@ -999,7 +999,7 @@ public class ImporterTests
 
         firstProduct.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "CatalogProductProperty_2_MultivalueDictionary",
                 Values = new List<PropertyValue>
@@ -1007,7 +1007,7 @@ public class ImporterTests
                     new() { PropertyName = "CatalogProductProperty_2_MultivalueDictionary", Value = "3", ValueType = PropertyValueType.ShortText },
                 },
             },
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "TestCategory_ProductProperty_MultivalueDictionary",
                 Values = new List<PropertyValue>
@@ -1019,7 +1019,7 @@ public class ImporterTests
 
         secondProduct.Properties = new List<Property>
         {
-            new CsvProperty()
+            new CsvProperty
             {
                 Name = "TestCategory_ProductProperty_MultivalueDictionary",
                 Values = new List<PropertyValue>
@@ -1065,7 +1065,7 @@ public class ImporterTests
         _productsInternal = [existingProduct];
 
         var firstProduct = GetCsvProductBase();
-        firstProduct.Prices = new List<Price> { new CsvPrice()
+        firstProduct.Prices = new List<Price> { new CsvPrice
         {
             List = listPrice,
             Sale = listPrice,
@@ -1112,7 +1112,7 @@ public class ImporterTests
         _productsInternal = [existingProduct];
 
         var firstProduct = GetCsvProductBase();
-        firstProduct.Prices = new List<Price> {new CsvPrice()
+        firstProduct.Prices = new List<Price> {new CsvPrice
         {
             List = listPrice,
             Sale = listPrice,
@@ -1168,7 +1168,7 @@ public class ImporterTests
         _productsInternal = [existingProduct];
 
         var firstProduct = GetCsvProductBase();
-        firstProduct.Prices = new List<Price> {new CsvPrice()
+        firstProduct.Prices = new List<Price> {new CsvPrice
         {
             List = listPrice,
             Sale = listPrice,
@@ -1453,7 +1453,7 @@ public class ImporterTests
         await target.DoImport([mainProduct, variationProduct], GetCsvImportInfo(), exportInfo, _ => { });
 
         //Assert
-        Assert.True(variationProduct.MainProductId == mainProduct.Id);
+        Assert.Equal(mainProduct.Id, variationProduct.MainProductId);
     }
 
     [Fact]

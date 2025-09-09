@@ -1,7 +1,8 @@
 angular.module('virtoCommerce.catalogCsvImportModule')
     .controller('virtoCommerce.catalogCsvImportModule.catalogCSVexportController', [
-        '$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.catalogCsvImportModule.export', 'virtoCommerce.inventoryModule.fulfillments', 'virtoCommerce.pricingModule.pricelists',
-        function ($scope, bladeNavigationService, exportResourse, fulfillments, pricelists) {
+        '$scope', 'platformWebApp.bladeNavigationService',
+        'virtoCommerce.catalogCsvImportModule.export', 'virtoCommerce.inventoryModule.fulfillments', 'virtoCommerce.pricingModule.pricelists',
+        function ($scope, bladeNavigationService, exportApi, fulfillments, pricelists) {
 
             $scope.pageSize = 20;
             $scope.fulfillmentCenters = [];
@@ -54,9 +55,9 @@ angular.module('virtoCommerce.catalogCsvImportModule')
             });
 
             $scope.startExport = function () {
-                exportResourse.getMappingConfiguration({ delimiter: encodeURIComponent(blade.columnDelimiter) },
+                exportApi.getMappingConfiguration({ delimiter: encodeURIComponent(blade.columnDelimiter) },
                     function (exportConfiguration) {
-                        exportResourse.run({
+                        exportApi.run({
                             catalogId: blade.catalog.id,
                             categoryIds: _.map(blade.selectedCategories, function (x) { return x.id }),
                             productIds: _.map(blade.selectedProducts, function (x) { return x.id }),

@@ -51,8 +51,11 @@ public class CsvCatalogImporter(
     : ICsvCatalogImporter
 {
     private const int _searchAllBatchSize = 100;
+    private const int _loadProductsBatchSize = 50;
+    private const int _saveProductsBatchSize = 10;
     private readonly char[] _categoryDelimiters = ['/', '|', '\\', '>'];
     private readonly object _lockObject = new();
+
     private bool? _createPropertyDictionaryValues;
 
     public bool CreatePropertyDictionaryValues
@@ -313,7 +316,7 @@ public class CsvCatalogImporter(
             csvProduct.Properties = csvProduct.Properties
                 .Where(property => property.Values?.Any(propertyValue => !string.IsNullOrEmpty(propertyValue.Value?.ToString())) == true)
                 .GroupBy(x => x.Name)
-                .Select(propertyGroup => GetMergedProperty(propertyGroup))
+                .Select(GetMergedProperty)
                 .ToList();
 
             csvProduct.Prices = csvProduct.Prices.Where(x => x.EffectiveValue > 0).GroupBy(x => new { x.Currency, x.PricelistId, x.MinQuantity }).Select(g => g.FirstOrDefault()).ToList();
@@ -347,37 +350,40 @@ public class CsvCatalogImporter(
     {
         var dictionaryItems = await GetExistingDictionaryItems(csvProducts);
 
-        foreach (var dictionaryProperty in csvProducts.SelectMany(x => x.Properties).Where(x => x.Dictionary && x.Values?.Any(v => v != null) == true))
+        var dictionaryPropertyValues = csvProducts
+            .SelectMany(product => product.Properties)
+            .Where(property => property.Dictionary && property.Values != null)
+            .SelectMany(property => property.Values)
+            .Where(value => !string.IsNullOrWhiteSpace(value?.Value?.ToString()));
+
+        foreach (var propertyValue in dictionaryPropertyValues)
         {
-            foreach (var propertyValue in dictionaryProperty.Values.Where(x => !string.IsNullOrWhiteSpace(x.Value?.ToString())))
+            // VP-5516:
+            // For imported propertyValue the Alias field is empty - need to fill it from value.
+            // For existing propertyValue Alias should be already filled, we shouldn't rewrite it.
+            propertyValue.Alias = string.IsNullOrEmpty(propertyValue.Alias) ? propertyValue.Value.ToString() : propertyValue.Alias;
+
+            var dictionaryItem = dictionaryItems.FirstOrDefault(x => x.PropertyId == propertyValue.PropertyId && x.Alias.EqualsIgnoreCase(propertyValue.Alias));
+            if (dictionaryItem == null)
             {
-                // VP-5516:
-                // For imported propertyValue the Alias field is empty - need to fill it from value.
-                // For existing propertyValue Alias should be already filled, we shouldn't rewrite it.
-                propertyValue.Alias = string.IsNullOrEmpty(propertyValue.Alias) ? propertyValue.Value.ToString() : propertyValue.Alias;
-
-                var dictionaryItem = dictionaryItems.FirstOrDefault(x => x.PropertyId == propertyValue.PropertyId && x.Alias.EqualsIgnoreCase(propertyValue.Alias));
-                if (dictionaryItem == null)
+                if (CreatePropertyDictionaryValues)
                 {
-                    if (CreatePropertyDictionaryValues)
-                    {
-                        dictionaryItem = AbstractTypeFactory<PropertyDictionaryItem>.TryCreateInstance();
-                        dictionaryItem.Alias = propertyValue.Alias;
-                        dictionaryItem.PropertyId = propertyValue.PropertyId;
+                    dictionaryItem = AbstractTypeFactory<PropertyDictionaryItem>.TryCreateInstance();
+                    dictionaryItem.Alias = propertyValue.Alias;
+                    dictionaryItem.PropertyId = propertyValue.PropertyId;
 
-                        await propDictItemService.SaveChangesAsync((IList<PropertyDictionaryItem>)[dictionaryItem]);
+                    await propDictItemService.SaveChangesAsync((IList<PropertyDictionaryItem>)[dictionaryItem]);
 
-                        dictionaryItems.Add(dictionaryItem);
-                    }
-                    else
-                    {
-                        progressInfo.Errors.Add($"The '{propertyValue.Alias}' dictionary item is not found in '{propertyValue.PropertyName}' dictionary");
-                        progressCallback(progressInfo);
-                    }
+                    dictionaryItems.Add(dictionaryItem);
                 }
-
-                propertyValue.ValueId = dictionaryItem?.Id;
+                else
+                {
+                    progressInfo.Errors.Add($"The '{propertyValue.Alias}' dictionary item is not found in '{propertyValue.PropertyName}' dictionary");
+                    progressCallback(progressInfo);
+                }
             }
+
+            propertyValue.ValueId = dictionaryItem?.Id;
         }
     }
 
@@ -386,7 +392,8 @@ public class CsvCatalogImporter(
         var dictionaryPropertyIds = csvProducts
             .SelectMany(x => x.Properties)
             .Where(x => x.Dictionary)
-            .Select(x => x.Id).Distinct()
+            .Select(x => x.Id)
+            .Distinct()
             .ToArray();
 
         var searchCriteria = AbstractTypeFactory<PropertyDictionaryItemSearchCriteria>.TryCreateInstance();
@@ -466,11 +473,11 @@ public class CsvCatalogImporter(
     {
         var defaultFulfilmentCenter = await GetDefaultFulfilmentCenter();
 
-        foreach (var products in csvProducts.Paginate(10))
+        foreach (var products in csvProducts.Paginate(_saveProductsBatchSize))
         {
             try
             {
-                var catalogProducts = products.Select(x => csvProductConverter.GetCatalogProduct(x)).ToArray();
+                var catalogProducts = products.Select(csvProductConverter.GetCatalogProduct).ToArray();
                 await productService.SaveChangesAsync(catalogProducts);
 
                 await SaveProductInventories(products, defaultFulfilmentCenter);
@@ -586,7 +593,7 @@ public class CsvCatalogImporter(
         var mergedPrices = await GetMergedPriceById(pricesWithIds);
 
         //then update for products with PricelistId set
-        var pricesWithPricelistId = prices.Except(pricesWithIds).Where(x => !string.IsNullOrEmpty(x.PricelistId)).ToList();
+        var pricesWithPricelistId = prices.Except(pricesWithIds).Where(x => !string.IsNullOrEmpty(x.PricelistId)).ToArray();
         mergedPrices.AddRange(await GetMergedPricesByPricelistId(pricesWithPricelistId));
 
         //We do not have information about concrete price list id or price id and therefore select first product price then
@@ -689,68 +696,80 @@ public class CsvCatalogImporter(
 
     private async Task LoadProductDependencies(List<CsvProduct> csvProducts, Catalog catalog, CsvImportInfo importInfo)
     {
-        var allCategoriesIds = csvProducts.Select(x => x.CategoryId).Distinct().ToArray();
-        var categoriesMap = (await categoryService.GetAsync(allCategoriesIds, nameof(CategoryResponseGroup.Full))).ToDictionary(x => x.Id);
+        var categoryIds = csvProducts.Select(x => x.CategoryId).Distinct().ToArray();
+        var categoryById = (await categoryService.GetAsync(categoryIds, nameof(CategoryResponseGroup.Full))).ToDictionary(x => x.Id);
 
         foreach (var csvProduct in csvProducts)
         {
             csvProduct.Catalog = catalog;
             csvProduct.CatalogId = catalog.Id;
+
             if (csvProduct.CategoryId != null)
             {
-                csvProduct.Category = categoriesMap[csvProduct.CategoryId];
+                csvProduct.Category = categoryById[csvProduct.CategoryId];
             }
 
-            //Try to set parent relations
-            //By id or code reference
-            var parentProduct = csvProducts.FirstOrDefault(x => !string.IsNullOrEmpty(csvProduct.MainProductId) && (x.Id.EqualsIgnoreCase(csvProduct.MainProductId) || x.Code.EqualsIgnoreCase(csvProduct.MainProductId)));
-            csvProduct.MainProduct = parentProduct;
-            csvProduct.MainProductId = parentProduct != null ? parentProduct.Id : null;
+            if (!csvProduct.MainProductId.IsNullOrEmpty())
+            {
+                var mainProduct = csvProducts.FirstOrDefault(x =>
+                    x.Id.EqualsIgnoreCase(csvProduct.MainProductId) ||
+                    x.Code.EqualsIgnoreCase(csvProduct.MainProductId));
+
+                csvProduct.MainProduct = mainProduct;
+                csvProduct.MainProductId = mainProduct?.Id;
+            }
 
             if (string.IsNullOrEmpty(csvProduct.Code))
             {
                 csvProduct.Code = skuGenerator.GenerateSku(csvProduct);
             }
-            //Properties inheritance
-            var inheritedProperties = GetInheritedProperties(csvProduct);
 
-            foreach (var property in csvProduct.Properties.ToArray())
+            UpdateProperties(csvProduct, importInfo);
+        }
+    }
+
+    private static void UpdateProperties(CsvProduct csvProduct, CsvImportInfo importInfo)
+    {
+        var inheritedProperties = GetInheritedProperties(csvProduct);
+
+        foreach (var property in csvProduct.Properties.ToArray())
+        {
+            //Try to find property for product
+            var inheritedProperty = inheritedProperties.FirstOrDefault(x => x.Name.EqualsIgnoreCase(property.Name));
+            if (inheritedProperty == null)
             {
-                //Try to find property for product
-                var inheritedProperty = inheritedProperties.FirstOrDefault(x => x.Name.EqualsIgnoreCase(property.Name));
-                if (inheritedProperty != null)
+                continue;
+            }
+
+            property.ValueType = inheritedProperty.ValueType;
+            property.Id = inheritedProperty.Id;
+            property.Dictionary = inheritedProperty.Dictionary;
+            property.Multivalue = inheritedProperty.Multivalue;
+
+            foreach (var propertyValue in property.Values)
+            {
+                propertyValue.ValueType = inheritedProperty.ValueType;
+                propertyValue.PropertyId = inheritedProperty.Id;
+            }
+
+            //Try to split the one value to multiple values for Multivalue/Multilanguage properties
+            if (inheritedProperty.Multivalue || inheritedProperty.Multilanguage)
+            {
+                var parsedValues = new List<PropertyValue>();
+
+                foreach (var propertyValue in property.Values)
                 {
-                    property.ValueType = inheritedProperty.ValueType;
-                    property.Id = inheritedProperty.Id;
-                    property.Dictionary = inheritedProperty.Dictionary;
-                    property.Multivalue = inheritedProperty.Multivalue;
-
-                    foreach (var propertyValue in property.Values)
-                    {
-                        propertyValue.ValueType = inheritedProperty.ValueType;
-                        propertyValue.PropertyId = inheritedProperty.Id;
-                    }
-
-                    //Try to split the one value to multiple values for Multivalue/Multilanguage properties
-                    if (inheritedProperty.Multivalue || inheritedProperty.Multilanguage)
-                    {
-                        var parsedValues = new List<PropertyValue>();
-
-                        foreach (var propertyValue in property.Values)
-                        {
-                            parsedValues.AddRange(ParseValuesFromMultivalueString(propertyValue, importInfo.Configuration.Delimiter));
-                        }
-
-                        property.Values = parsedValues;
-                    }
-                    // Combining multiple values ​​into one for non-multivalued properties
-                    else if (property.Values.Count > 1)
-                    {
-                        var propertyValue = property.Values.First();
-                        propertyValue.Value = property.Values.Join();
-                        property.Values = new List<PropertyValue> { propertyValue };
-                    }
+                    parsedValues.AddRange(ParseValuesFromMultivalueString(propertyValue, importInfo.Configuration.Delimiter));
                 }
+
+                property.Values = parsedValues;
+            }
+            // Combining multiple values ​​into one for non-multivalued properties
+            else if (property.Values.Count > 1)
+            {
+                var propertyValue = property.Values.First();
+                propertyValue.Value = property.Values.Join();
+                property.Values = new List<PropertyValue> { propertyValue };
             }
         }
     }
@@ -796,7 +815,7 @@ public class CsvCatalogImporter(
             .ToArray();
 
         var existingProducts = new List<CatalogProduct>();
-        foreach (var productIdsBatch in productIds.Paginate(50))
+        foreach (var productIdsBatch in productIds.Paginate(_loadProductsBatchSize))
         {
             existingProducts.AddRange(await productService.GetAsync(productIdsBatch, nameof(ItemResponseGroup.Full)));
         }
@@ -810,7 +829,7 @@ public class CsvCatalogImporter(
 
         using (var repository = catalogRepositoryFactory())
         {
-            foreach (var productCodesBatch in productCodes.Paginate(50))
+            foreach (var productCodesBatch in productCodes.Paginate(_loadProductsBatchSize))
             {
                 var productIdsBatch = await repository.Items
                     .Where(x => x.CatalogId == catalog.Id && productCodesBatch.Contains(x.Code))
