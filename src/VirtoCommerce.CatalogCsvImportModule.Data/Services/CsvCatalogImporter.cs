@@ -595,38 +595,40 @@ public class CsvCatalogImporter(
         }
 
         // Try to update prices by id
-        var pricesWithIds = prices.Where(x => !string.IsNullOrEmpty(x.Id)).ToArray();
-        var mergedPrices = await GetMergedPriceById(pricesWithIds);
+        var pricesWithId = prices.Where(x => !string.IsNullOrEmpty(x.Id)).ToArray();
+        var mergedPrices = await GetMergedPriceById(pricesWithId);
 
         // Then update prices with PricelistId
-        var pricesWithPricelistId = prices.Except(pricesWithIds).Where(x => !string.IsNullOrEmpty(x.PricelistId)).ToArray();
+        var pricesWithPricelistId = prices.Except(pricesWithId).Where(x => !string.IsNullOrEmpty(x.PricelistId)).ToArray();
         mergedPrices.AddRange(await GetMergedPricesByPricelistId(pricesWithPricelistId));
 
         // We do not have pricelist id or price id, therefore select first product price
-        var restPrices = prices.Except(pricesWithIds).Except(pricesWithPricelistId).ToArray();
-        mergedPrices.AddRange(await GetMergedPriceDefault(restPrices));
+        var otherPrices = prices.Except(pricesWithId).Except(pricesWithPricelistId).ToArray();
+        mergedPrices.AddRange(await GetMergedPricesByCurrency(otherPrices));
 
         await priceService.SaveChangesAsync(mergedPrices);
     }
 
-    private async Task<IList<Price>> GetMergedPriceById(IList<CsvPrice> pricesWithIds)
+    private async Task<IList<Price>> GetMergedPriceById(IList<CsvPrice> pricesWithId)
     {
-        if (pricesWithIds.Count == 0)
-        {
-            return new List<Price>();
-        }
-
         var result = new List<Price>();
 
-        var pricesIds = pricesWithIds.Select(x => x.Id).ToArray();
+        if (pricesWithId.Count == 0)
+        {
+            return result;
+        }
+
+        var pricesIds = pricesWithId.Select(x => x.Id).ToArray();
         var existingPricesByIds = await priceService.GetAsync(pricesIds);
-        foreach (var price in pricesWithIds)
+
+        foreach (var price in pricesWithId)
         {
             var existingPrice = existingPricesByIds.FirstOrDefault(x => x.Id == price.Id);
             if (existingPrice != null)
             {
                 price.MergeFrom(existingPrice);
             }
+
             result.Add(price);
         }
 
@@ -666,19 +668,19 @@ public class CsvCatalogImporter(
         return result;
     }
 
-    private async Task<IList<Price>> GetMergedPriceDefault(IList<CsvPrice> restPrices)
+    private async Task<IList<Price>> GetMergedPricesByCurrency(IList<CsvPrice> otherPrices)
     {
         var result = new List<Price>();
 
-        if (restPrices.Count == 0)
+        if (otherPrices.Count == 0)
         {
             return result;
         }
 
-        var productIds = restPrices.Select(x => x.ProductId).Distinct().ToArray();
+        var productIds = otherPrices.Select(x => x.ProductId).Distinct().ToArray();
         var existingPrices = await GetExistingPrices(productIds);
 
-        foreach (var price in restPrices)
+        foreach (var price in otherPrices)
         {
             var existingPrice = existingPrices.FirstOrDefault(x =>
                 x.Currency.EqualsIgnoreCase(price.Currency) &&
