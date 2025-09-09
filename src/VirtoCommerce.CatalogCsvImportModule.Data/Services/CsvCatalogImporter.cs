@@ -452,7 +452,7 @@ public class CsvCatalogImporter(
 
                     await categoryService.SaveChangesAsync([category]);
 
-                    //Raise notification each notifyCategorySizeLimit category
+                    // Raise notification each notifyCategorySizeLimit category
                     progressInfo.Description = $"Creating categories: {++count} created";
                     progressCallback(progressInfo);
                 }
@@ -535,7 +535,7 @@ public class CsvCatalogImporter(
 
     private async Task SaveProductInventories(IList<CsvProduct> products, FulfillmentCenter defaultFulfilmentCenter)
     {
-        //Set productId for dependent objects
+        // Set productId for dependent objects
         foreach (var product in products)
         {
             if (defaultFulfilmentCenter != null || product.Inventory.FulfillmentCenterId != null)
@@ -588,21 +588,21 @@ public class CsvCatalogImporter(
 
         var prices = products.SelectMany(x => x.Prices).OfType<CsvPrice>().ToArray();
 
-        //min quantity 0 is not allowed
+        // MinQuantity 0 is not allowed
         foreach (var price in prices.Where(x => x.MinQuantity == 0))
         {
             price.MinQuantity = 1;
         }
 
-        //try to update prices by id
+        // Try to update prices by id
         var pricesWithIds = prices.Where(x => !string.IsNullOrEmpty(x.Id)).ToArray();
         var mergedPrices = await GetMergedPriceById(pricesWithIds);
 
-        //then update for products with PricelistId set
+        // Then update prices with PricelistId
         var pricesWithPricelistId = prices.Except(pricesWithIds).Where(x => !string.IsNullOrEmpty(x.PricelistId)).ToArray();
         mergedPrices.AddRange(await GetMergedPricesByPricelistId(pricesWithPricelistId));
 
-        //We do not have information about concrete price list id or price id and therefore select first product price then
+        // We do not have pricelist id or price id, therefore select first product price
         var restPrices = prices.Except(pricesWithIds).Except(pricesWithPricelistId).ToArray();
         mergedPrices.AddRange(await GetMergedPriceDefault(restPrices));
 
@@ -755,7 +755,7 @@ public class CsvCatalogImporter(
 
         foreach (var property in csvProduct.Properties.ToArray())
         {
-            //Try to find property for product
+            // Try to find a property
             var inheritedProperty = inheritedProperties.FirstOrDefault(x => x.Name.EqualsIgnoreCase(property.Name));
             if (inheritedProperty == null)
             {
@@ -773,7 +773,7 @@ public class CsvCatalogImporter(
                 propertyValue.PropertyId = inheritedProperty.Id;
             }
 
-            //Try to split the one value to multiple values for Multivalue/Multilanguage properties
+            // Try to split a single value to multiple values for Multivalue/Multilanguage properties
             if (inheritedProperty.Multivalue || inheritedProperty.Multilanguage)
             {
                 var parsedValues = new List<PropertyValue>();
@@ -825,10 +825,10 @@ public class CsvCatalogImporter(
         return result;
     }
 
-    //Merge importing products with existing ones to prevent erasing existing data, import should only update or create data
+    // Merge importing products with existing ones to prevent erasing existing data, import should only update or create data
     private async Task MergeFromExistingProducts(List<CsvProduct> csvProducts, Catalog catalog)
     {
-        //Load existing products by ID
+        // Load existing products by ID
         var productIds = csvProducts
             .Where(x => x.Id != null)
             .Select(x => x.Id)
@@ -841,7 +841,7 @@ public class CsvCatalogImporter(
             existingProducts.AddRange(await productService.GetAsync(productIdsBatch, nameof(ItemResponseGroup.Full)));
         }
 
-        //Load existing products by Code
+        // Load existing products by Code
         var productCodes = csvProducts
             .Where(x => x.Id == null && x.Code != null)
             .Select(x => x.Code)
