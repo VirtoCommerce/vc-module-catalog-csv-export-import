@@ -12,16 +12,18 @@ public class MergingTests
     [Fact]
     public void CsvProductMergeTest_ProductHasSameImages_ImagesUpdated()
     {
-        //Arrange
-        var catalogProduct = GetCatalogProductWithImage();
+        // Arrange
+        var existingProduct = GetExistingProduct();
+
         var csvProduct = new CsvProduct
         {
             Images = new List<Image> { new() { Id = "", Url = "SameURL" } },
         };
-        //Act
-        csvProduct.MergeFrom(catalogProduct);
 
-        //Assets
+        // Act
+        csvProduct.MergeFrom(existingProduct);
+
+        // Assert
         Assert.Single(csvProduct.Images);
         Assert.NotNull(csvProduct.Images.FirstOrDefault(x => x.Id == "1"));
     }
@@ -29,24 +31,24 @@ public class MergingTests
     [Fact]
     public void CsvProductMergeTest_ProductHasAnotherImages_ImagesAdded()
     {
-        //Arrange
-        var catalogProduct = GetCatalogProductWithImage();
+        // Arrange
+        var existingProduct = GetExistingProduct();
 
         var csvProduct = new CsvProduct
         {
             Images = new List<Image> { new() { Id = "", Url = "AnotherUrl" } },
         };
 
-        //Act
-        csvProduct.MergeFrom(catalogProduct);
+        // Act
+        csvProduct.MergeFrom(existingProduct);
 
-        //Assert
+        // Assert
         Assert.Equal(2, csvProduct.Images.Count);
         Assert.NotNull(csvProduct.Images.FirstOrDefault(x => x.Id == "1"));
         Assert.NotNull(csvProduct.Images.FirstOrDefault(x => x.Id == ""));
     }
 
-    private static CatalogProduct GetCatalogProductWithImage()
+    private static CatalogProduct GetExistingProduct()
     {
         return new CatalogProduct
         {
@@ -57,5 +59,4 @@ public class MergingTests
             SeoInfos = new List<SeoInfo>(),
         };
     }
-
 }

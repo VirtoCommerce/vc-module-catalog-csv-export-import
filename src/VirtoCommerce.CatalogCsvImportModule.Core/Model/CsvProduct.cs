@@ -496,7 +496,7 @@ public class CsvProduct : CatalogProduct
                 .Where(x => !skippedExistingProperties.Any(existingProperty => propertyComparer.Equals(x, existingProperty))))
             .ToList();
 
-        //merge seo infos
+        // Merge SEO
         var seoComparer = AnonymousComparer.Create((SeoInfo x) => string.Join(":", x.SemanticUrl, x.LanguageCode?.ToLower(), x.StoreId));
 
         foreach (var seoInfo in SeoInfos.OfType<CsvSeoInfo>())
