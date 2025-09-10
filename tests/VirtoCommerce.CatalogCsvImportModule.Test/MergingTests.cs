@@ -10,7 +10,7 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests;
 public class MergingTests
 {
     [Fact]
-    public void CsvProductMergeTest_ProductHasSameImages_ImagesUpdated()
+    public void Images_SameUrl_ImageUpdated()
     {
         // Arrange
         var existingProduct = GetExistingProduct();
@@ -32,7 +32,7 @@ public class MergingTests
     }
 
     [Fact]
-    public void CsvProductMergeTest_ProductHasAnotherImages_ImagesAdded()
+    public void Images_DifferentUrl_ImageAdded()
     {
         // Arrange
         var existingProduct = GetExistingProduct();
@@ -60,7 +60,7 @@ public class MergingTests
     }
 
     [Fact]
-    public void CsvProductMergeTest_ProductHasSameSeoUrl_SeoUpdated()
+    public void Seo_SameUrl_SeoUpdated()
     {
         // Arrange
         var existingProduct = GetExistingProduct();
@@ -82,7 +82,7 @@ public class MergingTests
     }
 
     [Fact]
-    public void CsvProductMergeTest_ProductHasDifferentSeoUrl_SeoReplaced()
+    public void Seo_DifferentUrl_SeoAdded()
     {
         // Arrange
         var existingProduct = GetExistingProduct();
