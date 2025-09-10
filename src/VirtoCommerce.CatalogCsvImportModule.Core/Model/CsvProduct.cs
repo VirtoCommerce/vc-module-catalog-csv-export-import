@@ -464,10 +464,10 @@ public class CsvProduct : CatalogProduct
 
         foreach (var image in product.Images)
         {
-            var existedImage = Images.FirstOrDefault(x => x.Url.Equals(image.Url, StringComparison.InvariantCultureIgnoreCase));
-            if (existedImage != null)
+            var existingImage = Images.FirstOrDefault(x => x.Url.Equals(image.Url, StringComparison.InvariantCultureIgnoreCase));
+            if (existingImage != null)
             {
-                existedImage.Id = image.Id;
+                existingImage.Id = image.Id;
             }
             else
             {
