@@ -747,11 +747,11 @@ public class CsvCatalogImporter(
                 csvProduct.Code = skuGenerator.GenerateSku(csvProduct);
             }
 
-            UpdateProperties(csvProduct, importInfo);
+            UpdateCsvProductProperties(csvProduct, importInfo);
         }
     }
 
-    private static void UpdateProperties(CsvProduct csvProduct, CsvImportInfo importInfo)
+    private static void UpdateCsvProductProperties(CsvProduct csvProduct, CsvImportInfo importInfo)
     {
         var inheritedProperties = GetInheritedProperties(csvProduct);
 
