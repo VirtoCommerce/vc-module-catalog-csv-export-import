@@ -90,7 +90,7 @@ public class CsvProductMap : ClassMap<CsvProduct>
                     (Property)new CsvProperty
                     {
                         Name = column,
-                        Values = x.Row.GetPropertiesByColumn(column).ToList()
+                        Values = x.Row.GetPropertiesByColumn(column).ToList(),
                     }).ToList());
             newPropMap.UsingExpression<ICollection<PropertyValue>>(null, null);
 

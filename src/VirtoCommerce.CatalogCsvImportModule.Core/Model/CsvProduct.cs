@@ -55,14 +55,17 @@ public class CsvProduct : CatalogProduct
         SeoInfos = product.SeoInfos;
         Reviews = product.Reviews;
         Associations = product.Associations;
+
         if (price != null)
         {
             Price = price;
         }
+
         if (inventory != null)
         {
             Inventory = inventory;
         }
+
         if (seoInfo != null)
         {
             SeoInfo = seoInfo;
@@ -74,6 +77,7 @@ public class CsvProduct : CatalogProduct
     public EditorialReview EditorialReview { get; set; }
     public SeoInfo SeoInfo { get; set; }
     public IList<Price> Prices { get; set; }
+
     public string PriceId
     {
         get
@@ -85,6 +89,7 @@ public class CsvProduct : CatalogProduct
             Price.Id = value;
         }
     }
+
     public string SalePrice
     {
         get
@@ -243,7 +248,6 @@ public class CsvProduct : CatalogProduct
     }
 
     private string _altImageGroup;
-
     public string AltImageGroup
     {
         get
@@ -540,7 +544,7 @@ public class CsvProduct : CatalogProduct
             Url = url,
             Group = string.IsNullOrEmpty(group) ? "images" : group,
             SortOrder = index++,
-            Name = UrlHelper.ExtractFileNameFromUrl(url)
+            Name = UrlHelper.ExtractFileNameFromUrl(url),
         });
 
         Images.AddRange(images);
