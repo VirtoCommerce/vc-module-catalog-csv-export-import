@@ -479,16 +479,16 @@ public class CsvCatalogImporter(
     {
         var defaultFulfilmentCenter = await GetDefaultFulfilmentCenter();
 
-        foreach (var products in csvProducts.Paginate(_saveProductsBatchSize))
+        foreach (var csvProductsBatch in csvProducts.Paginate(_saveProductsBatchSize))
         {
             try
             {
-                var catalogProducts = products.Select(csvProductConverter.GetCatalogProduct).ToArray();
+                var catalogProducts = csvProductsBatch.Select(csvProductConverter.GetCatalogProduct).ToArray();
                 await productService.SaveChangesAsync(catalogProducts);
 
-                await SaveProductInventories(products, defaultFulfilmentCenter);
+                await SaveProductInventories(csvProductsBatch, defaultFulfilmentCenter);
 
-                await SaveProductPrices(products);
+                await SaveProductPrices(csvProductsBatch);
             }
             catch (FluentValidation.ValidationException validationEx)
             {
@@ -515,7 +515,7 @@ public class CsvCatalogImporter(
                 lock (_lockObject)
                 {
                     //Raise notification
-                    progressInfo.ProcessedCount += products.Count;
+                    progressInfo.ProcessedCount += csvProductsBatch.Count;
                     progressInfo.Description = $"Saving products: {progressInfo.ProcessedCount} of {progressInfo.TotalCount} created";
                     progressCallback(progressInfo);
                 }
@@ -533,10 +533,10 @@ public class CsvCatalogImporter(
         return searchResult.Results.FirstOrDefault();
     }
 
-    private async Task SaveProductInventories(IList<CsvProduct> products, FulfillmentCenter defaultFulfilmentCenter)
+    private async Task SaveProductInventories(IList<CsvProduct> csvProducts, FulfillmentCenter defaultFulfilmentCenter)
     {
         // Set productId for dependent objects
-        foreach (var product in products)
+        foreach (var product in csvProducts)
         {
             if (defaultFulfilmentCenter != null || product.Inventory.FulfillmentCenterId != null)
             {
@@ -549,10 +549,10 @@ public class CsvCatalogImporter(
             }
         }
 
-        var productIds = products.Select(x => x.Id).ToArray();
+        var productIds = csvProducts.Select(x => x.Id).ToArray();
         var existingInventories = await inventoryService.GetProductsInventoryInfosAsync(productIds);
 
-        var inventories = products
+        var inventories = csvProducts
             .Where(x => !string.IsNullOrEmpty(x.Inventory?.ProductId))
             .Select(x => x.Inventory)
             .ToArray();
@@ -575,10 +575,10 @@ public class CsvCatalogImporter(
         await inventoryService.SaveChangesAsync(inventories);
     }
 
-    private async Task SaveProductPrices(IList<CsvProduct> products)
+    private async Task SaveProductPrices(IList<CsvProduct> csvProducts)
     {
         // Update ProductId
-        foreach (var product in products)
+        foreach (var product in csvProducts)
         {
             foreach (var price in product.Prices)
             {
@@ -586,7 +586,7 @@ public class CsvCatalogImporter(
             }
         }
 
-        var prices = products.SelectMany(x => x.Prices).OfType<CsvPrice>().ToArray();
+        var prices = csvProducts.SelectMany(x => x.Prices).OfType<CsvPrice>().ToArray();
 
         // MinQuantity 0 is not allowed
         foreach (var price in prices.Where(x => x.MinQuantity == 0))
@@ -618,8 +618,8 @@ public class CsvCatalogImporter(
             return result;
         }
 
-        var pricesIds = pricesWithId.Select(x => x.Id).ToArray();
-        var existingPricesByIds = await priceService.GetAsync(pricesIds);
+        var priceIds = pricesWithId.Select(x => x.Id).ToArray();
+        var existingPricesByIds = await priceService.GetAsync(priceIds);
 
         foreach (var price in pricesWithId)
         {
