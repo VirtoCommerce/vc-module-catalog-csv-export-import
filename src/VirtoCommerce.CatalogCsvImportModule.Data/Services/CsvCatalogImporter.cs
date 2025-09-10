@@ -92,6 +92,8 @@ public class CsvCatalogImporter(
         using (var reader = new CsvReader(new StreamReader(inputStream, encoding), readerConfig))
         {
             reader.Context.RegisterClassMap(CsvProductMap.Create(importInfo.Configuration));
+            reader.Context.TypeConverterOptionsCache.GetOptions<string>().NullValues.Add(string.Empty);
+
             var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
 
             while (reader.Read())
