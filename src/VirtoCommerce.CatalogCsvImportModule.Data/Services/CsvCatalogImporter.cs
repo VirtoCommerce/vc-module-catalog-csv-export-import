@@ -422,9 +422,10 @@ public class CsvCatalogImporter(
         foreach (var csvProduct in csvProducts.Where(x => x.Category != null && !string.IsNullOrEmpty(x.Category.Path)))
         {
             outline.Clear();
-            var productCategoryNames = csvProduct.Category.Path.Split(_categoryDelimiters);
             string parentCategoryId = null;
             var count = progressInfo.ProcessedCount;
+            var productCategoryNames = csvProduct.Category.Path.Split(_categoryDelimiters);
+
             foreach (var categoryName in productCategoryNames)
             {
                 outline.Append($"\\{categoryName}");
@@ -830,38 +831,7 @@ public class CsvCatalogImporter(
     // Merge importing products with existing ones to prevent erasing existing data, import should only update or create data
     private async Task MergeFromExistingProducts(List<CsvProduct> csvProducts, Catalog catalog)
     {
-        // Load existing products by ID
-        var productIds = csvProducts
-            .Where(x => x.Id != null)
-            .Select(x => x.Id)
-            .Distinct()
-            .ToArray();
-
-        var existingProducts = new List<CatalogProduct>();
-        foreach (var productIdsBatch in productIds.Paginate(_loadProductsBatchSize))
-        {
-            existingProducts.AddRange(await productService.GetAsync(productIdsBatch, nameof(ItemResponseGroup.Full)));
-        }
-
-        // Load existing products by Code
-        var productCodes = csvProducts
-            .Where(x => x.Id == null && x.Code != null)
-            .Select(x => x.Code)
-            .Distinct()
-            .ToArray();
-
-        using (var repository = catalogRepositoryFactory())
-        {
-            foreach (var productCodesBatch in productCodes.Paginate(_loadProductsBatchSize))
-            {
-                var productIdsBatch = await repository.Items
-                    .Where(x => x.CatalogId == catalog.Id && productCodesBatch.Contains(x.Code))
-                    .Select(x => x.Id)
-                    .ToArrayAsync();
-
-                existingProducts.AddRange(await productService.GetAsync(productIdsBatch, nameof(ItemResponseGroup.Full)));
-            }
-        }
+        var existingProducts = await GetExistingProducts(csvProducts, catalog);
 
         foreach (var csvProduct in csvProducts)
         {
@@ -874,6 +844,44 @@ public class CsvCatalogImporter(
                 csvProduct.MergeFrom(existingProduct);
             }
         }
+    }
+
+    private async Task<List<CatalogProduct>> GetExistingProducts(List<CsvProduct> csvProducts, Catalog catalog)
+    {
+        var existingProducts = new List<CatalogProduct>();
+
+        // Load existing products by ID
+        var productIds = csvProducts
+            .Where(x => x.Id != null)
+            .Select(x => x.Id)
+            .Distinct()
+            .ToArray();
+
+        foreach (var productIdsBatch in productIds.Paginate(_loadProductsBatchSize))
+        {
+            existingProducts.AddRange(await productService.GetAsync(productIdsBatch, nameof(ItemResponseGroup.Full)));
+        }
+
+        // Load existing products by Code
+        var productCodes = csvProducts
+            .Where(x => x.Id == null && x.Code != null)
+            .Select(x => x.Code)
+            .Distinct()
+            .ToArray();
+
+        using var repository = catalogRepositoryFactory();
+
+        foreach (var productCodesBatch in productCodes.Paginate(_loadProductsBatchSize))
+        {
+            var productIdsBatch = await repository.Items
+                .Where(x => x.CatalogId == catalog.Id && productCodesBatch.Contains(x.Code))
+                .Select(x => x.Id)
+                .ToArrayAsync();
+
+            existingProducts.AddRange(await productService.GetAsync(productIdsBatch, nameof(ItemResponseGroup.Full)));
+        }
+
+        return existingProducts;
     }
 
     #region Validate CSV products
