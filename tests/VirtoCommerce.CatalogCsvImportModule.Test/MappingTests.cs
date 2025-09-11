@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoFixture;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -11,22 +12,23 @@ using FluentAssertions;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
+using VirtoCommerce.Platform.Core.ExportImport;
 using Xunit;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Tests;
 
 public class MappingTests
 {
-    [Fact]
-    public void CsvProductMapTest_CsvHasPropertyValues_PropertyValuesMapped()
-    {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.CsvColumns = ["Sku"];
-        importInfo.Configuration.PropertyCsvColumns = ["ProductProperty", "ProductProperty_Multivalue"];
-        importInfo.Configuration.Delimiter = ",";
+    private static readonly Action<ExportImportProgressInfo> _progressCallback = _ => { };
 
-        var path = GetDataFilePath("product-propertyvalues.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+    [Fact]
+    public async Task CsvProductMapTest_CsvHasPropertyValues_PropertyValuesMapped()
+    {
+        var csvProducts = await ReadCsvFile("product-propertyvalues.csv", configuration =>
+        {
+            configuration.CsvColumns = ["Sku"];
+            configuration.PropertyCsvColumns = ["ProductProperty", "ProductProperty_Multivalue"];
+        });
 
         Action<PropertyValue>[] inspectorsFirstProduct =
         [
@@ -45,13 +47,9 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasProductProperties_PropertiesMapped()
+    public async Task CsvProductMapTest_CsvHasProductProperties_PropertiesMapped()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -81,13 +79,9 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasPriceAndQuantity_PriceAndQuantityMapped()
+    public async Task CsvProductMapTest_CsvHasPriceAndQuantity_PriceAndQuantityMapped()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties-priceQuantity.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties-priceQuantity.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -104,13 +98,9 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasSeoInfo_SeoInfoMapped()
+    public async Task CsvProductMapTest_CsvHasSeoInfo_SeoInfoMapped()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties-seoInfo.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties-seoInfo.csv");
 
         csvProducts.Should().HaveCount(2);
 
@@ -130,13 +120,9 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasReview_ReviewMapped()
+    public async Task CsvProductMapTest_CsvHasReview_ReviewMapped()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties-review.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties-review.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -149,13 +135,9 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasCategoryPath_CategoryPathMapped()
+    public async Task CsvProductMapTest_CsvHasCategoryPath_CategoryPathMapped()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties-categoryPath.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties-categoryPath.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -166,64 +148,54 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_MappingHasDefaultCategoryPath_DefaultCategoryPathMapped()
+    public async Task CsvProductMapTest_MappingHasDefaultCategoryPath_DefaultCategoryPathMapped()
     {
-        var defaultValue = "Custom_category_path_value";
+        const string defaultCategoryPath = "Custom_category_path_value";
 
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
+        var csvProducts = await ReadCsvFile("product-productproperties-noCategoryPath.csv", configuration =>
+        {
+            var categoryPathMapping = configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "CategoryPath");
 
-        var categoryPathMapping = importInfo.Configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "CategoryPath");
+            Assert.NotNull(categoryPathMapping);
 
-        Assert.NotNull(categoryPathMapping);
-
-        categoryPathMapping.CsvColumnName = null;
-        categoryPathMapping.CustomValue = defaultValue;
-
-        var path = GetDataFilePath("product-productproperties-noCategoryPath.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+            categoryPathMapping.CsvColumnName = null;
+            categoryPathMapping.CustomValue = defaultCategoryPath;
+        });
 
         Assert.NotEmpty(csvProducts);
 
         var product = csvProducts.First();
 
-        Assert.Equal(defaultValue, product.CategoryPath);
-        Assert.Equal(defaultValue, product.Category.Path);
+        Assert.Equal(defaultCategoryPath, product.CategoryPath);
+        Assert.Equal(defaultCategoryPath, product.Category.Path);
     }
 
     [Fact]
-    public void CsvProductMapTest_MappingHasDefaultBoolValue_DefaultBoolValuesMapped()
+    public async Task CsvProductMapTest_MappingHasDefaultBoolValue_DefaultBoolValuesMapped()
     {
-        const bool defaultValue = true;
+        const bool defaultIsBuyableValue = true;
 
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
+        var csvProducts = await ReadCsvFile("product-productproperties.csv", configuration =>
+        {
+            var categoryPathMapping = configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "IsBuyable");
 
-        var categoryPathMapping = importInfo.Configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "IsBuyable");
+            Assert.NotNull(categoryPathMapping);
 
-        Assert.NotNull(categoryPathMapping);
-
-        categoryPathMapping.CsvColumnName = null;
-        categoryPathMapping.CustomValue = defaultValue.ToString();
-
-        var path = GetDataFilePath("product-productproperties.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+            categoryPathMapping.CsvColumnName = null;
+            categoryPathMapping.CustomValue = defaultIsBuyableValue.ToString();
+        });
 
         Assert.NotEmpty(csvProducts);
 
         var product = csvProducts.First();
 
-        Assert.True(product.IsBuyable);
+        Assert.Equal(defaultIsBuyableValue, product.IsBuyable);
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasBooleanValues_BooleanFieldsMapped()
+    public async Task CsvProductMapTest_CsvHasBooleanValues_BooleanFieldsMapped()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties-boolean.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties-boolean.csv");
 
         Assert.False(csvProducts[0].HasUserAgreement);
         Assert.False(csvProducts[0].IsBuyable);
@@ -235,13 +207,9 @@ public class MappingTests
     }
 
     [Fact]
-    public void CsvProductMapTest_CsvHasMultipleLines_LineNumberMapTest()
+    public async Task CsvProductMapTest_CsvHasMultipleLines_LineNumberMapTest()
     {
-        var importInfo = new CsvImportInfo { Configuration = CsvProductMappingConfiguration.GetDefaultConfiguration() };
-        importInfo.Configuration.Delimiter = ",";
-
-        var path = GetDataFilePath("product-productproperties-twoproducts.csv");
-        var csvProducts = ReadCsvFile(path, importInfo);
+        var csvProducts = await ReadCsvFile("product-productproperties-twoproducts.csv");
 
         Assert.Equal(2, csvProducts[0].LineNumber);
         Assert.Equal(3, csvProducts[1].LineNumber);
@@ -273,7 +241,7 @@ public class MappingTests
     [Theory]
     [InlineData(",")]
     [InlineData(";")]
-    public void CsvProductMapTest_DictionaryMultilanguage_OnlyOneAliasExported(string delimiter)
+    public async Task CsvProductMapTest_DictionaryMultilanguage_OnlyOneAliasExported(string delimiter)
     {
         //Arrange
         var product = GetProduct();
@@ -294,7 +262,7 @@ public class MappingTests
         };
 
         //Act
-        var importedCsvProduct = ExportAndImportProduct(product, delimiter);
+        var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
 
         //Assert
         importedCsvProduct.Properties.Should().HaveCount(1);
@@ -305,7 +273,7 @@ public class MappingTests
     [Theory]
     [InlineData(",")]
     [InlineData(";")]
-    public void CsvProductMapTest_DictionaryMultivalue_OnlyUniqAliasesExported(string delimiter)
+    public async Task CsvProductMapTest_DictionaryMultivalue_OnlyUniqAliasesExported(string delimiter)
     {
         //Arrange
         var product = GetProduct();
@@ -329,7 +297,7 @@ public class MappingTests
         };
 
         //Act
-        var importedCsvProduct = ExportAndImportProduct(product, delimiter);
+        var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
 
         //Assert
         importedCsvProduct.Properties.Should().HaveCount(1);
@@ -342,7 +310,7 @@ public class MappingTests
     [Theory]
     [InlineData(",")]
     [InlineData(";")]
-    public void CsvProductMapTest_Multilanguage_AllValueExported(string delimiter)
+    public async Task CsvProductMapTest_Multilanguage_AllValueExported(string delimiter)
     {
         //Arrange
         var product = GetProduct();
@@ -363,7 +331,7 @@ public class MappingTests
         };
 
         //Act
-        var importedCsvProduct = ExportAndImportProduct(product, delimiter);
+        var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
 
         //Assert
         importedCsvProduct.Properties.Should().HaveCount(1);
@@ -374,33 +342,18 @@ public class MappingTests
 
 
     // Support methods
-    private static List<CsvProduct> ReadCsvFile(string path, CsvImportInfo importInfo)
+    private static async Task<List<CsvProduct>> ReadCsvFile(string fileName, Action<CsvProductMappingConfiguration> configure = null)
     {
-        var csvProducts = new List<CsvProduct>();
+        var configuration = CsvProductMappingConfiguration.GetDefaultConfiguration();
+        configuration.Delimiter = ",";
+        configure?.Invoke(configuration);
 
-        var readerConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            Delimiter = importInfo.Configuration.Delimiter,
-            TrimOptions = TrimOptions.Trim,
-            HeaderValidated = null,
-            MissingFieldFound = _ => { },
-        };
+        var filePath = $"../../../data/{fileName}";
+        var stream = File.Open(filePath, FileMode.Open);
 
-        using var reader = new CsvReader(new StreamReader(File.Open(path, FileMode.Open)), readerConfig);
-        reader.Context.RegisterClassMap(CsvProductMap.Create(importInfo.Configuration));
-
-        while (reader.Read())
-        {
-            var csvProduct = reader.GetRecord<CsvProduct>();
-            csvProducts.Add(csvProduct);
-        }
+        var csvProducts = await new CsvProductReader().ReadProducts(stream, configuration, _progressCallback);
 
         return csvProducts;
-    }
-
-    private static string GetDataFilePath(string fileName)
-    {
-        return $"../../../data/{fileName}";
     }
 
     private static CatalogProduct GetProduct()
@@ -415,7 +368,7 @@ public class MappingTests
             .Create();
     }
 
-    private static CsvProduct ExportAndImportProduct(CatalogProduct product, string delimiter)
+    private static async Task<CsvProduct> ExportAndImportProduct(CatalogProduct product, string delimiter)
     {
         var configuration = CsvProductMappingConfiguration.GetDefaultConfiguration();
         configuration.Delimiter = delimiter;
@@ -431,29 +384,20 @@ public class MappingTests
             Delimiter = configuration.Delimiter,
         };
 
-        using (var csvWriter = new CsvWriter(streamWriter, writerConfig))
+        await using (var csvWriter = new CsvWriter(streamWriter, writerConfig))
         {
             csvWriter.Context.RegisterClassMap(csvProductMap);
             csvWriter.WriteHeader<CsvProduct>();
-            csvWriter.NextRecord();
+            await csvWriter.NextRecordAsync();
             var csvProduct = CsvProduct.Create(product, null, null, null, null);
             csvWriter.WriteRecord(csvProduct);
-            csvWriter.Flush();
-            stream.Position = 0;
+            await csvWriter.FlushAsync();
         }
 
-        var readerConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            Delimiter = configuration.Delimiter,
-            TrimOptions = TrimOptions.Trim,
-            MissingFieldFound = _ => { },
-        };
+        stream.Position = 0;
 
-        using (var csvReader = new CsvReader(new StreamReader(stream, Encoding.UTF8), readerConfig))
-        {
-            csvReader.Context.RegisterClassMap(csvProductMap);
-            csvReader.Read();
-            return csvReader.GetRecord<CsvProduct>();
-        }
+        var csvProducts = await new CsvProductReader().ReadProducts(stream, configuration, _progressCallback);
+
+        return csvProducts.FirstOrDefault();
     }
 }

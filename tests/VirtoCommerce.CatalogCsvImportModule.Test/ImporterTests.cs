@@ -1716,6 +1716,7 @@ public class ImporterTests
         var csvProductConverter = new CsvProductConverter(_mapper);
 
         var target = new CsvCatalogImporter(
+            new CsvProductReader(),
             catalogService.Object,
             categoryService.Object,
             itemService.Object,

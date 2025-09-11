@@ -15,6 +15,7 @@ public class Module : IModule
 
     public void Initialize(IServiceCollection serviceCollection)
     {
+        serviceCollection.AddTransient<ICsvProductReader, CsvProductReader>();
         serviceCollection.AddTransient<ICsvCatalogExporter, CsvCatalogExporter>();
         serviceCollection.AddTransient<ICsvCatalogImporter, CsvCatalogImporter>();
 

@@ -44,7 +44,7 @@ public class CsvProductMappingConfiguration
         foreach (var propertyMap in PropertyMaps)
         {
             var entityColumnName = propertyMap.EntityColumnName;
-            var betterMatchCsvColumn = csvColumns.Select(x => new { csvColumn = x, distance = x.ComputeLevenshteinDistance(entityColumnName) })
+            var betterMatchCsvColumn = CsvColumns.Select(x => new { csvColumn = x, distance = x.ComputeLevenshteinDistance(entityColumnName) })
                 .Where(x => x.distance < 2)
                 .OrderBy(x => x.distance)
                 .Select(x => x.csvColumn)
@@ -62,7 +62,7 @@ public class CsvProductMappingConfiguration
         }
 
         //All not mapped properties may be a product property
-        PropertyCsvColumns = csvColumns.Except(PropertyMaps.Where(x => x.CsvColumnName != null).Select(x => x.CsvColumnName)).ToArray();
+        PropertyCsvColumns = CsvColumns.Except(PropertyMaps.Where(x => x.CsvColumnName != null).Select(x => x.CsvColumnName)).ToArray();
         //Generate ETag for identifying csv format
         ETag = string.Join(";", CsvColumns).GetMD5Hash();
     }

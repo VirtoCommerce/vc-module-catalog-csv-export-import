@@ -67,7 +67,7 @@ public class CsvCatalogExporter(
             Delimiter = exportInfo.Configuration.Delimiter,
         };
 
-        var streamWriter = new StreamWriter(outStream, Encoding.UTF8, 1024, true) { AutoFlush = true };
+        var streamWriter = new StreamWriter(outStream, Encoding.UTF8, 1024, leaveOpen: true) { AutoFlush = true };
         await using var csvWriter = new CsvWriter(streamWriter, writerConfig);
         csvWriter.Context.RegisterClassMap(CsvProductMap.Create(exportInfo.Configuration));
 

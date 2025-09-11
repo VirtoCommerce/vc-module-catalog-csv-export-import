@@ -1,11 +1,8 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using CsvHelper;
-using CsvHelper.Configuration;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -39,6 +36,7 @@ public class ExportImportController(
     ICurrencyService currencyService,
     IBlobStorageProvider blobStorageProvider,
     IBlobUrlResolver blobUrlResolver,
+    ICsvProductReader csvProductReader,
     ICsvCatalogExporter csvExporter,
     ICsvCatalogImporter csvImporter,
     IUserNameResolver userNameResolver,
@@ -52,11 +50,10 @@ public class ExportImportController(
     [Authorize(CatalogModuleConstants.Security.Permissions.Export)]
     public ActionResult<CsvProductMappingConfiguration> GetExportMappingConfiguration([FromQuery] string delimiter = ";")
     {
-        var result = CsvProductMappingConfiguration.GetDefaultConfiguration();
-        var decodedDelimiter = HttpUtility.UrlDecode(delimiter);
-        result.Delimiter = decodedDelimiter;
+        var configuration = CsvProductMappingConfiguration.GetDefaultConfiguration();
+        configuration.Delimiter = HttpUtility.UrlDecode(delimiter);
 
-        return Ok(result);
+        return Ok(configuration);
     }
 
     /// <summary>
@@ -125,25 +122,17 @@ public class ExportImportController(
     [Authorize(CatalogModuleConstants.Security.Permissions.Import)]
     public async Task<ActionResult<CsvProductMappingConfiguration>> GetImportMappingConfiguration([FromQuery] string fileUrl, [FromQuery] string delimiter = ";")
     {
-        var result = CsvProductMappingConfiguration.GetDefaultConfiguration();
-        var decodedDelimiter = HttpUtility.UrlDecode(delimiter);
-        result.Delimiter = decodedDelimiter;
+        var configuration = CsvProductMappingConfiguration.GetDefaultConfiguration();
+        configuration.Delimiter = HttpUtility.UrlDecode(delimiter);
 
-        //Read csv headers and try to auto map fields by name
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        // Read CSV headers and try to map fields by name
+        var columns = await csvProductReader.ReadColumns(await blobStorageProvider.OpenReadAsync(fileUrl), configuration.Delimiter);
+        if (columns.Count > 0)
         {
-            Delimiter = decodedDelimiter,
-        };
-
-        using (var reader = new CsvReader(new StreamReader(await blobStorageProvider.OpenReadAsync(fileUrl)), config))
-        {
-            if (await reader.ReadAsync() && reader.ReadHeader())
-            {
-                result.AutoMap(reader.HeaderRecord);
-            }
+            configuration.AutoMap(columns);
         }
 
-        return Ok(result);
+        return Ok(configuration);
     }
 
     /// <summary>
