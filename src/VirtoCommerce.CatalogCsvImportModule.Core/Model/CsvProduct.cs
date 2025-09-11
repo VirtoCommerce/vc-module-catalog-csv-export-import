@@ -19,8 +19,6 @@ public class CsvProduct : CatalogProduct
 
     public CsvProduct()
     {
-        SeoInfos = new List<SeoInfo>();
-        Reviews = new List<EditorialReview>();
         Properties = new List<Property>();
         Images = new List<Image>();
         Assets = new List<Asset>();
@@ -326,8 +324,7 @@ public class CsvProduct : CatalogProduct
         get { return SeoInfo.SemanticUrl; }
         set
         {
-            var slug = value;
-            SeoInfo.SemanticUrl = slug.Substring(0, Math.Min(slug.Length, 240));
+            SeoInfo.SemanticUrl = value?.Substring(0, Math.Min(value.Length, 240));
         }
     }
 

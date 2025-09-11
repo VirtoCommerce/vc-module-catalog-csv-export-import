@@ -42,7 +42,7 @@ public class CsvProductReader : ICsvProductReader
 
         using var csvReader = await GetCsvReader(stream, configuration.Delimiter);
         csvReader.Context.RegisterClassMap(CsvProductMap.Create(configuration));
-        //csvReader.Context.TypeConverterOptionsCache.GetOptions<string>().NullValues.Add(string.Empty);
+        csvReader.Context.TypeConverterOptionsCache.GetOptions<string>().NullValues.Add(string.Empty);
 
         var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
 
@@ -52,7 +52,7 @@ public class CsvProductReader : ICsvProductReader
             {
                 var csvProduct = (CsvProduct)csvReader.GetRecord(csvProductType);
 
-                ReplaceEmptyStringsWithNull(csvProduct);
+                RemoveEmptyReviews(csvProduct);
                 csvProduct.CreateImagesFromFlatData();
 
                 csvProducts.Add(csvProduct);
@@ -157,16 +157,10 @@ public class CsvProductReader : ICsvProductReader
         }
     }
 
-    private static void ReplaceEmptyStringsWithNull(CsvProduct csvProduct)
+    private static void RemoveEmptyReviews(CsvProduct csvProduct)
     {
-        csvProduct.Id = string.IsNullOrEmpty(csvProduct.Id) ? null : csvProduct.Id;
-        csvProduct.OuterId = string.IsNullOrEmpty(csvProduct.OuterId) ? null : csvProduct.OuterId;
-        csvProduct.CategoryId = string.IsNullOrEmpty(csvProduct.CategoryId) ? null : csvProduct.CategoryId;
-        csvProduct.MainProductId = string.IsNullOrEmpty(csvProduct.MainProductId) ? null : csvProduct.MainProductId;
-        csvProduct.PriceId = string.IsNullOrEmpty(csvProduct.PriceId) ? null : csvProduct.PriceId;
-        csvProduct.PriceListId = string.IsNullOrEmpty(csvProduct.PriceListId) ? null : csvProduct.PriceListId;
-        csvProduct.FulfillmentCenterId = string.IsNullOrEmpty(csvProduct.FulfillmentCenterId) ? null : csvProduct.FulfillmentCenterId;
-        csvProduct.PackageType = string.IsNullOrEmpty(csvProduct.PackageType) ? null : csvProduct.PackageType;
-        csvProduct.Reviews = csvProduct.Reviews.Where(x => !string.IsNullOrEmpty(x.Content) && !string.IsNullOrEmpty(x.ReviewType)).ToList();
+        csvProduct.Reviews = csvProduct.Reviews
+            .Where(x => !string.IsNullOrEmpty(x.Content) && !string.IsNullOrEmpty(x.ReviewType))
+            .ToList();
     }
 }

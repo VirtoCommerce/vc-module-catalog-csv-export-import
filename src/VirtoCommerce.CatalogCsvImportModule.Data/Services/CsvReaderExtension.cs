@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CsvHelper;
 using VirtoCommerce.CatalogModule.Core.Model;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
 
@@ -14,6 +15,16 @@ public static class CsvReaderExtension
     {
         var columnValue = reader.GetField<string>(columnName);
 
+        if (columnValue.IsNullOrEmpty())
+        {
+            yield return new PropertyValue
+            {
+                PropertyName = columnName,
+            };
+
+            yield break;
+        }
+
         foreach (var value in columnValue.Trim().Split(Delimiter))
         {
             const int multilanguagePartsCount = 2;
@@ -24,7 +35,7 @@ public static class CsvReaderExtension
             {
                 PropertyName = columnName,
                 Value = multilanguage ? valueParts.Last() : value,
-                LanguageCode = multilanguage ? valueParts.First() : string.Empty,
+                LanguageCode = multilanguage ? valueParts.First() : null,
             };
         }
     }

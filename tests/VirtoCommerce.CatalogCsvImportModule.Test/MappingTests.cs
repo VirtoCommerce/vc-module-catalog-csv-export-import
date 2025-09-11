@@ -27,18 +27,20 @@ public class MappingTests
         var csvProducts = await ReadCsvFile("product-propertyvalues.csv", configuration =>
         {
             configuration.CsvColumns = ["Sku"];
-            configuration.PropertyCsvColumns = ["ProductProperty", "ProductProperty_Multivalue"];
+            configuration.PropertyCsvColumns = ["ProductProperty", "ProductProperty_Multivalue", "ProductProperty_Empty"];
         });
 
         Action<PropertyValue>[] inspectorsFirstProduct =
         [
             x => Assert.True((string) x.Value == "Product-1-propertyvalue-test" && x.PropertyName =="ProductProperty"),
             x => Assert.True((string) x.Value == "Product-1-multivalue-1, Product-1-multivalue-2" && x.PropertyName =="ProductProperty_Multivalue"),
+            x => Assert.True((string) x.Value == null && x.PropertyName =="ProductProperty_Empty"),
         ];
         Action<PropertyValue>[] inspectorsSecond =
         [
             x => Assert.True((string) x.Value == "Product-2-propertyvalue-test" && x.PropertyName =="ProductProperty"),
             x => Assert.True((string) x.Value == "Product-2-multivalue-1, Product-2-multivalue-1, Product-2-multivalue-3" && x.PropertyName =="ProductProperty_Multivalue"),
+            x => Assert.True((string) x.Value == null && x.PropertyName =="ProductProperty_Empty"),
         ];
 
         Assert.NotEmpty(csvProducts);
