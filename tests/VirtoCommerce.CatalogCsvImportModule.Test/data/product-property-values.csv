@@ -1,0 +1,3 @@
+Sku,ProductProperty,ProductProperty_Multivalue,ProductProperty_Empty
+SKU1,Product-1-property-value-test,"Product-1-multivalue-1, Product-1-multivalue-2",
+SKU2,Product-2-property-value-test,"Product-2-multivalue-1, Product-2-multivalue-1, Product-2-multivalue-3",

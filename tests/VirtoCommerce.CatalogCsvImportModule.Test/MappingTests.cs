@@ -24,7 +24,7 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasPropertyValues_PropertyValuesMapped()
     {
-        var csvProducts = await ReadCsvFile("product-propertyvalues.csv", configuration =>
+        var csvProducts = await ReadCsvFile("product-property-values.csv", configuration =>
         {
             configuration.CsvColumns = ["Sku"];
             configuration.PropertyCsvColumns = ["ProductProperty", "ProductProperty_Multivalue", "ProductProperty_Empty"];
@@ -32,13 +32,13 @@ public class MappingTests
 
         Action<PropertyValue>[] inspectorsFirstProduct =
         [
-            x => Assert.True((string) x.Value == "Product-1-propertyvalue-test" && x.PropertyName =="ProductProperty"),
+            x => Assert.True((string) x.Value == "Product-1-property-value-test" && x.PropertyName =="ProductProperty"),
             x => Assert.True((string) x.Value == "Product-1-multivalue-1, Product-1-multivalue-2" && x.PropertyName =="ProductProperty_Multivalue"),
             x => Assert.True((string) x.Value == null && x.PropertyName =="ProductProperty_Empty"),
         ];
         Action<PropertyValue>[] inspectorsSecond =
         [
-            x => Assert.True((string) x.Value == "Product-2-propertyvalue-test" && x.PropertyName =="ProductProperty"),
+            x => Assert.True((string) x.Value == "Product-2-property-value-test" && x.PropertyName =="ProductProperty"),
             x => Assert.True((string) x.Value == "Product-2-multivalue-1, Product-2-multivalue-1, Product-2-multivalue-3" && x.PropertyName =="ProductProperty_Multivalue"),
             x => Assert.True((string) x.Value == null && x.PropertyName =="ProductProperty_Empty"),
         ];
@@ -51,18 +51,18 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasProductProperties_PropertiesMapped()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties.csv");
+        var csvProducts = await ReadCsvFile("product-properties.csv");
 
         Assert.NotEmpty(csvProducts);
 
         var product = csvProducts.First();
 
         Assert.Equal("429408", product.Id);
-        Assert.Equal("CBLK21113", product.Sku);
-        Assert.Equal("cblk21113-product-1", product.Name);
-        Assert.Equal("catId_1", product.CategoryId);
+        Assert.Equal("SKU1", product.Sku);
+        Assert.Equal("Name 1", product.Name);
+        Assert.Equal("category_id_1", product.CategoryId);
         Assert.Equal("GTIN_Value", product.Gtin);
-        Assert.Equal("mainprod_123", product.MainProductId);
+        Assert.Equal("main_product_id_123", product.MainProductId);
         Assert.Equal("Vendor_value", product.Vendor);
         Assert.Equal("ProductType_value", product.ProductType);
         Assert.Equal("ShippingType_value", product.ShippingType);
@@ -83,7 +83,7 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasPriceAndQuantity_PriceAndQuantityMapped()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties-priceQuantity.csv");
+        var csvProducts = await ReadCsvFile("product-properties-priceQuantity.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -102,18 +102,18 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasSeoInfo_SeoInfoMapped()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties-seoInfo.csv");
+        var csvProducts = await ReadCsvFile("product-properties-seo-info.csv");
 
         csvProducts.Should().HaveCount(2);
 
-        var product = csvProducts.First(x => x.Code == "cblk21113-product-1");
+        var product = csvProducts.First(x => x.Code == "SKU1");
 
         Assert.Equal("seo-slug-url", product.SeoUrl);
         Assert.Equal("seo-slug-url", product.SeoInfo.SemanticUrl);
         Assert.Equal("Seo_Title_Value", product.SeoTitle);
         Assert.Equal("Seo_Title_Value", product.SeoInfo.PageTitle);
-        Assert.Equal("Seo_Descr_Value", product.SeoDescription);
-        Assert.Equal("Seo_Descr_Value", product.SeoInfo.MetaDescription);
+        Assert.Equal("Seo_Description_Value", product.SeoDescription);
+        Assert.Equal("Seo_Description_Value", product.SeoInfo.MetaDescription);
         Assert.Equal("Seo_Language_Value", product.SeoInfo.LanguageCode);
         Assert.Equal("Seo_Meta", product.SeoMetaKeywords);
         Assert.Equal("Seo_Meta", product.SeoInfo.MetaKeywords);
@@ -124,7 +124,7 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasReview_ReviewMapped()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties-review.csv");
+        var csvProducts = await ReadCsvFile("product-properties-review.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -139,7 +139,7 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasCategoryPath_CategoryPathMapped()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties-categoryPath.csv");
+        var csvProducts = await ReadCsvFile("product-properties-categoryPath.csv");
 
         Assert.NotEmpty(csvProducts);
 
@@ -154,7 +154,7 @@ public class MappingTests
     {
         const string defaultCategoryPath = "Custom_category_path_value";
 
-        var csvProducts = await ReadCsvFile("product-productproperties-noCategoryPath.csv", configuration =>
+        var csvProducts = await ReadCsvFile("product-properties-noCategoryPath.csv", configuration =>
         {
             var categoryPathMapping = configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "CategoryPath");
 
@@ -177,7 +177,7 @@ public class MappingTests
     {
         const bool defaultIsBuyableValue = true;
 
-        var csvProducts = await ReadCsvFile("product-productproperties.csv", configuration =>
+        var csvProducts = await ReadCsvFile("product-properties.csv", configuration =>
         {
             var categoryPathMapping = configuration.PropertyMaps.FirstOrDefault(x => x.EntityColumnName == "IsBuyable");
 
@@ -197,7 +197,7 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasBooleanValues_BooleanFieldsMapped()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties-boolean.csv");
+        var csvProducts = await ReadCsvFile("product-properties-boolean.csv");
 
         Assert.False(csvProducts[0].HasUserAgreement);
         Assert.False(csvProducts[0].IsBuyable);
@@ -211,7 +211,7 @@ public class MappingTests
     [Fact]
     public async Task CsvProductMapTest_CsvHasMultipleLines_LineNumberMapTest()
     {
-        var csvProducts = await ReadCsvFile("product-productproperties-twoproducts.csv");
+        var csvProducts = await ReadCsvFile("product-properties-two-products.csv");
 
         Assert.Equal(2, csvProducts[0].LineNumber);
         Assert.Equal(3, csvProducts[1].LineNumber);

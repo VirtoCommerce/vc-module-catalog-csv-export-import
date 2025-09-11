@@ -1,2 +1,2 @@
 Name,Id,Sku,CategoryId,Gtin,MainProductId,PrimaryImage,ProductType,ShippingType,Vendor,DownloadType,HasUserAgreement,IsBuyable,TrackInventory,OuterId,PackageType,FulfillmentCenterId,MaxNumberOfDownload,Priority,MaxQuantity,MinQuantity
-cblk21113-product-1,429408,CBLK21113,catId_1,GTIN_Value,mainprod_123,http://localhost/image.jpg,ProductType_value,ShippingType_value,Vendor_value,DownloadType_value,TRUE,TRUE,TRUE,OuterId,PackageType,FulfillmentCenterId,1,1,10,5
+Name 1,429408,SKU1,category_id_1,GTIN_Value,main_product_id_123,http://localhost/image.jpg,ProductType_value,ShippingType_value,Vendor_value,DownloadType_value,TRUE,TRUE,TRUE,OuterId,PackageType,FulfillmentCenterId,1,1,10,5
