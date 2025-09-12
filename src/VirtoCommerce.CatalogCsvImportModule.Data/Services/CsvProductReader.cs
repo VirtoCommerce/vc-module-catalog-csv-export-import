@@ -120,8 +120,7 @@ public class CsvProductReader : ICsvProductReader
                 // Read the first few bytes to check for a BOM
                 var bytes = new byte[4];
                 var bytesRead = await stream.ReadAsync(bytes, 0, bytes.Length);
-                var span = new ReadOnlySpan<byte>(bytes, 0, bytesRead);
-                return span.DetectEncoding();
+                return bytes.DetectEncoding(bytesRead);
             }
             finally
             {

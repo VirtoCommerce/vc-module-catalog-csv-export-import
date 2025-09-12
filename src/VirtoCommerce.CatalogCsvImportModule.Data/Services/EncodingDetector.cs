@@ -5,35 +5,37 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
 
 public static class EncodingDetector
 {
-    public static byte[] Utf32LeBom = [0xFF, 0xFE, 0x00, 0x00];
-    public static byte[] Utf32BeBom = [0x00, 0x00, 0xFE, 0xFF];
-    public static byte[] Utf8Bom = [0xEF, 0xBB, 0xBF];
-    public static byte[] Utf16LeBom = [0xFF, 0xFE];
-    public static byte[] Utf16BeBom = [0xFE, 0xFF];
+    private static readonly byte[] _utf32LeBom = [0xFF, 0xFE, 0x00, 0x00];
+    private static readonly byte[] _utf32BeBom = [0x00, 0x00, 0xFE, 0xFF];
+    private static readonly byte[] _utf8Bom = [0xEF, 0xBB, 0xBF];
+    private static readonly byte[] _utf16LeBom = [0xFF, 0xFE];
+    private static readonly byte[] _utf16BeBom = [0xFE, 0xFF];
 
-    public static Encoding DetectEncoding(this ReadOnlySpan<byte> span)
+    public static Encoding DetectEncoding(this byte[] array, int size)
     {
-        if (span.StartsWith(Utf32LeBom))
+        var span = new ReadOnlySpan<byte>(array, 0, size);
+
+        if (span.StartsWith(_utf32LeBom))
         {
             return Encoding.UTF32;
         }
 
-        if (span.StartsWith(Utf32BeBom))
+        if (span.StartsWith(_utf32BeBom))
         {
             return new UTF32Encoding(bigEndian: true, byteOrderMark: true);
         }
 
-        if (span.StartsWith(Utf8Bom))
+        if (span.StartsWith(_utf8Bom))
         {
             return Encoding.UTF8;
         }
 
-        if (span.StartsWith(Utf16LeBom))
+        if (span.StartsWith(_utf16LeBom))
         {
             return Encoding.Unicode;
         }
 
-        if (span.StartsWith(Utf16BeBom))
+        if (span.StartsWith(_utf16BeBom))
         {
             return Encoding.BigEndianUnicode;
         }
