@@ -313,6 +313,13 @@ public class CsvProduct : CatalogProduct
         set { EditorialReview.Content = value; }
     }
 
+
+    public string SeoId
+    {
+        get { return SeoInfo.Id; }
+        set { SeoInfo.Id = value; }
+    }
+
     public string SeoTitle
     {
         get { return SeoInfo.PageTitle; }
@@ -503,7 +510,10 @@ public class CsvProduct : CatalogProduct
 
         foreach (var seoInfo in SeoInfos.OfType<CsvSeoInfo>())
         {
-            var existingSeoInfo = product.SeoInfos.FirstOrDefault(x => seoComparer.Equals(x, seoInfo));
+            var existingSeoInfo = seoInfo.Id.IsNullOrEmpty()
+                ? product.SeoInfos.FirstOrDefault(x => seoComparer.Equals(x, seoInfo))
+                : product.SeoInfos.FirstOrDefault(x => x.Id.EqualsIgnoreCase(seoInfo.Id));
+
             if (existingSeoInfo != null)
             {
                 seoInfo.MergeFrom(existingSeoInfo);

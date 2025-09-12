@@ -109,6 +109,28 @@ public class MergingTests
         Assert.Equal("Original title", seo2.PageTitle);
     }
 
+    [Fact]
+    public void Seo_WithId_SeoUpdated()
+    {
+        // Arrange
+        var existingProduct = GetExistingProduct();
+
+        var csvProduct = new CsvProduct
+        {
+            SeoInfos = new List<SeoInfo> { new CsvSeoInfo { Id = "1", SemanticUrl = "New URL", PageTitle = "New title" } },
+        };
+
+        // Act
+        csvProduct.MergeFrom(existingProduct);
+
+        // Assert
+        csvProduct.SeoInfos.Should().HaveCount(1);
+        var seo1 = csvProduct.SeoInfos[0];
+        Assert.Equal("1", seo1.Id);
+        Assert.Equal("New URL", seo1.SemanticUrl);
+        Assert.Equal("New title", seo1.PageTitle);
+    }
+
 
     private static CatalogProduct GetExistingProduct()
     {
