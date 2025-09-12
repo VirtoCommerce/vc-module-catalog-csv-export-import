@@ -324,7 +324,8 @@ public class CsvProduct : CatalogProduct
         get { return SeoInfo.SemanticUrl; }
         set
         {
-            SeoInfo.SemanticUrl = value?.Substring(0, Math.Min(value.Length, 240));
+            const int maxSemanticUrlLength = 240;
+            SeoInfo.SemanticUrl = value?.Substring(0, Math.Min(value.Length, maxSemanticUrlLength));
         }
     }
 

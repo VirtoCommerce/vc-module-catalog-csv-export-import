@@ -99,7 +99,7 @@ public class CsvProductReader : ICsvProductReader
         return csvReader;
     }
 
-    private static async Task<Encoding> DetectEncoding(Stream stream)
+    private static Task<Encoding> DetectEncoding(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
@@ -108,52 +108,26 @@ public class CsvProductReader : ICsvProductReader
             throw new ArgumentException("Stream must support seeking.", nameof(stream));
         }
 
-        // Save the current position of the stream to reset later
-        var originalPosition = stream.Position;
+        return DetectEncodingAsync();
 
-        try
+        async Task<Encoding> DetectEncodingAsync()
         {
-            // Read the first few bytes to check for a BOM
-            var bom = new byte[4];
-            var bytesRead = await stream.ReadAsync(bom, 0, bom.Length);
+            // Save the current position of the stream to reset later
+            var originalPosition = stream.Position;
 
-            // UTF-8 BOM (EF BB BF)
-            if (bytesRead >= 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
+            try
             {
-                return Encoding.UTF8;
+                // Read the first few bytes to check for a BOM
+                var bytes = new byte[4];
+                var bytesRead = await stream.ReadAsync(bytes, 0, bytes.Length);
+                var span = new ReadOnlySpan<byte>(bytes, 0, bytesRead);
+                return span.DetectEncoding();
             }
-
-            // UTF-16 LE BOM (FF FE)
-            if (bytesRead >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
+            finally
             {
-                return Encoding.Unicode;
+                // Reset the stream position to the original state
+                stream.Position = originalPosition;
             }
-
-            // UTF-16 BE BOM (FE FF)
-            if (bytesRead >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
-            {
-                return Encoding.BigEndianUnicode;
-            }
-
-            // UTF-32 LE BOM (FF FE 00 00)
-            if (bytesRead >= 4 && bom[0] == 0xFF && bom[1] == 0xFE && bom[2] == 0x00 && bom[3] == 0x00)
-            {
-                return Encoding.UTF32;
-            }
-
-            // UTF-32 BE BOM (00 00 FE FF)
-            if (bytesRead >= 4 && bom[0] == 0x00 && bom[1] == 0x00 && bom[2] == 0xFE && bom[3] == 0xFF)
-            {
-                return new UTF32Encoding(bigEndian: true, byteOrderMark: true);
-            }
-
-            // Default to UTF-8 if no BOM is found
-            return Encoding.UTF8;
-        }
-        finally
-        {
-            // Reset the stream position to the original state
-            stream.Position = originalPosition;
         }
     }
 
