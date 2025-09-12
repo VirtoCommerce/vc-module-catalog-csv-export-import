@@ -5,22 +5,21 @@ public static class UrlHelper
 {
     public static string ExtractFileNameFromUrl(string url)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(url);
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
 
-        if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
-        {
-            if (!uri.IsAbsoluteUri)
-            {
-                uri = new Uri(new Uri("https://dummy-base/"), url);
-            }
-
-            // Get the file name from the path
-            var localPath = uri.LocalPath;
-            return localPath.Substring(localPath.LastIndexOf('/') + 1);
-        }
-        else
+        if (!Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
         {
             throw new UriFormatException($"Invalid URL format {url}.");
         }
+
+        if (!uri.IsAbsoluteUri)
+        {
+            uri = new Uri(new Uri("https://dummy-base/"), url);
+        }
+
+        var localPath = uri.LocalPath;
+
+        // Get the file name from the path
+        return localPath.Substring(localPath.LastIndexOf('/') + 1);
     }
 }

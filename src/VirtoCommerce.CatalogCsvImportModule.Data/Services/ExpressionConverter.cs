@@ -4,72 +4,71 @@ using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using VirtoCommerce.Platform.Core.Common;
 
-namespace VirtoCommerce.CatalogCsvImportModule.Data.Services
+namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
+
+public class ExpressionConverter<T>(
+    Func<string, T> inExpression,
+    Func<T, string> outExpression)
+    : ITypeConverter
 {
-    public class ExpressionConverter<T> : ITypeConverter
+    public Func<string, T> InExpression { get; set; } = inExpression;
+    public Func<T, string> OutExpression { get; set; } = outExpression;
+
+    public bool CanConvertFrom(Type type)
     {
-        public Func<string, T> InExpression { get; set; }
-        public Func<T, string> OutExpression { get; set; }
-        public ExpressionConverter(Func<string, T> inExp, Func<T, string> outExp)
+        return InExpression != null;
+    }
+
+    public bool CanConvertTo(Type type)
+    {
+        return OutExpression != null;
+    }
+
+    public string ConvertToString(TypeConverterOptions options, object value)
+    {
+        return OutExpression((T)value);
+    }
+
+    public string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+    {
+        if (value == null)
         {
-            InExpression = inExp;
-            OutExpression = outExp;
-        }
-        public bool CanConvertFrom(Type type)
-        {
-            return InExpression != null;
+            return string.Empty;
         }
 
-        public bool CanConvertTo(Type type)
-        {
-            return OutExpression != null;
-        }
-
-        public string ConvertToString(TypeConverterOptions options, object value)
+        if (OutExpression != null)
         {
             return OutExpression((T)value);
         }
 
-        public string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+        return value.ToString();
+    }
+
+    public object ConvertFromString(TypeConverterOptions options, string text)
+    {
+        return InExpression(text);
+    }
+
+    public object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+    {
+        if (text.IsNullOrEmpty())
         {
-            if (value == null)
-            {
-                return string.Empty;
-            }
-
-            if (OutExpression != null)
-            {
-                return OutExpression((T)value);
-            }
-
-            return value.ToString();
+            return null;
         }
 
-        public object ConvertFromString(TypeConverterOptions options, string text)
+        if (InExpression != null)
         {
             return InExpression(text);
         }
 
-        public object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {
-            if (text.IsNullOrEmpty())
-                return null;
-
-            if (InExpression != null)
-            {
-                return InExpression(text);
-            }
-
-            return null;
-        }
+        return null;
     }
+}
 
-    public static class CsvHelperExtensions
+public static class CsvHelperExtensions
+{
+    public static MemberMap UsingExpression<T>(this MemberMap map, Func<string, T> readExpression, Func<T, string> writeExpression)
     {
-        public static MemberMap UsingExpression<T>(this MemberMap map, Func<string, T> readExpression,
-            Func<T, string> writeExpression)
-        {
-            return map.TypeConverter(new ExpressionConverter<T>(readExpression, writeExpression));
-        }
+        return map.TypeConverter(new ExpressionConverter<T>(readExpression, writeExpression));
     }
 }

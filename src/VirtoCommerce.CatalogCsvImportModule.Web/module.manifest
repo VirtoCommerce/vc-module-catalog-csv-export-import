@@ -18,6 +18,7 @@
   <description>Enables seamless export and import of catalog data in CSV format, simplifying data management and integration with external systems.</description>
   <authors>
     <author>Konstantin Savosteev</author>
+    <author>Artem Dudarev</author>
   </authors>
   <owners>
     <owner>Virto Commerce</owner>

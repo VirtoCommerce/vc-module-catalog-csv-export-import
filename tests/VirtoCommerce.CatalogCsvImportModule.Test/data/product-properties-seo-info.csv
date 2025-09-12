@@ -1,0 +1,3 @@
+Sku,SeoUrl,SeoTitle,SeoDescription,SeoLanguage,SeoStore,SeoMetaKeywords,SeoImageAlternativeText
+SKU1,seo-slug-url,Seo_Title_Value,Seo_Description_Value,Seo_Language_Value,Seo_Store_id,Seo_Meta,Seo_Alt_text
+SKU2,seo-slug-url-2,Seo_Title_Value,Seo_Description_Value,,Seo_Store_id,Seo_Meta,Seo_Alt_text

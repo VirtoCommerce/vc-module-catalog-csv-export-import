@@ -1,9 +1,8 @@
-﻿namespace VirtoCommerce.CatalogCsvImportModule.Core.Model
+namespace VirtoCommerce.CatalogCsvImportModule.Core.Model;
+
+public class CsvImportInfo
 {
-    public class CsvImportInfo
-    {
-        public string CatalogId { get; set; }
-        public string FileUrl { get; set; }
-        public CsvProductMappingConfiguration Configuration { get; set; }
-    }
+    public string CatalogId { get; set; }
+    public string FileUrl { get; set; }
+    public CsvProductMappingConfiguration Configuration { get; set; }
 }

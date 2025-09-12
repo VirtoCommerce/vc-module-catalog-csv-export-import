@@ -2,39 +2,38 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using VirtoCommerce.Platform.Core.Settings;
 
-namespace VirtoCommerce.CatalogCsvImportModule.Core
+namespace VirtoCommerce.CatalogCsvImportModule.Core;
+
+[ExcludeFromCodeCoverage]
+public static class ModuleConstants
 {
-    [ExcludeFromCodeCoverage]
-    public static class ModuleConstants
+    public static class Settings
     {
-        public static class Settings
+        public static class General
         {
-            public static class General
+            public static SettingDescriptor CreateDictionaryValues { get; } = new()
             {
-                public static SettingDescriptor CreateDictionaryValues { get; } = new SettingDescriptor
-                {
-                    Name = "CatalogCsvImport.CreateDictionaryValues",
-                    GroupName = "CatalogCsvImport|General",
-                    ValueType = SettingValueType.Boolean,
-                    DefaultValue = false
-                };
+                Name = "CatalogCsvImport.CreateDictionaryValues",
+                GroupName = "CatalogCsvImport|General",
+                ValueType = SettingValueType.Boolean,
+                DefaultValue = false,
+            };
 
-                public static SettingDescriptor ExportFileNameTemplate { get; } = new SettingDescriptor
-                {
-                    Name = "CatalogCsvImport.ExportFileNameTemplate",
-                    ValueType = SettingValueType.ShortText,
-                    GroupName = "CatalogCsvImport|General",
-                    DefaultValue = "products_{0:yyyy-MM-dd_HH-mm-ss}"
-                };
-            }
-
-            public static IEnumerable<SettingDescriptor> AllSettings
+            public static SettingDescriptor ExportFileNameTemplate { get; } = new()
             {
-                get
-                {
-                    yield return General.CreateDictionaryValues;
-                    yield return General.ExportFileNameTemplate;
-                }
+                Name = "CatalogCsvImport.ExportFileNameTemplate",
+                ValueType = SettingValueType.ShortText,
+                GroupName = "CatalogCsvImport|General",
+                DefaultValue = "products_{0:yyyy-MM-dd_HH-mm-ss}",
+            };
+        }
+
+        public static IEnumerable<SettingDescriptor> AllSettings
+        {
+            get
+            {
+                yield return General.CreateDictionaryValues;
+                yield return General.ExportFileNameTemplate;
             }
         }
     }
