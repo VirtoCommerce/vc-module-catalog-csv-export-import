@@ -11,10 +11,8 @@ public static class EncodingDetector
     private static readonly byte[] _utf16LeBom = [0xFF, 0xFE];
     private static readonly byte[] _utf16BeBom = [0xFE, 0xFF];
 
-    public static Encoding DetectEncoding(this byte[] array, int size)
+    public static Encoding DetectEncoding(this Span<byte> span)
     {
-        var span = new ReadOnlySpan<byte>(array, 0, size);
-
         if (span.StartsWith(_utf32LeBom))
         {
             return Encoding.UTF32;
@@ -41,23 +39,5 @@ public static class EncodingDetector
         }
 
         return Encoding.UTF8;
-    }
-
-    public static bool StartsWith(this ReadOnlySpan<byte> span, ReadOnlySpan<byte> other)
-    {
-        if (span.Length < other.Length)
-        {
-            return false;
-        }
-
-        for (var i = 0; i < other.Length; i++)
-        {
-            if (span[i] != other[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
