@@ -34,20 +34,15 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests;
 public class ImporterTests
 {
     private readonly IMapper _mapper;
-
     private readonly Catalog _catalog = CreateCatalog();
-
     private readonly List<Category> _categoriesInternal = [];
     private List<CatalogProduct> _productsInternal = [];
-
     private List<Price> _pricesInternal = [];
-    private readonly List<FulfillmentCenter> _fulfillmentCentersInternal = [];
-
     private List<CatalogProduct> _savedProducts;
 
     public ImporterTests()
     {
-        // To fix the error:  'Cyrillic' is not a supported encoding name. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method. (Parameter 'name')
+        // To fix the error: 'Cyrillic' is not a supported encoding name. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method. (Parameter 'name')
         // https://github.com/dotnet/runtime/issues/17516
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
