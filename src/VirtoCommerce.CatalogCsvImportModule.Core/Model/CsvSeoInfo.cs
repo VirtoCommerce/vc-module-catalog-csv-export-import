@@ -7,12 +7,25 @@ public class CsvSeoInfo : SeoInfo
 {
     public virtual void MergeFrom(SeoInfo source)
     {
-        SemanticUrl = source.SemanticUrl;
-        LanguageCode = source.LanguageCode;
-        StoreId = source.StoreId;
-        ObjectId = source.ObjectId;
-        ObjectType = source.ObjectType;
-        Id = source.Id;
+        if (Id.IsNullOrEmpty())
+        {
+            Id = source.Id;
+        }
+
+        if (SemanticUrl.IsNullOrEmpty())
+        {
+            SemanticUrl = source.SemanticUrl;
+        }
+
+        if (LanguageCode.IsNullOrEmpty())
+        {
+            LanguageCode = source.LanguageCode;
+        }
+
+        if (StoreId.IsNullOrEmpty())
+        {
+            StoreId = source.StoreId;
+        }
 
         if (PageTitle.IsNullOrEmpty())
         {
@@ -33,5 +46,8 @@ public class CsvSeoInfo : SeoInfo
         {
             ImageAltDescription = source.ImageAltDescription;
         }
+
+        ObjectId = source.ObjectId;
+        ObjectType = source.ObjectType;
     }
 }
