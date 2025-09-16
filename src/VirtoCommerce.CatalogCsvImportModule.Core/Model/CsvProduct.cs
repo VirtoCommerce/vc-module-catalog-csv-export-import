@@ -510,9 +510,9 @@ public class CsvProduct : CatalogProduct
 
         foreach (var seoInfo in SeoInfos.OfType<CsvSeoInfo>())
         {
-            var existingSeoInfo = seoInfo.Id.IsNullOrEmpty()
-                ? product.SeoInfos.FirstOrDefault(x => seoComparer.Equals(x, seoInfo))
-                : product.SeoInfos.FirstOrDefault(x => x.Id.EqualsIgnoreCase(seoInfo.Id));
+            var existingSeoInfo = !seoInfo.Id.IsNullOrEmpty()
+                ? product.SeoInfos.FirstOrDefault(x => x.Id.EqualsIgnoreCase(seoInfo.Id))
+                : product.SeoInfos.FirstOrDefault(x => seoComparer.Equals(x, seoInfo));
 
             if (existingSeoInfo != null)
             {
@@ -520,6 +520,7 @@ public class CsvProduct : CatalogProduct
                 product.SeoInfos.Remove(existingSeoInfo);
             }
         }
+
         SeoInfos = SeoInfos.Where(x => !x.SemanticUrl.IsNullOrEmpty()).Concat(product.SeoInfos).ToList();
     }
 
