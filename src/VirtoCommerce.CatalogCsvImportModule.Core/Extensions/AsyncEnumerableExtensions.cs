@@ -11,6 +11,7 @@ public static class AsyncEnumerableExtensions
         await foreach (var item in source)
         {
             page.Add(item);
+
             if (page.Count >= batchSize)
             {
                 yield return page;

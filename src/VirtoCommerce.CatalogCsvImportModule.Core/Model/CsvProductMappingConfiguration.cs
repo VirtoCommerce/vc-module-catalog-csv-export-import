@@ -24,7 +24,8 @@ public class CsvProductMappingConfiguration
 
     public virtual IList<string> GetOptionalFields()
     {
-        var optionalFields = ReflectionUtility.GetPropertyNames<CsvProduct>(x => x.Name, x => x.Id, x => x.Sku, x => x.CategoryPath, x => x.CategoryId, x => x.MainProductId,
+        var optionalFields = ReflectionUtility.GetPropertyNames<CsvProduct>(
+            x => x.Name, x => x.Id, x => x.Sku, x => x.CategoryPath, x => x.CategoryId, x => x.MainProductId,
             x => x.PrimaryImage, x => x.PrimaryImageGroup, x => x.AltImage, x => x.AltImageGroup,
             x => x.SeoId, x => x.SeoUrl, x => x.SeoTitle, x => x.SeoDescription, x => x.SeoLanguage, x => x.SeoStore, x => x.SeoMetaKeywords, x => x.SeoImageAlternativeText,
             x => x.Review, x => x.ReviewType, x => x.IsActive, x => x.IsBuyable, x => x.TrackInventory,
@@ -44,11 +45,13 @@ public class CsvProductMappingConfiguration
         foreach (var propertyMap in PropertyMaps)
         {
             var entityColumnName = propertyMap.EntityColumnName;
+
             var betterMatchCsvColumn = CsvColumns.Select(x => new { csvColumn = x, distance = x.ComputeLevenshteinDistance(entityColumnName) })
                 .Where(x => x.distance < 2)
                 .OrderBy(x => x.distance)
                 .Select(x => x.csvColumn)
                 .FirstOrDefault();
+
             if (betterMatchCsvColumn != null)
             {
                 propertyMap.CsvColumnName = betterMatchCsvColumn;
@@ -58,12 +61,12 @@ public class CsvProductMappingConfiguration
             {
                 propertyMap.CsvColumnName = null;
             }
-
         }
 
-        //All not mapped properties may be a product property
+        // Each not mapped property may be a product property
         PropertyCsvColumns = CsvColumns.Except(PropertyMaps.Where(x => x.CsvColumnName != null).Select(x => x.CsvColumnName)).ToArray();
-        //Generate ETag for identifying csv format
+
+        // Generate ETag for identifying CSV format
         ETag = string.Join(";", CsvColumns).GetMD5Hash();
     }
 }

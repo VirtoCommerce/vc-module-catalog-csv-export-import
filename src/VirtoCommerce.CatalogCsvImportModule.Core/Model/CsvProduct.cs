@@ -78,14 +78,8 @@ public class CsvProduct : CatalogProduct
 
     public string PriceId
     {
-        get
-        {
-            return Price.Id;
-        }
-        set
-        {
-            Price.Id = value;
-        }
+        get { return Price.Id; }
+        set { Price.Id = value; }
     }
 
     public string SalePrice
@@ -129,38 +123,20 @@ public class CsvProduct : CatalogProduct
 
     public string Currency
     {
-        get
-        {
-            return Price.Currency;
-        }
-        set
-        {
-            Price.Currency = value;
-        }
+        get { return Price.Currency; }
+        set { Price.Currency = value; }
     }
 
     public string PriceListId
     {
-        get
-        {
-            return Price.PricelistId;
-        }
-        set
-        {
-            Price.PricelistId = value;
-        }
+        get { return Price.PricelistId; }
+        set { Price.PricelistId = value; }
     }
 
     public string FulfillmentCenterId
     {
-        get
-        {
-            return Inventory?.FulfillmentCenterId;
-        }
-        set
-        {
-            Inventory.FulfillmentCenterId = value;
-        }
+        get { return Inventory?.FulfillmentCenterId; }
+        set { Inventory.FulfillmentCenterId = value; }
     }
 
     public string Quantity

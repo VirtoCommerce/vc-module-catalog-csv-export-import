@@ -86,7 +86,7 @@ public class ImporterTests
     [InlineData(";")]
     public async Task DoImport_NewProductMultilanguageProperty_ValuesCreated(string delimiter)
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
@@ -118,10 +118,10 @@ public class ImporterTests
 
         var progressInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(delimiter), progressInfo, _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.PropertyName == "CatalogProductProperty_Multilanguage" && x.LanguageCode == "en-US" && (string)x.Value == "value-en"),
@@ -134,7 +134,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_NewProductMultivalueDictionaryProperties_PropertyValuesCreated()
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
@@ -164,10 +164,10 @@ public class ImporterTests
 
         var progressInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), progressInfo, _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.ValueId == "CatalogProductProperty_1_MultivalueDictionary_1" && x.Alias == "1"),
@@ -182,7 +182,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_NewProductDictionaryMultivaluePropertyWithNotExistingValue_ErrorIsPresent()
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
@@ -201,17 +201,17 @@ public class ImporterTests
 
         var exportInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), exportInfo, _ => { });
 
-        //Assert
+        // Assert
         Assert.NotEmpty(exportInfo.Errors);
     }
 
     [Fact]
     public async Task DoImport_NewProductDictionaryMultivaluePropertyWithNewValue_NewDictPropertyItemCreated()
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
         product.Properties = new List<Property>
         {
@@ -228,14 +228,14 @@ public class ImporterTests
         };
 
         var mockPropDictItemService = new Mock<IPropertyDictionaryItemService>();
-        var target = GetImporter(propDictItemService: mockPropDictItemService.Object, createDictionaryValues: true);
+        var target = GetImporter(mockPropDictItemService.Object, createDictionaryValues: true);
 
         var exportInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), exportInfo, _ => { });
 
-        //Assert
+        // Assert
         mockPropDictItemService.Verify(mock => mock.SaveChangesAsync(It.Is<List<PropertyDictionaryItem>>(dictItems => dictItems.Any(dictItem => dictItem.Alias == "NewValue"))), Times.Once());
 
         Assert.Empty(exportInfo.Errors);
@@ -244,7 +244,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductDictionaryMultivalueProperties_PropertyValuesMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         existingProduct.Properties = new List<Property>
@@ -314,10 +314,10 @@ public class ImporterTests
         var target = GetImporter();
         var progressInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), progressInfo, _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.ValueId == "CatalogProductProperty_2_MultivalueDictionary_2" && x.Alias == "2"),
@@ -333,7 +333,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductCategory_CategoryIsNotUpdated()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
         existingProduct.Properties = new List<Property>();
         _productsInternal = [existingProduct];
@@ -346,10 +346,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Assert.NotNull(product.Category);
         Assert.Equal(existingProduct.Category.Id, product.Category.Id);
     }
@@ -357,7 +357,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductNameIsNull_NameIsNotUpdated()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
         existingProduct.Properties = new List<Property>();
         _productsInternal = [existingProduct];
@@ -370,10 +370,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Assert.Equal(existingProduct.Name, product.Name);
     }
 
@@ -382,7 +382,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductMultivalueProperties_PropertyValuesMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         existingProduct.Properties = new List<Property>
@@ -447,10 +447,10 @@ public class ImporterTests
         };
 
         var target = GetImporter();
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.PropertyName == "CatalogProductProperty_2_Multivalue" && (string) x.Value == "TestValue1"),
@@ -466,7 +466,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_NewProductDictionaryProperties_PropertyValuesCreated()
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
 
         product.Properties = new List<Property>
@@ -491,10 +491,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.PropertyName == "CatalogProductProperty_1_Dictionary" && (string) x.Value == "1"),
@@ -506,7 +506,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_NewProductDictionaryPropertyWithNotExistingValue_ErrorIsPresent()
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
 
         product.Properties = new List<Property>
@@ -527,17 +527,17 @@ public class ImporterTests
 
         var exportInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), exportInfo, _ => { });
 
-        //Assert
+        // Assert
         Assert.NotEmpty(exportInfo.Errors);
     }
 
     [Fact]
     public async Task DoImport_NewProductDictionaryPropertyWithNewValue_NewPropertyValueCreated()
     {
-        //Arrange
+        // Arrange
         var product = GetCsvProductBase();
 
         product.Properties = new List<Property>
@@ -555,15 +555,15 @@ public class ImporterTests
         };
 
         var mockPropDictItemService = new Mock<IPropertyDictionaryItemService>();
-        var target = GetImporter(propDictItemService: mockPropDictItemService.Object, createDictionaryValues: true);
+        var target = GetImporter(mockPropDictItemService.Object, createDictionaryValues: true);
 
 
         var exportInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), exportInfo, _ => { });
 
-        //Assert
+        // Assert
         mockPropDictItemService.Verify(mock => mock.SaveChangesAsync(It.Is<List<PropertyDictionaryItem>>(dictItems => dictItems.Any(dictItem => dictItem.Alias == "NewValue"))), Times.Once());
         Assert.Empty(exportInfo.Errors);
     }
@@ -571,7 +571,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_NewProductProperties_PropertyValuesCreated()
     {
-        //Arrange
+        // Arrange
         var target = GetImporter();
 
         var product = GetCsvProductBase();
@@ -596,10 +596,10 @@ public class ImporterTests
             },
         };
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.PropertyName == "CatalogProductProperty_1" && (string) x.Value == "1"),
@@ -612,7 +612,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductSeoInfoIsEmpty_SeoInfosNotClearedUp()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
         existingProduct.Properties = new List<Property>();
         existingProduct.SeoInfos = new List<SeoInfo>
@@ -632,10 +632,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         product.SeoInfos.Should().HaveCount(1);
         Assert.Equal(existingProduct.SeoInfos.First().Id, product.SeoInfos.First().Id);
     }
@@ -643,7 +643,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductReviewIsEmpty_ReviewsNotClearedUp()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
         existingProduct.Properties = new List<Property>();
         existingProduct.Reviews = new List<EditorialReview>
@@ -663,10 +663,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         product.Reviews.Should().HaveCount(1);
         Assert.Equal(existingProduct.Reviews.First().Id, product.Reviews.First().Id);
     }
@@ -674,7 +674,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductTwoProductsWithSameCode_ProductsMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -691,17 +691,17 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         _savedProducts.Should().HaveCount(1);
     }
 
     [Fact]
     public async Task DoImport_TwoProductsSameCodeDifferentReviewTypes_ReviewsMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -721,10 +721,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<EditorialReview>[] inspectors =
         [
             x => Assert.True(x.LanguageCode == "en-US" && x.Content == "Review Content 1"),
@@ -738,7 +738,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_TwoProductsSameCodeSameReviewTypes_ReviewsMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -756,10 +756,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<EditorialReview>[] inspectors =
         [
             x => Assert.True(x.LanguageCode == "en-US" && x.Content == "Review Content 1"),
@@ -772,7 +772,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductTwoProductsSameCodeDifferentReviewTypes_ProductsMerged_ReviewsAdded()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -792,10 +792,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
 
         var savedReview = _savedProducts.FirstOrDefault()?.Reviews;
 
@@ -809,7 +809,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductTwoProductsSameCodeDifferentReviewTypes_ProductsMerged_ReviewsMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -830,10 +830,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
 
         var savedReview = _savedProducts.FirstOrDefault()?.Reviews;
 
@@ -848,7 +848,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_TwoProductsSameCodeDifferentSeoInfo_SeoInfosMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
         existingProduct.SeoInfos.Clear();
 
@@ -866,10 +866,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<SeoInfo>[] inspectors =
         [
             x => Assert.True(x.LanguageCode == "en-US" && x.SemanticUrl == "SemanticsUrl1"),
@@ -883,7 +883,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_TwoProductsSameCodeSameSeoInfo_SeoInfosMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
         existingProduct.SeoInfos.Clear();
 
@@ -901,10 +901,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<SeoInfo>[] inspectors =
         [
             x => Assert.True(x.LanguageCode == "en-US" && x.SemanticUrl == "SemanticsUrl1"),
@@ -917,7 +917,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductTwoProductsSameCodeDifferentSeoInfo_SeoInfosMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -935,10 +935,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<SeoInfo>[] inspectors =
         [
             x => Assert.True(x.LanguageCode == "en-US" && x.SemanticUrl == "SemanticsUrl1"),
@@ -953,7 +953,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductsTwoProductsSamePropertyName_PropertyValuesMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         existingProduct.Properties = new List<Property>
@@ -1034,10 +1034,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), progressInfo, _ => { });
 
-        //Assert
+        // Assert
         Action<PropertyValue>[] inspectors =
         [
             x => Assert.True(x.ValueId == "CatalogProductProperty_2_MultivalueDictionary_3" && x.Alias == "3"),
@@ -1056,7 +1056,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductHasPriceCurrency_PriceUpdated()
     {
-        //Arrange
+        // Arrange
         var listPrice = 555.5m;
         var existingPriceId = "ExistingPrice_ID";
 
@@ -1088,10 +1088,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<Price>[] inspectors =
         [
             x => Assert.True(x.List == listPrice && x.Id == existingPriceId && x.ProductId == firstProduct.Id && x.MinQuantity == 1),
@@ -1102,7 +1102,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductHasPriceId_PriceUpdated()
     {
-        //Arrange
+        // Arrange
         var listPrice = 555.5m;
         var existingPriceId = "ExistingPrice_ID";
         var existingPriceId2 = "ExistingPrice_ID_2";
@@ -1143,10 +1143,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<Price>[] inspectors =
         [
             x => Assert.True(x.List ==  333.3m && x.Id == existingPriceId2 && x.ProductId == firstProduct.Id),
@@ -1158,7 +1158,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductHasPriceListId_PriceUpdated()
     {
-        //Arrange
+        // Arrange
         var listPrice = 555.5m;
         var existingPriceId = "ExistingPrice_ID";
         var existingPriceId2 = "ExistingPrice_ID_2";
@@ -1199,10 +1199,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<Price>[] inspectors =
         [
             x => Assert.True(x.List ==  333.3m && x.PricelistId == "DefaultUSD" && x.Id == existingPriceId2 && x.ProductId == firstProduct.Id),
@@ -1214,7 +1214,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductHasPriceListIdWithoutCurrency_PriceUpdated()
     {
-        //Arrange
+        // Arrange
         var newPrice = 555.5m;
         var oldPrice = 333.3m;
         var existingPriceId = "ExistingPrice_ID";
@@ -1251,10 +1251,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         _pricesInternal.Should().HaveCount(2);
         _pricesInternal.Should().Contain(x => x.List == newPrice && x.PricelistId == "DefaultEUR");
         _pricesInternal.Should().Contain(x => x.List == newPrice && x.PricelistId == "DefaultUSD");
@@ -1263,7 +1263,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductHasPriceListId_PriceAdded()
     {
-        //Arrange
+        // Arrange
         var newPrice = 555.5m;
         var oldPrice = 333.3m;
         var existingPriceId = "ExistingPrice_ID";
@@ -1299,10 +1299,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         _pricesInternal.Should().HaveCount(3);
         _pricesInternal.Should().Contain(x => x.List == newPrice && x.PricelistId == "NewDefaultEUR");
         _pricesInternal.Should().Contain(x => x.List == oldPrice && x.PricelistId == "DefaultEUR");
@@ -1312,7 +1312,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductHasPriceListId_PricesWithDifferentQuantitiesAdded()
     {
-        //Arrange
+        // Arrange
         var newPrice1 = 555.5m;
         var newPrice2 = 333.3m;
         var existingPricelistId = "ExistingPricelist_ID";
@@ -1332,10 +1332,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         _pricesInternal.Should().HaveCount(2);
         _pricesInternal.Should().Contain(x => x.List == newPrice1 && x.PricelistId == existingPricelistId && x.MinQuantity == minQuantity1);
         _pricesInternal.Should().Contain(x => x.List == newPrice2 && x.PricelistId == existingPricelistId && x.MinQuantity == minQuantity2);
@@ -1345,7 +1345,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProductsTwoProductDifferentPriceCurrency_PricesMerged()
     {
-        //Arrange
+        // Arrange
         var listPrice = 555.5m;
         var salePrice = 666.6m;
         var existingPriceId = "ExistingPrice_ID";
@@ -1383,10 +1383,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport([firstProduct, secondProduct], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<Price>[] inspectors =
         [
             x => Assert.True(x.List == listPrice && x.Sale == salePrice && x.Id == existingPriceId && x.ProductId == firstProduct.Id && x.Currency == "EUR"),
@@ -1399,7 +1399,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_UpdateProducts_OnlyExistingProductsMerged()
     {
-        //Arrange
+        // Arrange
         var existingProduct = GetCsvProductBase();
 
         _productsInternal = [existingProduct];
@@ -1424,10 +1424,10 @@ public class ImporterTests
 
         var target = GetImporter();
 
-        //Act
+        // Act
         await target.DoImport(list, GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        //Assert
+        // Assert
         Action<CatalogProduct>[] inspectors =
         [
             x => Assert.True(x.Code == "TST1" && x.Id == "1"),
@@ -1440,7 +1440,7 @@ public class ImporterTests
     [Fact]
     public async Task DoImport_NewProductWithVariationsProductUseSku()
     {
-        //Arrange
+        // Arrange
         var mainProduct = GetCsvProductBase();
         var variationProduct = GetCsvProductWithMainProduct(mainProduct.Sku);
 
@@ -1448,17 +1448,17 @@ public class ImporterTests
 
         var exportInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([mainProduct, variationProduct], GetCsvImportInfo(), exportInfo, _ => { });
 
-        //Assert
+        // Assert
         Assert.Equal(mainProduct.Id, variationProduct.MainProductId);
     }
 
     [Fact]
     public async Task DoImport_NewProductWithVariationsProductUseId()
     {
-        //Arrange
+        // Arrange
         var mainProduct = GetCsvProductBase();
         var variationProduct = GetCsvProductWithMainProduct(mainProduct.Id);
 
@@ -1466,18 +1466,17 @@ public class ImporterTests
 
         var exportInfo = new ExportImportProgressInfo();
 
-        //Act
+        // Act
         await target.DoImport([mainProduct, variationProduct], GetCsvImportInfo(), exportInfo, _ => { });
 
-        //Assert
+        // Assert
         Assert.Equal(mainProduct.Id, variationProduct.MainProductId);
     }
 
 
-    private CsvCatalogImporter GetImporter(IPropertyDictionaryItemService propDictItemService = null, IPropertyDictionaryItemSearchService propDictItemSearchService = null, bool? createDictionaryValues = false)
+    private CsvCatalogImporter GetImporter(IPropertyDictionaryItemService propertyDictionaryItemService = null, bool? createDictionaryValues = false)
     {
-
-        #region StoreService
+        #region IStoreService
 
         var storeService = new Mock<IStoreService>();
         storeService
@@ -1486,7 +1485,7 @@ public class ImporterTests
 
         #endregion
 
-        #region CatalogService
+        #region ICatalogService
 
         var catalogService = new Mock<ICatalogService>();
         catalogService
@@ -1495,7 +1494,7 @@ public class ImporterTests
 
         #endregion
 
-        #region CategoryService
+        #region ICategoryService
 
         var categoryService = new Mock<ICategoryService>();
         categoryService
@@ -1520,12 +1519,12 @@ public class ImporterTests
             .ReturnsAsync((IList<string> ids, string _, bool _) =>
             {
                 var result = ids.Select(id => _categoriesInternal.FirstOrDefault(x => x.Id == id));
-                result = result.Where(x => x != null).Select(x => x.Clone() as Category).ToList();
+                result = result.Where(x => x != null).Select(x => x.CloneTyped()).ToList();
                 foreach (var category in result)
                 {
                     category.Properties ??= new List<Property>();
 
-                    //emulate catalog property inheritance
+                    // Emulate catalog property inheritance
                     category.Properties.AddRange(_catalog.Properties);
                 }
                 return result.ToArray();
@@ -1542,10 +1541,10 @@ public class ImporterTests
             {
                 var result = new CategorySearchResult();
                 var categories = _categoriesInternal.Where(x => criteria.CatalogIds.Contains(x.CatalogId) || criteria.ObjectIds.Contains(x.Id)).ToList();
-                var cloned = categories.Select(x => x.Clone() as Category).ToList();
+                var cloned = categories.Select(x => x.CloneTyped()).ToList();
                 foreach (var category in cloned)
                 {
-                    //search service doesn't return included properties
+                    // Search service doesn't return included properties
                     category.Properties = new List<Property>();
                 }
                 result.Results = cloned;
@@ -1553,9 +1552,9 @@ public class ImporterTests
                 return result;
             });
 
-        #endregion ICategorySearchService
+        #endregion
 
-        #region ItemService
+        #region IItemService
 
         var itemService = new Mock<IItemService>();
         itemService
@@ -1578,7 +1577,7 @@ public class ImporterTests
 
         #endregion
 
-        #region repository mock
+        #region ICatalogRepository
 
         var items = _productsInternal.Select(x => new ItemEntity { CatalogId = x.CatalogId, Id = x.Id, Code = x.Code }).ToList();
         var itemsDbSetMock = items.BuildMockDbSet();
@@ -1589,7 +1588,7 @@ public class ImporterTests
 
         #endregion
 
-        #region SkuGeneratorService
+        #region ISkuGenerator
 
         var skuGeneratorService = new Mock<ISkuGenerator>();
         skuGeneratorService
@@ -1598,7 +1597,7 @@ public class ImporterTests
 
         #endregion
 
-        #region PricingService
+        #region IPriceService
 
         var pricingService = new Mock<IPriceService>();
         pricingService
@@ -1626,7 +1625,7 @@ public class ImporterTests
 
         #endregion
 
-        #region InventoryService
+        #region IInventoryService
 
         var inventoryService = new Mock<IInventoryService>();
         inventoryService
@@ -1639,51 +1638,13 @@ public class ImporterTests
 
         #endregion
 
-        #region CommerceService
+        #region IPropertyDictionaryItemService
 
-        var commerceService = new Mock<IFulfillmentCenterSearchService>();
-        commerceService
-            .Setup(x => x.SearchAsync(It.IsAny<FulfillmentCenterSearchCriteria>(), It.IsAny<bool>()))
-            .ReturnsAsync(() => new FulfillmentCenterSearchResult { Results = _fulfillmentCentersInternal });
+        propertyDictionaryItemService ??= new Mock<IPropertyDictionaryItemService>().Object;
 
         #endregion
 
-        #region PropertyDictionaryItemService
-        if (propDictItemSearchService == null)
-        {
-            var propDictItemSearchServiceMock = new Mock<IPropertyDictionaryItemSearchService>();
-            var registeredPropDictionaryItems = new[]
-            {
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_1_MultivalueDictionary_1", PropertyId = "CatalogProductProperty_1_MultivalueDictionary", Alias = "1" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_1_MultivalueDictionary_2", PropertyId = "CatalogProductProperty_1_MultivalueDictionary", Alias = "2" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_1_MultivalueDictionary_3", PropertyId = "CatalogProductProperty_1_MultivalueDictionary", Alias = "3" },
-
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_2_MultivalueDictionary_1", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "1" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_2_MultivalueDictionary_2", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "2" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_2_MultivalueDictionary_3", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "3" },
-
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_1_Dictionary_1", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "1" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_1_Dictionary_2", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "2" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_1_Dictionary_3", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "3" },
-
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_2_Dictionary_1", PropertyId = "CatalogProductProperty_2_Dictionary", Alias = "1" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_2_Dictionary_2", PropertyId = "CatalogProductProperty_2_Dictionary", Alias = "2" },
-                new PropertyDictionaryItem { Id = "CatalogProductProperty_2_Dictionary_3", PropertyId = "CatalogProductProperty_2_Dictionary", Alias = "3" },
-
-                new PropertyDictionaryItem { Id = "TestCategory_ProductProperty_MultivalueDictionary_1", PropertyId = "TestCategory_ProductProperty_MultivalueDictionary", Alias = "1" },
-                new PropertyDictionaryItem { Id = "TestCategory_ProductProperty_MultivalueDictionary_2", PropertyId = "TestCategory_ProductProperty_MultivalueDictionary", Alias = "2" },
-                new PropertyDictionaryItem { Id = "TestCategory_ProductProperty_MultivalueDictionary_3", PropertyId = "TestCategory_ProductProperty_MultivalueDictionary", Alias = "3" },
-            };
-
-            propDictItemSearchServiceMock
-                .Setup(x => x.SearchAsync(It.IsAny<PropertyDictionaryItemSearchCriteria>(), false))
-                .ReturnsAsync(new PropertyDictionaryItemSearchResult { Results = registeredPropDictionaryItems.ToList() });
-            propDictItemSearchService = propDictItemSearchServiceMock.Object;
-        }
-        propDictItemService ??= new Mock<IPropertyDictionaryItemService>().Object;
-        #endregion
-
-        #region PricingSearchService
+        #region IPriceSearchService
 
         var pricingSearchService = new Mock<IPriceSearchService>();
         pricingSearchService
@@ -1698,7 +1659,7 @@ public class ImporterTests
 
         #endregion
 
-        #region settingsManager
+        #region ISettingsManager
 
         var settingsManager = new Mock<ISettingsManager>();
 
@@ -1715,7 +1676,7 @@ public class ImporterTests
 
         var csvProductConverter = new CsvProductConverter(_mapper);
 
-        var target = new CsvCatalogImporter(
+        return new CsvCatalogImporter(
             new CsvProductReader(),
             catalogService.Object,
             categoryService.Object,
@@ -1727,8 +1688,8 @@ public class ImporterTests
             () => catalogRepository.Object,
             pricingSearchService.Object,
             settingsManager.Object,
-            propDictItemSearchService,
-            propDictItemService,
+            GetPropertyDictionaryItemService(),
+            propertyDictionaryItemService,
             storeService.Object,
             categorySearchService.Object,
             csvProductConverter
@@ -1736,8 +1697,6 @@ public class ImporterTests
         {
             CreatePropertyDictionaryValues = createDictionaryValues ?? false,
         };
-
-        return target;
     }
 
     private static List<Property> CreateProductPropertiesInCategory(Category category, Catalog catalog)
@@ -1804,127 +1763,146 @@ public class ImporterTests
 
     private static Catalog CreateCatalog()
     {
-        var catalog = new Catalog { Name = "EmptyCatalogTest", Id = Guid.NewGuid().ToString(), Properties = new List<Property>() };
+        var catalogId = Guid.NewGuid().ToString();
 
-        var catalogProductProperty = new Property
+        return new Catalog
         {
-            Name = "CatalogProductProperty_1_MultivalueDictionary",
-            Id = "CatalogProductProperty_1_MultivalueDictionary",
-            CatalogId = catalog.Id,
-            Dictionary = true,
-            Multivalue = true,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
+            Id = catalogId,
+            Name = "EmptyCatalogTest",
+            Properties = new List<Property>
+            {
+                new()
+                {
+                    Name = "CatalogProductProperty_1_MultivalueDictionary",
+                    Id = "CatalogProductProperty_1_MultivalueDictionary",
+                    CatalogId = catalogId,
+                    Dictionary = true,
+                    Multivalue = true,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_2_MultivalueDictionary",
+                    Id = "CatalogProductProperty_2_MultivalueDictionary",
+                    CatalogId = catalogId,
+                    Dictionary = true,
+                    Multivalue = true,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_1_Multivalue",
+                    Id = "CatalogProductProperty_1_Multivalue",
+                    CatalogId = catalogId,
+                    Dictionary = false,
+                    Multivalue = true,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_2_Multivalue",
+                    Id = "CatalogProductProperty_2_Multivalue",
+                    CatalogId = catalogId,
+                    Dictionary = false,
+                    Multivalue = true,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_1_Dictionary",
+                    Id = "CatalogProductProperty_1_Dictionary",
+                    CatalogId = catalogId,
+                    Dictionary = true,
+                    Multivalue = false,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_2_Dictionary",
+                    Id = "CatalogProductProperty_2_Dictionary",
+                    CatalogId = catalogId,
+                    Dictionary = true,
+                    Multivalue = false,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_1",
+                    Id = "CatalogProductProperty_1",
+                    CatalogId = catalogId,
+                    Dictionary = false,
+                    Multivalue = false,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_2",
+                    Id = "CatalogProductProperty_2",
+                    CatalogId = catalogId,
+                    Dictionary = false,
+                    Multivalue = false,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+                new()
+                {
+                    Name = "CatalogProductProperty_Multilanguage",
+                    Id = "CatalogProductProperty_Multilanguage",
+                    CatalogId = catalogId,
+                    Multilanguage = true,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.ShortText,
+                },
+            },
+        };
+    }
+
+    private static IPropertyDictionaryItemSearchService GetPropertyDictionaryItemService()
+    {
+        var propDictItemSearchServiceMock = new Mock<IPropertyDictionaryItemSearchService>();
+
+        var registeredPropDictionaryItems = new List<PropertyDictionaryItem>
+        {
+            new() { Id = "CatalogProductProperty_1_MultivalueDictionary_1", PropertyId = "CatalogProductProperty_1_MultivalueDictionary", Alias = "1" },
+            new() { Id = "CatalogProductProperty_1_MultivalueDictionary_2", PropertyId = "CatalogProductProperty_1_MultivalueDictionary", Alias = "2" },
+            new() { Id = "CatalogProductProperty_1_MultivalueDictionary_3", PropertyId = "CatalogProductProperty_1_MultivalueDictionary", Alias = "3" },
+
+            new() { Id = "CatalogProductProperty_2_MultivalueDictionary_1", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "1" },
+            new() { Id = "CatalogProductProperty_2_MultivalueDictionary_2", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "2" },
+            new() { Id = "CatalogProductProperty_2_MultivalueDictionary_3", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "3" },
+
+            new() { Id = "CatalogProductProperty_1_Dictionary_1", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "1" },
+            new() { Id = "CatalogProductProperty_1_Dictionary_2", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "2" },
+            new() { Id = "CatalogProductProperty_1_Dictionary_3", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "3" },
+
+            new() { Id = "CatalogProductProperty_2_Dictionary_1", PropertyId = "CatalogProductProperty_2_Dictionary", Alias = "1" },
+            new() { Id = "CatalogProductProperty_2_Dictionary_2", PropertyId = "CatalogProductProperty_2_Dictionary", Alias = "2" },
+            new() { Id = "CatalogProductProperty_2_Dictionary_3", PropertyId = "CatalogProductProperty_2_Dictionary", Alias = "3" },
+
+            new() { Id = "TestCategory_ProductProperty_MultivalueDictionary_1", PropertyId = "TestCategory_ProductProperty_MultivalueDictionary", Alias = "1" },
+            new() { Id = "TestCategory_ProductProperty_MultivalueDictionary_2", PropertyId = "TestCategory_ProductProperty_MultivalueDictionary", Alias = "2" },
+            new() { Id = "TestCategory_ProductProperty_MultivalueDictionary_3", PropertyId = "TestCategory_ProductProperty_MultivalueDictionary", Alias = "3" },
         };
 
-        var catalogProductProperty2 = new Property
-        {
-            Name = "CatalogProductProperty_2_MultivalueDictionary",
-            Id = "CatalogProductProperty_2_MultivalueDictionary",
-            CatalogId = catalog.Id,
-            Dictionary = true,
-            Multivalue = true,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
+        propDictItemSearchServiceMock
+            .Setup(x => x.SearchAsync(It.IsAny<PropertyDictionaryItemSearchCriteria>(), It.IsAny<bool>()))
+            .ReturnsAsync(new PropertyDictionaryItemSearchResult { Results = registeredPropDictionaryItems.ToList() });
 
-        var catalogProductProperty3 = new Property
-        {
-            Name = "CatalogProductProperty_1_Multivalue",
-            Id = "CatalogProductProperty_1_Multivalue",
-            CatalogId = catalog.Id,
-            Dictionary = false,
-            Multivalue = true,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        var catalogProductProperty4 = new Property
-        {
-            Name = "CatalogProductProperty_2_Multivalue",
-            Id = "CatalogProductProperty_2_Multivalue",
-            CatalogId = catalog.Id,
-            Dictionary = false,
-            Multivalue = true,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        var catalogProductProperty5 = new Property
-        {
-            Name = "CatalogProductProperty_1_Dictionary",
-            Id = "CatalogProductProperty_1_Dictionary",
-            CatalogId = catalog.Id,
-            Dictionary = true,
-            Multivalue = false,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        var catalogProductProperty6 = new Property
-        {
-            Name = "CatalogProductProperty_2_Dictionary",
-            Id = "CatalogProductProperty_2_Dictionary",
-            CatalogId = catalog.Id,
-            Dictionary = true,
-            Multivalue = false,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        var catalogProductProperty7 = new Property
-        {
-            Name = "CatalogProductProperty_1",
-            Id = "CatalogProductProperty_1",
-            CatalogId = catalog.Id,
-            Dictionary = false,
-            Multivalue = false,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        var catalogProductProperty8 = new Property
-        {
-            Name = "CatalogProductProperty_2",
-            Id = "CatalogProductProperty_2",
-            CatalogId = catalog.Id,
-            Dictionary = false,
-            Multivalue = false,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        var catalogProductProperty9 = new Property
-        {
-            Name = "CatalogProductProperty_Multilanguage",
-            Id = "CatalogProductProperty_Multilanguage",
-            CatalogId = catalog.Id,
-            Multilanguage = true,
-            Type = PropertyType.Product,
-            ValueType = PropertyValueType.ShortText,
-        };
-
-        catalog.Properties.Add(catalogProductProperty);
-        catalog.Properties.Add(catalogProductProperty2);
-
-        catalog.Properties.Add(catalogProductProperty3);
-        catalog.Properties.Add(catalogProductProperty4);
-
-        catalog.Properties.Add(catalogProductProperty5);
-        catalog.Properties.Add(catalogProductProperty6);
-
-        catalog.Properties.Add(catalogProductProperty7);
-        catalog.Properties.Add(catalogProductProperty8);
-
-        catalog.Properties.Add(catalogProductProperty9);
-
-        return catalog;
+        return propDictItemSearchServiceMock.Object;
     }
 
     private static CsvProduct GetCsvProductBase()
     {
         var seoInfo = new SeoInfo { ObjectType = "CatalogProduct" };
         var review = new EditorialReview();
+
         return new CsvProduct
         {
             Category = new Category
@@ -1953,6 +1931,7 @@ public class ImporterTests
     {
         var seoInfo = new SeoInfo { ObjectType = "CatalogProduct" };
         var review = new EditorialReview();
+
         return new CsvProduct
         {
             Category = new Category
@@ -1989,6 +1968,7 @@ public class ImporterTests
             Path = existingProduct.CategoryPath,
             Properties = new List<Property>(),
         };
+
         category.Properties.AddRange(CreateProductPropertiesInCategory(category, _catalog));
 
         existingProduct.Category = category;

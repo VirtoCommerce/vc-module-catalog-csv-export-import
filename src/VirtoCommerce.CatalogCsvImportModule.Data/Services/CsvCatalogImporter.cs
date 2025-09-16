@@ -117,16 +117,16 @@ public class CsvCatalogImporter(
 
     private static List<CsvProduct> MergeCsvProducts(List<CsvProduct> csvProducts, Catalog catalog)
     {
-        var mergedCsvProducts = new List<CsvProduct>();
+        var productsWithCode = csvProducts
+            .Where(x => !string.IsNullOrEmpty(x.Code))
+            .ToList();
 
-        var haveCodeProducts = csvProducts.Where(x => !string.IsNullOrEmpty(x.Code)).ToList();
-        csvProducts = csvProducts.Except(haveCodeProducts).ToList();
+        csvProducts = csvProducts.Except(productsWithCode).ToList();
 
-        var groupedCsv = haveCodeProducts.GroupBy(x => new { x.Code });
-        foreach (var group in groupedCsv)
-        {
-            mergedCsvProducts.Add(MergeCsvProductsGroup(group.ToList()));
-        }
+        var mergedCsvProducts = productsWithCode
+            .GroupBy(x => new { x.Code })
+            .Select(group => MergeCsvProductsGroup(group.ToList()))
+            .ToList();
 
         var defaultLanguage = GetDefaultLanguage(catalog);
         MergeCsvProductComplexObjects(mergedCsvProducts, defaultLanguage);
@@ -142,16 +142,13 @@ public class CsvCatalogImporter(
         }
 
         mergedCsvProducts.AddRange(csvProducts);
+
         return mergedCsvProducts;
     }
 
     private static CsvProduct MergeCsvProductsGroup(List<CsvProduct> csvProducts)
     {
-        var firstProduct = csvProducts.FirstOrDefault();
-        if (firstProduct == null)
-        {
-            return null;
-        }
+        var firstProduct = csvProducts.First();
 
         firstProduct.Reviews = csvProducts.SelectMany(x => x.Reviews).ToList();
         firstProduct.SeoInfos = csvProducts.SelectMany(x => x.SeoInfos).ToList();
@@ -340,10 +337,12 @@ public class CsvCatalogImporter(
     private static string GenerateSlug(string categoryName)
     {
         var code = categoryName.GenerateSlug();
+
         if (string.IsNullOrEmpty(code))
         {
             code = Guid.NewGuid().ToString("N");
         }
+
         return code;
     }
 
@@ -386,7 +385,7 @@ public class CsvCatalogImporter(
             {
                 lock (_lockObject)
                 {
-                    //Raise notification
+                    // Send notification
                     progressInfo.ProcessedCount += csvProductsBatch.Count;
                     progressInfo.Description = $"Saving products: {progressInfo.ProcessedCount} of {progressInfo.TotalCount} created";
                     progressCallback(progressInfo);
@@ -675,6 +674,7 @@ public class CsvCatalogImporter(
         {
             return csvProduct.Category.Properties.OrderBy(x => x.Name).ToList();
         }
+
         return csvProduct.Catalog.Properties.OrderBy(x => x.Name).ToList();
     }
 

@@ -25,7 +25,7 @@ public class CsvProductMap : ClassMap<CsvProduct>
 
     public virtual void Initialize(CsvProductMappingConfiguration mappingCfg)
     {
-        //Dynamical map scalar product fields use by manual mapping information
+        // Map scalar product fields using manual mapping information
         var index = 0;
         var csvProductType = AbstractTypeFactoryHelper.GetEffectiveType<CsvProduct>();
 
@@ -45,26 +45,27 @@ public class CsvProductMap : ClassMap<CsvProduct>
 
                 if (!string.IsNullOrEmpty(mappingItem.CsvColumnName))
                 {
-                    //Map fields if mapping specified
+                    // Map fields if mapping specified
                     newMap.Name(mappingItem.CsvColumnName);
                 }
-                //And default values if it specified
+                // Set custom value if specified
                 else if (mappingItem.CustomValue != null)
                 {
                     var typeConverter = TypeDescriptor.GetConverter(propertyInfo.PropertyType);
                     newMap.Data.ReadingConvertExpression = (Expression<Func<ConvertFromStringArgs, object>>)(x => typeConverter.ConvertFromString(mappingItem.CustomValue));
                 }
+
                 MemberMaps.Add(newMap);
             }
         }
 
-        //Map properties
+        // Map properties
         if (mappingCfg.PropertyCsvColumns != null && mappingCfg.PropertyCsvColumns.Any())
         {
             // Exporting multiple csv fields from the same property (which is a collection)
             foreach (var propertyCsvColumn in mappingCfg.PropertyCsvColumns)
             {
-                // create CsvPropertyMap manually, because this.Map(x =>...) does not allow
+                // Create CsvPropertyMap manually, because this.Map(x =>...) does not allow
                 // to export multiple entries for the same property
 
                 var propertyInfo = csvProductType.GetProperty(nameof(CsvProduct.Properties));
@@ -73,7 +74,7 @@ public class CsvProductMap : ClassMap<CsvProduct>
 
                 csvPropertyMap.Data.Index = ++index;
 
-                // create custom converter instance which will get the required record from the collection
+                // Create custom converter instance which will get the required record from the collection
                 csvPropertyMap.UsingExpression<ICollection<Property>>(null, properties =>
                 {
                     var property = properties.FirstOrDefault(x => x.Name == propertyCsvColumn && x.Values.Any());
@@ -100,7 +101,7 @@ public class CsvProductMap : ClassMap<CsvProduct>
             newPropMap.Ignore(true);
         }
 
-        //map line number
+        // Add line number
         var lineNumber = Map(m => m.LineNumber).Convert(row => row.Row.Parser.RawRow);
         lineNumber.Data.Index = ++index;
         lineNumber.Ignore(true);

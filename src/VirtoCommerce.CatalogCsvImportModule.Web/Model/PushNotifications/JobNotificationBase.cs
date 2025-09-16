@@ -19,6 +19,7 @@ public class JobNotificationBase(string creator)
     /// </value>
     [JsonProperty("finished")]
     public DateTime? Finished { get; set; }
+
     /// <summary>
     /// Gets or sets the total count of objects to process.
     /// </summary>
@@ -27,6 +28,7 @@ public class JobNotificationBase(string creator)
     /// </value>
     [JsonProperty("totalCount")]
     public long TotalCount { get; set; }
+
     /// <summary>
     /// Gets or sets the count of processed objects.
     /// </summary>
@@ -44,6 +46,7 @@ public class JobNotificationBase(string creator)
     /// </value>
     [JsonProperty("errorCount")]
     public long ErrorCount => Errors?.Count ?? 0;
+
     /// <summary>
     /// Gets or sets the errors that has occurred during processing.
     /// </summary>

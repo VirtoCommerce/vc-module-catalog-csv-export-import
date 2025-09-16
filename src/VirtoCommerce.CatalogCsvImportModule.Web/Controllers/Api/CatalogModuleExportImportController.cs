@@ -102,8 +102,8 @@ public class ExportImportController(
             Title = "Catalog export task",
             Description = "starting export....",
         };
-        await pushNotificationManager.SendAsync(notification);
 
+        await pushNotificationManager.SendAsync(notification);
 
         BackgroundJob.Enqueue(() => BackgroundExport(exportInfo, notification));
 
@@ -174,12 +174,12 @@ public class ExportImportController(
             return Unauthorized();
         }
 
-
         var notification = new ImportNotification(userNameResolver.GetCurrentUserName())
         {
             Title = "Import catalog from CSV",
             Description = "starting import....",
         };
+
         await pushNotificationManager.SendAsync(notification);
 
         BackgroundJob.Enqueue(() => BackgroundImport(importInfo, notification));
@@ -247,13 +247,13 @@ public class ExportImportController(
 
             var blobRelativeUrl = Path.Combine("temp", fileName);
 
-            //Upload result csv to blob storage
+            // Upload result csv to blob storage
             await using (var blobStream = await blobStorageProvider.OpenWriteAsync(blobRelativeUrl))
             {
                 await csvExporter.DoExportAsync(blobStream, exportInfo, ProgressCallback);
             }
 
-            //Get a download url
+            // Get a download url
             notifyEvent.DownloadUrl = blobUrlResolver.GetAbsoluteUrl(blobRelativeUrl);
             notifyEvent.Description = "Export finished";
 

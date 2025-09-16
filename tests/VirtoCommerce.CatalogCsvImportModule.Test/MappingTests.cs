@@ -36,6 +36,7 @@ public class MappingTests
             x => Assert.True((string) x.Value == "Product-1-multivalue-1, Product-1-multivalue-2" && x.PropertyName =="ProductProperty_Multivalue"),
             x => Assert.True((string) x.Value == null && x.PropertyName =="ProductProperty_Empty"),
         ];
+
         Action<PropertyValue>[] inspectorsSecond =
         [
             x => Assert.True((string) x.Value == "Product-2-property-value-test" && x.PropertyName =="ProductProperty"),
@@ -217,7 +218,7 @@ public class MappingTests
         Assert.Equal(3, csvProducts[1].LineNumber);
     }
 
-    //Export mapping test
+    // Export mapping test
 
     [Fact]
     public void CsvHeadersExportTest_DefaultConfiguration_HeadersAreSame()
@@ -245,8 +246,9 @@ public class MappingTests
     [InlineData(";")]
     public async Task CsvProductMapTest_DictionaryMultilanguage_OnlyOneAliasExported(string delimiter)
     {
-        //Arrange
+        // Arrange
         var product = GetProduct();
+
         product.Properties = new List<Property>
         {
             new()
@@ -263,10 +265,10 @@ public class MappingTests
             },
         };
 
-        //Act
+        // Act
         var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
 
-        //Assert
+        // Assert
         importedCsvProduct.Properties.Should().HaveCount(1);
         importedCsvProduct.Properties.First().Values.Should().HaveCount(1);
         importedCsvProduct.Properties.First().Values.First().Value.ToString().Should().BeEquivalentTo("A");
@@ -277,8 +279,9 @@ public class MappingTests
     [InlineData(";")]
     public async Task CsvProductMapTest_DictionaryMultivalue_OnlyUniqAliasesExported(string delimiter)
     {
-        //Arrange
+        // Arrange
         var product = GetProduct();
+
         product.Properties = new List<Property>
         {
             new()
@@ -298,10 +301,10 @@ public class MappingTests
             },
         };
 
-        //Act
+        // Act
         var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
 
-        //Assert
+        // Assert
         importedCsvProduct.Properties.Should().HaveCount(1);
         importedCsvProduct.Properties.First().Values.Should().HaveCount(2);
         importedCsvProduct.Properties.First().Values.First().Value.ToString().Should().BeEquivalentTo("A");
@@ -314,8 +317,9 @@ public class MappingTests
     [InlineData(";")]
     public async Task CsvProductMapTest_Multilanguage_AllValueExported(string delimiter)
     {
-        //Arrange
+        // Arrange
         var product = GetProduct();
+
         product.Properties = new List<Property>
         {
             new()
@@ -332,10 +336,10 @@ public class MappingTests
             },
         };
 
-        //Act
+        // Act
         var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
 
-        //Assert
+        // Assert
         importedCsvProduct.Properties.Should().HaveCount(1);
         importedCsvProduct.Properties.First().Values.Should().HaveCount(2);
         importedCsvProduct.Properties.First().Values.First().Value.ToString().Should().BeEquivalentTo("EN_A");

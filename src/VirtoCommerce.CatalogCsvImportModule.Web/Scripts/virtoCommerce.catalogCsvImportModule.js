@@ -1,4 +1,4 @@
-//Call this to register our module to main application
+// Call this to register our module to main application
 var moduleTemplateName = "virtoCommerce.catalogCsvImportModule";
 
 if (AppDependencies != undefined) {
@@ -13,8 +13,8 @@ angular.module(moduleTemplateName, [])
     .run(['$rootScope', 'platformWebApp.mainMenuService', 'platformWebApp.widgetService', 'platformWebApp.toolbarService', 'platformWebApp.pushNotificationTemplateResolver', 'platformWebApp.bladeNavigationService', '$state', 'virtoCommerce.catalogModule.catalogImportService', 'virtoCommerce.catalogModule.catalogExportService',
         function ($rootScope, mainMenuService, widgetService, toolbarService, pushNotificationTemplateResolver, bladeNavigationService, $state, catalogImportService, catalogExportService) {
 
-            //NOTIFICATIONS
-            //Export
+            // NOTIFICATIONS
+            // Export
             var menuExportTemplate =
             {
                 priority: 900,
@@ -43,7 +43,7 @@ angular.module(moduleTemplateName, [])
             };
             pushNotificationTemplateResolver.register(historyExportTemplate);
 
-            //Import
+            // Import
             var menuImportTemplate =
             {
                 priority: 900,
