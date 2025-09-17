@@ -250,7 +250,11 @@ public class CsvCatalogImporter(
                 }
             }
 
-            propertyValue.ValueId = dictionaryItem?.Id;
+            if (dictionaryItem != null)
+            {
+                propertyValue.ValueId = dictionaryItem.Id;
+                propertyValue.ColorCode = dictionaryItem.ColorCode;
+            }
         }
     }
 

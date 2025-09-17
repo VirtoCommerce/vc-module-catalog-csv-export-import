@@ -126,6 +126,54 @@ public class ImporterTests
         Assert.Empty(progressInfo.Errors);
     }
 
+    [Theory]
+    [InlineData(",")]
+    [InlineData(";")]
+    public async Task DoImport_ColorMultivalueDictionary_ColorCodeIsTakenFromDictionary(string delimiter)
+    {
+        // Arrange
+        var csvProduct = GetCsvProductBase();
+
+        csvProduct.Properties = new List<Property>
+        {
+            new CsvProperty
+            {
+                Name = "Catalog Product Property 3 Color Multivalue Dictionary",
+                Values = new List<PropertyValue>
+                {
+                    new() { PropertyName = "Catalog Product Property 3 Color Multivalue Dictionary", Value = "Red" },
+                    new() { PropertyName = "Catalog Product Property 3 Color Multivalue Dictionary", Value = "Blue" },
+                },
+            },
+        };
+
+        var importer = GetImporter();
+
+        var progressInfo = new ExportImportProgressInfo();
+
+        // Act
+        await importer.DoImport([csvProduct], GetCsvImportInfo(delimiter), progressInfo, _ => { });
+
+        // Assert
+        Assert.Empty(progressInfo.Errors);
+        csvProduct.Properties.Should().HaveCount(1);
+
+        var property = csvProduct.Properties.First();
+        property.Values.Should().HaveCount(2);
+
+        var value1 = property.Values[0];
+        Assert.Equal("CatalogProductProperty_3_ColorMultivalueDictionary_1", value1.ValueId);
+        Assert.Equal(PropertyValueType.Color, value1.ValueType);
+        Assert.Equal("#ff0000", value1.ColorCode);
+        Assert.Equal("Red", value1.Alias);
+
+        var value2 = property.Values[1];
+        Assert.Equal("CatalogProductProperty_3_ColorMultivalueDictionary_3", value2.ValueId);
+        Assert.Equal(PropertyValueType.Color, value2.ValueType);
+        Assert.Equal("#0000ff", value2.ColorCode);
+        Assert.Equal("Blue", value2.Alias);
+    }
+
     [Fact]
     public async Task DoImport_NewProductMultivalueDictionaryProperties_PropertyValuesCreated()
     {
@@ -1788,6 +1836,16 @@ public class ImporterTests
                 },
                 new()
                 {
+                    Id =   "CatalogProductProperty_3_ColorMultivalueDictionary",
+                    Name = "Catalog Product Property 3 Color Multivalue Dictionary",
+                    CatalogId = catalogId,
+                    Dictionary = true,
+                    Multivalue = true,
+                    Type = PropertyType.Product,
+                    ValueType = PropertyValueType.Color,
+                },
+                new()
+                {
                     Name = "CatalogProductProperty_1_Multivalue",
                     Id = "CatalogProductProperty_1_Multivalue",
                     CatalogId = catalogId,
@@ -1872,6 +1930,10 @@ public class ImporterTests
             new() { Id = "CatalogProductProperty_2_MultivalueDictionary_1", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "1" },
             new() { Id = "CatalogProductProperty_2_MultivalueDictionary_2", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "2" },
             new() { Id = "CatalogProductProperty_2_MultivalueDictionary_3", PropertyId = "CatalogProductProperty_2_MultivalueDictionary", Alias = "3" },
+
+            new() { Id = "CatalogProductProperty_3_ColorMultivalueDictionary_1", PropertyId = "CatalogProductProperty_3_ColorMultivalueDictionary", Alias = "Red", ColorCode = "#ff0000" },
+            new() { Id = "CatalogProductProperty_3_ColorMultivalueDictionary_2", PropertyId = "CatalogProductProperty_3_ColorMultivalueDictionary", Alias = "Green", ColorCode = "#00ff00" },
+            new() { Id = "CatalogProductProperty_3_ColorMultivalueDictionary_3", PropertyId = "CatalogProductProperty_3_ColorMultivalueDictionary", Alias = "Blue", ColorCode = "#0000ff" },
 
             new() { Id = "CatalogProductProperty_1_Dictionary_1", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "1" },
             new() { Id = "CatalogProductProperty_1_Dictionary_2", PropertyId = "CatalogProductProperty_1_Dictionary", Alias = "2" },

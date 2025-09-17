@@ -347,6 +347,85 @@ public class MappingTests
     }
 
 
+    [Theory]
+    [InlineData(",")]
+    [InlineData(";")]
+    public async Task CsvProductMapTest_Color_ColorCodeExported(string delimiter)
+    {
+        // Arrange
+        var product = GetProduct();
+
+        product.Properties = new List<Property>
+        {
+            new()
+            {
+                Id = "property1",
+                Name = "color_simple",
+                Values = new List<PropertyValue>
+                {
+                    new() { Value = "Red", ColorCode = "#ff0000", ValueType = PropertyValueType.Color },
+                },
+            },
+        };
+
+        // Act
+        var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
+
+        // Assert
+        importedCsvProduct.Properties.Should().HaveCount(1);
+
+        var property = importedCsvProduct.Properties.First();
+        property.Values.Should().HaveCount(1);
+
+        var value = property.Values[0];
+        Assert.Equal("Red", value.Value);
+        Assert.Equal("#ff0000", value.ColorCode);
+    }
+
+    [Theory]
+    [InlineData(",")]
+    [InlineData(";")]
+    public async Task CsvProductMapTest_ColorMultilanguage_ColorCodeExported(string delimiter)
+    {
+        // Arrange
+        var product = GetProduct();
+
+        product.Properties = new List<Property>
+        {
+            new()
+            {
+                Id = "property1",
+                Name = "color_multilanguage",
+                Multilanguage = true,
+                Values = new List<PropertyValue>
+                {
+                    new() { Value = "Red", ColorCode = "#ff0000", LanguageCode = "en-US", ValueType = PropertyValueType.Color },
+                    new() { Value = "Rot", ColorCode = "#ff0000", LanguageCode = "de-DE", ValueType = PropertyValueType.Color },
+                },
+            },
+        };
+
+        // Act
+        var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
+
+        // Assert
+        importedCsvProduct.Properties.Should().HaveCount(1);
+
+        var property = importedCsvProduct.Properties.First();
+        property.Values.Should().HaveCount(2);
+
+        var value1 = property.Values[0];
+        Assert.Equal("Red", value1.Value);
+        Assert.Equal("#ff0000", value1.ColorCode);
+        Assert.Equal("en-US", value1.LanguageCode);
+
+        var value2 = property.Values[1];
+        Assert.Equal("Rot", value2.Value);
+        Assert.Equal("#ff0000", value2.ColorCode);
+        Assert.Equal("de-DE", value2.LanguageCode);
+    }
+
+
     // Support methods
     private static async Task<List<CsvProduct>> ReadCsvFile(string fileName, Action<CsvProductMappingConfiguration> configure = null)
     {

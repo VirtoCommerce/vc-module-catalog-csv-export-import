@@ -8,10 +8,11 @@ namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
 
 public static class CsvReaderExtension
 {
-    public static string Delimiter { get; set; } = ";";
-    public static string InnerDelimiter { get; set; } = "__";
+    public static string ValueDelimiter { get; set; } = ";";
+    public static string LanguageDelimiter { get; set; } = "__";
+    public static string ColorDelimiter { get; set; } = "|";
 
-    public static IEnumerable<PropertyValue> GetPropertiesByColumn(this IReaderRow reader, string columnName)
+    public static IEnumerable<PropertyValue> GetValues(this IReaderRow reader, string columnName)
     {
         var columnValue = reader.GetField<string>(columnName);
 
@@ -25,18 +26,16 @@ public static class CsvReaderExtension
             yield break;
         }
 
-        foreach (var value in columnValue.Trim().Split(Delimiter))
+        foreach (var value in columnValue.Trim().Split(ValueDelimiter))
         {
-            const int multilanguagePartsCount = 2;
-            var valueParts = value.Split(InnerDelimiter, multilanguagePartsCount);
-            var multilanguage = valueParts.Length == multilanguagePartsCount;
-
-            yield return new PropertyValue
+            var propertyValue = new PropertyValue
             {
                 PropertyName = columnName,
-                Value = multilanguage ? valueParts.Last() : value,
-                LanguageCode = multilanguage ? valueParts.First() : null,
             };
+
+            ParseString(propertyValue, value);
+
+            yield return propertyValue;
         }
     }
 
@@ -47,26 +46,9 @@ public static class CsvReaderExtension
             return string.Empty;
         }
 
-        IEnumerable<string> values;
-
-        if (property.Dictionary)
-        {
-            values = property.Values
-                .Where(x => !string.IsNullOrEmpty(x.Alias))
-                .Select(x => x.Alias)
-                .Distinct();
-        }
-        else if (property.Multilanguage)
-        {
-            values = property.Values
-                .Select(x => $"{x.LanguageCode}{InnerDelimiter}{x.Value}");
-        }
-        else
-        {
-            values = property.Values
-                .Where(x => x.Value != null || x.Alias != null)
-                .Select(x => x.Alias ?? x.Value?.ToString());
-        }
+        var values = property.Dictionary
+            ? property.Values.Select(x => x.Alias)
+            : property.Values.Select(GetString);
 
         return JoinCsvValues(values);
     }
@@ -76,8 +58,64 @@ public static class CsvReaderExtension
         return JoinCsvValues(propertyValues.Select(x => x.Value?.ToString()));
     }
 
-    public static string JoinCsvValues(IEnumerable<string> values)
+
+    private static string JoinCsvValues(IEnumerable<string> values)
     {
-        return string.Join(Delimiter, values);
+        values = values
+            .Where(x => !x.IsNullOrEmpty())
+            .Distinct();
+
+        return string.Join(ValueDelimiter, values);
+    }
+
+    private static string GetString(PropertyValue propertyValue)
+    {
+        var value = propertyValue.Value?.ToString().EmptyToNull();
+
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (!propertyValue.LanguageCode.IsNullOrEmpty())
+        {
+            value = $"{propertyValue.LanguageCode}{LanguageDelimiter}{value}";
+        }
+
+        if (!propertyValue.ColorCode.IsNullOrEmpty())
+        {
+            value = $"{value}{ColorDelimiter}{propertyValue.ColorCode}";
+        }
+
+        return value;
+    }
+
+    private static void ParseString(PropertyValue propertyValue, string input)
+    {
+        var value = input;
+
+        const int partsCount = 2;
+
+        if (value.Contains(LanguageDelimiter))
+        {
+            var parts = value.Split(LanguageDelimiter, partsCount);
+            if (parts.Length == partsCount)
+            {
+                propertyValue.LanguageCode = parts[0].EmptyToNull();
+                value = parts[1].EmptyToNull();
+            }
+        }
+
+        if (value != null && value.Contains(ColorDelimiter))
+        {
+            var parts = value.Split(ColorDelimiter, partsCount);
+            if (parts.Length == partsCount)
+            {
+                value = parts[0].EmptyToNull();
+                propertyValue.ColorCode = parts[1].EmptyToNull();
+            }
+        }
+
+        propertyValue.Value = value;
     }
 }
