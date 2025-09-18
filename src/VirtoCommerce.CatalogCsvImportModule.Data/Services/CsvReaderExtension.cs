@@ -197,6 +197,11 @@ public static class CsvReaderExtension
 
     private static string Escape(string input)
     {
+        if (input is null)
+        {
+            return null;
+        }
+
         if (!input.Contains(ValueDelimiter) &&
             !input.Contains(LanguageDelimiter) &&
             !input.Contains(ColorDelimiter) &&
@@ -212,7 +217,7 @@ public static class CsvReaderExtension
 
     private static string Unescape(string input)
     {
-        if (!input.StartsWith(EscapeString) || !input.EndsWith(EscapeString))
+        if (input is null || !input.StartsWith(EscapeString) || !input.EndsWith(EscapeString))
         {
             return input;
         }
