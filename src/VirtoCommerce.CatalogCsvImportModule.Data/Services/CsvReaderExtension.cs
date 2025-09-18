@@ -147,26 +147,28 @@ public static class CsvReaderExtension
                 break;
             }
 
-            // Check for delimiter (only if not in escape)
-            if (!inEscape && remainingInput.StartsWith(delimiter))
+            if (!inEscape)
             {
-                result.Add(builder.ToString());
-                builder.Clear();
-                i += delimiter.Length;
-                continue;
-            }
+                // Check for escape start
+                if (remainingInput.StartsWith(EscapeString))
+                {
+                    builder.Append(EscapeString);
+                    i += EscapeString.Length;
+                    inEscape = true;
+                    continue;
+                }
 
-            // Check for escape start
-            if (!inEscape && remainingInput.StartsWith(EscapeString))
-            {
-                builder.Append(EscapeString);
-                i += EscapeString.Length;
-                inEscape = true;
-                continue;
+                // Check for delimiter
+                if (remainingInput.StartsWith(delimiter))
+                {
+                    result.Add(builder.ToString());
+                    builder.Clear();
+                    i += delimiter.Length;
+                    continue;
+                }
             }
-
             // Check for escape end
-            if (inEscape && remainingInput.StartsWith(EscapeString))
+            else if (remainingInput.StartsWith(EscapeString))
             {
                 if (remainingInput.StartsWith(doubleEscape))
                 {
