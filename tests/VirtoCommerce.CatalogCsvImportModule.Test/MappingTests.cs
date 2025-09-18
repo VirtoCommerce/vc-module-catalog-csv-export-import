@@ -425,6 +425,48 @@ public class MappingTests
         Assert.Equal("de-DE", value2.LanguageCode);
     }
 
+    [Theory]
+    [InlineData(",")]
+    [InlineData(";")]
+    public async Task CsvProductMapTest_ValueContainsDelimiters_DelimitersShouldBeEscaped(string delimiter)
+    {
+        // Arrange
+        var product = GetProduct();
+
+        product.Properties = new List<Property>
+        {
+            new()
+            {
+                Id = "property1",
+                Name = "Delimiters",
+                Values = new List<PropertyValue>
+                {
+                    new() { Value = "value1:1`2\"3,4;5__6|7", ColorCode = "color1:1`2\"3,4;5__6|7", LanguageCode = "language1:1`2\"3,4;5__6|7" },
+                    new() { Value = "value2:1`2\"3,4;5__6|7", ColorCode = "color2:1`2\"3,4;5__6|7", LanguageCode = "language2:1`2\"3,4;5__6|7" },
+                },
+            },
+        };
+
+        // Act
+        var importedCsvProduct = await ExportAndImportProduct(product, delimiter);
+
+        // Assert
+        importedCsvProduct.Properties.Should().HaveCount(1);
+
+        var property = importedCsvProduct.Properties.First();
+        property.Values.Should().HaveCount(2);
+
+        var value1 = property.Values[0];
+        Assert.Equal("value1:1`2\"3,4;5__6|7", value1.Value);
+        Assert.Equal("color1:1`2\"3,4;5__6|7", value1.ColorCode);
+        Assert.Equal("language1:1`2\"3,4;5__6|7", value1.LanguageCode);
+
+        var value2 = property.Values[1];
+        Assert.Equal("value2:1`2\"3,4;5__6|7", value2.Value);
+        Assert.Equal("color2:1`2\"3,4;5__6|7", value2.ColorCode);
+        Assert.Equal("language2:1`2\"3,4;5__6|7", value2.LanguageCode);
+    }
+
 
     // Support methods
     private static async Task<List<CsvProduct>> ReadCsvFile(string fileName, Action<CsvProductMappingConfiguration> configure = null)

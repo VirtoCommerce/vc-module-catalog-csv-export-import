@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CsvHelper;
 using VirtoCommerce.CatalogModule.Core.Model;
 using VirtoCommerce.Platform.Core.Common;
@@ -11,6 +13,7 @@ public static class CsvReaderExtension
     public static string ValueDelimiter { get; set; } = ";";
     public static string LanguageDelimiter { get; set; } = "__";
     public static string ColorDelimiter { get; set; } = "|";
+    public static string EscapeString { get; set; } = "`";
 
     public static IEnumerable<PropertyValue> GetValues(this IReaderRow reader, string columnName)
     {
@@ -26,7 +29,7 @@ public static class CsvReaderExtension
             yield break;
         }
 
-        foreach (var value in columnValue.Trim().Split(ValueDelimiter))
+        foreach (var value in Split(columnValue.Trim(), ValueDelimiter))
         {
             var propertyValue = new PropertyValue
             {
@@ -77,14 +80,16 @@ public static class CsvReaderExtension
             return null;
         }
 
+        value = Escape(value);
+
         if (!propertyValue.LanguageCode.IsNullOrEmpty())
         {
-            value = $"{propertyValue.LanguageCode}{LanguageDelimiter}{value}";
+            value = $"{Escape(propertyValue.LanguageCode)}{LanguageDelimiter}{value}";
         }
 
         if (!propertyValue.ColorCode.IsNullOrEmpty())
         {
-            value = $"{value}{ColorDelimiter}{propertyValue.ColorCode}";
+            value = $"{value}{ColorDelimiter}{Escape(propertyValue.ColorCode)}";
         }
 
         return value;
@@ -98,24 +103,122 @@ public static class CsvReaderExtension
 
         if (value.Contains(LanguageDelimiter))
         {
-            var parts = value.Split(LanguageDelimiter, partsCount);
-            if (parts.Length == partsCount)
+            var parts = Split(value, LanguageDelimiter, partsCount);
+            if (parts.Count == partsCount)
             {
-                propertyValue.LanguageCode = parts[0].EmptyToNull();
+                propertyValue.LanguageCode = Unescape(parts[0]).EmptyToNull();
                 value = parts[1].EmptyToNull();
             }
         }
 
         if (value != null && value.Contains(ColorDelimiter))
         {
-            var parts = value.Split(ColorDelimiter, partsCount);
-            if (parts.Length == partsCount)
+            var parts = Split(value, ColorDelimiter, partsCount);
+            if (parts.Count == partsCount)
             {
+                propertyValue.ColorCode = Unescape(parts[1]).EmptyToNull();
                 value = parts[0].EmptyToNull();
-                propertyValue.ColorCode = parts[1].EmptyToNull();
             }
         }
 
-        propertyValue.Value = value;
+        propertyValue.Value = Unescape(value);
+    }
+
+    private static List<string> Split(string input, string delimiter, int count = int.MaxValue)
+    {
+        if (input.IsNullOrEmpty())
+        {
+            return [input];
+        }
+
+        var result = new List<string>();
+        var builder = new StringBuilder();
+        var doubleEscape = EscapeString + EscapeString;
+        var inEscape = false;
+        var i = 0;
+
+        while (i < input.Length)
+        {
+            var remainingInput = input.AsSpan(i);
+
+            if (result.Count == count - 1)
+            {
+                builder.Append(remainingInput);
+                break;
+            }
+
+            // Check for delimiter (only if not in escape)
+            if (!inEscape && remainingInput.StartsWith(delimiter))
+            {
+                result.Add(builder.ToString());
+                builder.Clear();
+                i += delimiter.Length;
+                continue;
+            }
+
+            // Check for escape start
+            if (!inEscape && remainingInput.StartsWith(EscapeString))
+            {
+                builder.Append(EscapeString);
+                i += EscapeString.Length;
+                inEscape = true;
+                continue;
+            }
+
+            // Check for escape end
+            if (inEscape && remainingInput.StartsWith(EscapeString))
+            {
+                if (remainingInput.StartsWith(doubleEscape))
+                {
+                    builder.Append(doubleEscape);
+                    i += doubleEscape.Length;
+                }
+                else
+                {
+                    builder.Append(EscapeString);
+                    i += EscapeString.Length;
+                    inEscape = false;
+                }
+
+                continue;
+            }
+
+            // Regular character
+            builder.Append(input[i]);
+            i++;
+        }
+
+        result.Add(builder.ToString());
+
+        return result;
+    }
+
+    private static string Escape(string input)
+    {
+        if (!input.Contains(ValueDelimiter) &&
+            !input.Contains(LanguageDelimiter) &&
+            !input.Contains(ColorDelimiter) &&
+            !input.Contains(EscapeString))
+        {
+            return input;
+        }
+
+        var doubleEscape = EscapeString + EscapeString;
+
+        return $"{EscapeString}{input.Replace(EscapeString, doubleEscape)}{EscapeString}";
+    }
+
+    private static string Unescape(string input)
+    {
+        if (!input.StartsWith(EscapeString) || !input.EndsWith(EscapeString))
+        {
+            return input;
+        }
+
+        var doubleEscape = EscapeString + EscapeString;
+
+        return input
+            .Substring(EscapeString.Length, input.Length - doubleEscape.Length)
+            .Replace(doubleEscape, EscapeString);
     }
 }
