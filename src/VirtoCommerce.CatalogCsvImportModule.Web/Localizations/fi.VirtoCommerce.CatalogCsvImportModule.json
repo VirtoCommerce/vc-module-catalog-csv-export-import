@@ -1,0 +1,118 @@
+{
+  "catalogCsvImportModule": {
+    "blades": {
+      "catalog-CSV-export": {
+        "title": "Katalogin {{name}} vienti CSV-tiedostoon",
+        "labels": {
+          "select-fulfillment": "Valitse jakelukeskus viedylle varastolle",
+          "select-pricelist": "Valitse hinnasto viedyille hinnoille",
+          "start": "Alku",
+          "end": "Loppu",
+          "total": "Kokonaismäärä",
+          "processed": "Käsitelty määrä",
+          "errors-count": "Virheiden määrä",
+          "errors": "Virheet",
+          "download-url": "Lataus-URL",
+          "note": "Kaikki katalogin tuotetiedot viedään CSV-tiedostoon, lataus-URL on käytettävissä, kun vienti on valmis",
+          "caution": "Varoitus:",
+          "caution-description": "CSV-tiedoston lajittelu taulukkolaskentaohjelmassa voi aiheuttaa tuotevarianttien tai kuvien URL-osoitteiden irtoamisen. Lajitellun CSV-tiedoston tuonti voi korvata olemassa olevat tuotteet virheellisillä tiedoilla, joita ei voida palauttaa"
+        },
+        "placeholders": {
+          "select-fulfillment": "Valitse jakelukeskus tai jätä tyhjäksi oletusarvon käyttöä varten...",
+          "select-pricelist": "Valitse hinnasto tai jätä tyhjäksi oletusarvon käyttöä varten..."
+        }
+      },
+      "catalog-CSV-import": {
+        "title": "Tuonti CSV-tiedostosta",
+        "labels": {
+          "select-fulfillment": "Valitse jakelukeskus viedylle varastolle",
+          "select-pricelist": "Valitse hinnasto viedyille hinnoille",
+          "start": "Alku",
+          "end": "Loppu",
+          "total": "Kokonaismäärä",
+          "processed": "Käsitelty määrä",
+          "errors-count": "Virheiden määrä",
+          "errors": "Virheet"
+        }
+      },
+      "history": {
+        "export": {
+          "title": "Katalogin vientitiedot",
+          "subtitle": "Yksityiskohdat"
+        },
+        "import": {
+          "title": "Katalogin tuontitiedot",
+          "subtitle": "Yksityiskohdat"
+        }
+      }
+    },
+    "wizards": {
+      "catalog-CSV-import": {
+        "title": "Tuo katalogi CSV-tiedostosta",
+        "subtitle": "Kaikki tuotteet lisätään '{{name}}'-katalogiin",
+        "labels": {
+          "auto-mapping": "Ominaisuuskenttien kartoitus",
+          "auto-mapping-description": "Valitse CSV-tiedostostasi kentät, jotka kartoitetaan dynaamisiksi tuotekentiksi. Jos ominaisuus on jo olemassa katalogissa, se kartoitetaan nimen perusteella. Muussa tapauksessa se lisätään sellaisenaan tuoteominaisuutena",
+          "chose-map": "Tuotekenttien kartoitus",
+          "chose-map-description": "Valitse CSV-tiedostostasi kentät, jotka kartoitetaan järjestelmän tuotekenttiin",
+          "product-property": "Tuoteominaisuus",
+          "csv-column": "CSV-sarake",
+          "custom-value": "Mukautettu arvo",
+          "delimiter": "CSV-sarakkeiden erotin",
+          "upload": "Lataa CSV-tiedosto",
+          "upload-progress": "Latauksen edistyminen",
+          "map-columns": "Kartoitussarakkeet",
+          "define-columns": "Määritä sarakkeiden kartoitus",
+          "vertical": "Pystyviiva",
+          "comma": "Pilkku",
+          "semicolon": "Puolipiste",
+          "tab": "Tabulaattori"
+        },
+        "placeholders": {
+          "delimiter": "Valitse ...",
+          "select-column-name": "Valitse ...",
+          "select-custom-value": "Oletusarvo..."
+        }
+      },
+      "catalog-CSV-import-wizard-mapping-step": {
+        "title": "Sarakkeiden kartoitus",
+        "subtitle": "Kartoittaa manuaalisesti tuoteominaisuudet CSV-sarakkeisiin"
+      }
+    },
+    "commands": {
+      "import": "Tuo",
+      "export": "Vie",
+      "start-export": "Aloita vienti",
+      "start-import": "Aloita tuonti",
+      "clear-all": "Tyhjennä kaikki"
+    },
+    "services": {
+      "catalog-csv-export": {
+        "name": "VirtoCommerce CSV-vienti",
+        "description": "Natiivi VirtoCommerce-katalogitietojen vienti CSV-muotoon"
+      },
+      "catalog-csv-import": {
+        "name": "VirtoCommerce CSV-tuonti",
+        "description": "Natiivi VirtoCommerce-katalogitietojen tuonti CSV-tiedostosta"
+      }
+    }
+  },
+  "settings": {
+    "CatalogCsvImport": {
+      "CreateDictionaryValues": {
+        "title": "Luo uusia sanastoarvoja",
+        "description": "Ota käyttöön / poista käytöstä uusien ominaisuussanastoarvojen luonti tuonnin aikana"
+      },
+      "ExportFileNameTemplate": {
+        "title": "Vientitiedoston nimen malli",
+        "description": "Määritä malli (kaava), jota käytetään viedyn tiedoston nimen luomiseen. Malli voi sisältää parametreja, kuten '0' tiedoston luonnin UTC-ajalle"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.CatalogCsvImport": {
+      "title": "CSV-katalogin tuontimoduuli",
+      "description": "Lisää CSV-tuontitoiminnallisuuden katalogiin"
+    }
+  }
+}

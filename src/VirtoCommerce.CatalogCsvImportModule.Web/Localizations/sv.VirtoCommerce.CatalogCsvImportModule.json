@@ -1,0 +1,118 @@
+{
+  "catalogCsvImportModule": {
+    "blades": {
+      "catalog-CSV-export": {
+        "title": "Katalog {{name}} till CSV-export",
+        "labels": {
+          "select-fulfillment": "Välj distributionscenter för exporterat lager",
+          "select-pricelist": "Välj prislista för exporterade priser",
+          "start": "Start",
+          "end": "Slut",
+          "total": "Totalt antal",
+          "processed": "Bearbetat antal",
+          "errors-count": "Antal fel",
+          "errors": "Fel",
+          "download-url": "Nedladdnings-URL",
+          "note": "All produktinformation i katalogen ska exporteras till en CSV-fil, nedladdnings-URL blir tillgänglig när exporten är klar",
+          "caution": "Varning:",
+          "caution-description": "Att sortera din CSV-fil i ett kalkylprogram kan leda till att produktvarianter eller bild-URL:er kopplas bort. Att importera en sorterad CSV-fil kan skriva över befintliga produkter med felaktiga data, vilket inte kan återställas"
+        },
+        "placeholders": {
+          "select-fulfillment": "Välj distributionscenter eller lämna tomt för standard...",
+          "select-pricelist": "Välj prislista eller lämna tomt för standard..."
+        }
+      },
+      "catalog-CSV-import": {
+        "title": "Import från CSV",
+        "labels": {
+          "select-fulfillment": "Välj distributionscenter för exporterat lager",
+          "select-pricelist": "Välj prislista för exporterade priser",
+          "start": "Start",
+          "end": "Slut",
+          "total": "Totalt antal",
+          "processed": "Bearbetat antal",
+          "errors-count": "Antal fel",
+          "errors": "Fel"
+        }
+      },
+      "history": {
+        "export": {
+          "title": "Detaljer för katalogexport",
+          "subtitle": "Detaljer"
+        },
+        "import": {
+          "title": "Detaljer för katalogimport",
+          "subtitle": "Detaljer"
+        }
+      }
+    },
+    "wizards": {
+      "catalog-CSV-import": {
+        "title": "Importera katalog från CSV",
+        "subtitle": "Alla produkter kommer att läggas till i katalogen '{{name}}'",
+        "labels": {
+          "auto-mapping": "Mappning av egenskapsfält",
+          "auto-mapping-description": "Välj fält från din CSV-fil för att mappa till dynamiska produktfält. Om en egenskap redan finns i katalogen mappas den efter namn. Annars läggs den till som en produktegenskap som den är",
+          "chose-map": "Mappning av produktfält",
+          "chose-map-description": "Välj fält från din CSV-fil för att mappa till systemets produktfält",
+          "product-property": "Produktegenskap",
+          "csv-column": "CSV-kolumn",
+          "custom-value": "Anpassat värde",
+          "delimiter": "CSV-kolumnavgränsare",
+          "upload": "Ladda upp CSV-fil",
+          "upload-progress": "Uppladdningsförlopp",
+          "map-columns": "Mappa kolumner",
+          "define-columns": "Definiera kolumnmappning",
+          "vertical": "Vertikalt streck",
+          "comma": "Komma",
+          "semicolon": "Semikolon",
+          "tab": "Tabulator"
+        },
+        "placeholders": {
+          "delimiter": "Välj ...",
+          "select-column-name": "Välj ...",
+          "select-custom-value": "Standardvärde..."
+        }
+      },
+      "catalog-CSV-import-wizard-mapping-step": {
+        "title": "Kolumnmappning",
+        "subtitle": "Mappa produktegenskaper manuellt till CSV-kolumner"
+      }
+    },
+    "commands": {
+      "import": "Importera",
+      "export": "Exportera",
+      "start-export": "Starta export",
+      "start-import": "Starta import",
+      "clear-all": "Rensa alla"
+    },
+    "services": {
+      "catalog-csv-export": {
+        "name": "VirtoCommerce CSV-export",
+        "description": "Inbyggd VirtoCommerce-katalogdataexport till CSV"
+      },
+      "catalog-csv-import": {
+        "name": "VirtoCommerce CSV-import",
+        "description": "Inbyggd VirtoCommerce-katalogdataimport från CSV"
+      }
+    }
+  },
+  "settings": {
+    "CatalogCsvImport": {
+      "CreateDictionaryValues": {
+        "title": "Skapa nya ordboksvärden",
+        "description": "Aktivera/inaktivera skapandet av nya egenskapsordboksvärden under import"
+      },
+      "ExportFileNameTemplate": {
+        "title": "Mall för exportfilnamn",
+        "description": "Ange mallen (mönstret) som används för att generera det exporterade filnamnet. Mallen kan inkludera parametrar som '0' för UTC-tiden för filgenerering"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.CatalogCsvImport": {
+      "title": "CSV-katalogimportmodul",
+      "description": "Lägger till CSV-importfunktionalitet till katalogen"
+    }
+  }
+}
