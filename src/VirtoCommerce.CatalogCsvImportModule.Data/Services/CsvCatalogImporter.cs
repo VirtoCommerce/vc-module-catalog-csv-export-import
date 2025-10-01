@@ -299,7 +299,6 @@ public class CsvCatalogImporter(
         foreach (var csvProduct in csvProducts.Where(x => x.Category != null && !string.IsNullOrEmpty(x.Category.Path)))
         {
             outline.Clear();
-
             string parentCategoryId = null;
             var count = progressInfo.ProcessedCount;
             var productCategoryNames = csvProduct.Category.Path.Split(_categoryDelimiters);
@@ -668,6 +667,7 @@ public class CsvCatalogImporter(
 
                 property.Values = parsedValues;
             }
+
             // Combining multiple values into one for non-multivalued properties
             else if (property.Values.Count > 1)
             {
