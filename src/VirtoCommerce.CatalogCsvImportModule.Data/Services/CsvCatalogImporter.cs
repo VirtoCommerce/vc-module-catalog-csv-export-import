@@ -667,8 +667,7 @@ public class CsvCatalogImporter(
 
                 property.Values = parsedValues;
             }
-
-            // Combining multiple values into one for non-multivalued properties
+            // Combining multiple values ​​into one for non-multivalued properties
             else if (property.Values.Count > 1)
             {
                 var propertyValue = property.Values.First();
