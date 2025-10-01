@@ -8,7 +8,6 @@ using FluentAssertions;
 using MockQueryable.Moq;
 using Moq;
 using VirtoCommerce.CatalogCsvImportModule.Core;
-using VirtoCommerce.CatalogCsvImportModule.Core.Extensions;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -116,8 +115,6 @@ public class ImporterTests
 
         // Act
         await target.DoImport([product], GetCsvImportInfo(delimiter), progressInfo, _ => { });
-
-        Assert.Equivalent("TST1-TestCategory", product.Name);
 
         // Assert
         Action<PropertyValue>[] inspectors =
@@ -419,10 +416,8 @@ public class ImporterTests
         // Act
         await target.DoImport([product], GetCsvImportInfo(), new ExportImportProgressInfo(), _ => { });
 
-        var existingProductName = existingProduct.ClearName().Name;
-
         // Assert
-        Assert.Equal(existingProductName, product.Name);
+        Assert.Equal(existingProduct.Name, product.Name);
     }
 
 
@@ -1521,6 +1516,27 @@ public class ImporterTests
         Assert.Equal(mainProduct.Id, variationProduct.MainProductId);
     }
 
+    [Fact]
+    public async Task DoImport_NewProductWithVariationsProductName()
+    {
+        // Arrange
+        var product = GetCsvProductBase();
+
+        var expectedProductName = product.Name;
+        product.Name = "\n \r" + product.Name + "\t";
+
+        var variationProduct = GetCsvProductWithMainProduct(product.Id);
+
+        var target = GetImporter();
+
+        var exportInfo = new ExportImportProgressInfo();
+
+        // Act
+        await target.DoImport([product, variationProduct], GetCsvImportInfo(), exportInfo, _ => { });
+
+        // Assert
+        Assert.Equal(expectedProductName, product.Name);
+    }
 
     private CsvCatalogImporter GetImporter(IPropertyDictionaryItemService propertyDictionaryItemService = null, bool? createDictionaryValues = false)
     {
@@ -1981,7 +1997,7 @@ public class ImporterTests
             Inventory = new InventoryInfo(),
             SeoInfo = seoInfo,
             SeoInfos = new List<SeoInfo> { seoInfo },
-            Name = "\r \n TST1-TestCategory \t",
+            Name = "TST1-TestCategory",
             Price = new Price(),
             Quantity = "0",
             Sku = "TST1",
