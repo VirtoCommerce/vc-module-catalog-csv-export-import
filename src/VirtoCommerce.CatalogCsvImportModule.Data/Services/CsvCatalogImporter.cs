@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.CatalogCsvImportModule.Core;
+using VirtoCommerce.CatalogCsvImportModule.Core.Extensions;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
@@ -80,6 +81,11 @@ public class CsvCatalogImporter(
         if (catalog == null)
         {
             throw new InvalidOperationException($"Catalog with id '{importInfo.CatalogId}' does not exist.");
+        }
+
+        foreach (var csvProduct in csvProducts)
+        {
+            csvProduct.ClearName();
         }
 
         var valid = await ValidateCsvProducts(csvProducts, progressInfo, progressCallback);
@@ -294,6 +300,8 @@ public class CsvCatalogImporter(
         foreach (var csvProduct in csvProducts.Where(x => x.Category != null && !string.IsNullOrEmpty(x.Category.Path)))
         {
             outline.Clear();
+            csvProduct.ClearName();
+
             string parentCategoryId = null;
             var count = progressInfo.ProcessedCount;
             var productCategoryNames = csvProduct.Category.Path.Split(_categoryDelimiters);
@@ -358,6 +366,11 @@ public class CsvCatalogImporter(
         {
             try
             {
+                foreach (var csvProduct in csvProductsBatch)
+                {
+                    csvProduct.ClearName();
+                }
+
                 var catalogProducts = csvProductsBatch.Select(csvProductConverter.GetCatalogProduct).ToArray();
                 await productService.SaveChangesAsync(catalogProducts);
 
@@ -413,6 +426,8 @@ public class CsvCatalogImporter(
         // Set productId for dependent objects
         foreach (var product in csvProducts)
         {
+            product.ClearName();
+
             if (defaultFulfilmentCenter != null || product.Inventory.FulfillmentCenterId != null)
             {
                 product.Inventory.ProductId = product.Id;
@@ -602,6 +617,8 @@ public class CsvCatalogImporter(
             csvProduct.Catalog = catalog;
             csvProduct.CatalogId = catalog.Id;
 
+            csvProduct.ClearName();
+
             if (csvProduct.CategoryId != null)
             {
                 csvProduct.Category = categoryById[csvProduct.CategoryId];
@@ -628,6 +645,8 @@ public class CsvCatalogImporter(
 
     private static void UpdateCsvProductProperties(CsvProduct csvProduct, CsvImportInfo importInfo)
     {
+        csvProduct.ClearName();
+
         var inheritedProperties = GetInheritedProperties(csvProduct);
 
         foreach (var property in csvProduct.Properties.ToArray())
@@ -662,7 +681,7 @@ public class CsvCatalogImporter(
 
                 property.Values = parsedValues;
             }
-            // Combining multiple values ​​into one for non-multivalued properties
+            // Combining multiple values ZWSP into one for non-multivalued properties
             else if (property.Values.Count > 1)
             {
                 var propertyValue = property.Values.First();
