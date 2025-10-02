@@ -1516,6 +1516,25 @@ public class ImporterTests
         Assert.Equal(mainProduct.Id, variationProduct.MainProductId);
     }
 
+    [Fact]
+    public async Task DoImport_ProductNameShouldBeTrimmed()
+    {
+        // Arrange
+        var product = GetCsvProductBase();
+
+        const string expectedProductName = "Trimmed name";
+        product.Name = "\n \r" + expectedProductName + "\t";
+
+        var target = GetImporter();
+        var exportInfo = new ExportImportProgressInfo();
+
+        // Act
+        await target.DoImport([product], GetCsvImportInfo(), exportInfo, _ => { });
+
+        // Assert
+        Assert.Equal(expectedProductName, product.Name);
+    }
+
 
     private CsvCatalogImporter GetImporter(IPropertyDictionaryItemService propertyDictionaryItemService = null, bool? createDictionaryValues = false)
     {

@@ -82,6 +82,11 @@ public class CsvCatalogImporter(
             throw new InvalidOperationException($"Catalog with id '{importInfo.CatalogId}' does not exist.");
         }
 
+        foreach (var csvProduct in csvProducts.Where(csvProduct => !string.IsNullOrEmpty(csvProduct.Name)))
+        {
+            csvProduct.Name = csvProduct.Name.Trim();
+        }
+
         var valid = await ValidateCsvProducts(csvProducts, progressInfo, progressCallback);
         if (!valid)
         {
