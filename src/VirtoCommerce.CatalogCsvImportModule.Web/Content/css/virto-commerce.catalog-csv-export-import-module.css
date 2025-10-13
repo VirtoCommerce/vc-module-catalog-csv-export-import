@@ -1,0 +1,22 @@
+﻿.warning-block {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  color: #828282;
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.triangle-warning-icon {
+  font-size: 1.6em;
+  color: goldenrod;
+  margin-right: 8px;
+}
+
+.warning-block .note-t {
+  flex: 1;
+}
+

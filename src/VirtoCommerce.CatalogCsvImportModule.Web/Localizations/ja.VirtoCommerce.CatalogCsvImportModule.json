@@ -15,7 +15,8 @@
           "download-url": "ダウンロードURL",
           "note": "すべてのカタログ製品情報はCSVファイルにエクスポートされる必要があります。エクスポートが完了するとダウンロードURLが利用可能になります",
           "caution": "注意:",
-          "caution-description": "スプレッドシートプログラムでCSVファイルを並べ替えると、製品バリアントや画像URLが関連付けられなくなる可能性があります。並べ替えられたCSVファイルをインポートすると、既存の製品が不正なデータで上書きされる可能性があり、復元できません"
+          "caution-description": "スプレッドシートプログラムでCSVファイルを並べ替えると、製品バリアントや画像URLが関連付けられなくなる可能性があります。並べ替えられたCSVファイルをインポートすると、既存の製品が不正なデータで上書きされる可能性があり、復元できません",
+          "virtual-catalog-warning": "エクスポートは仮想カタログでは利用できません。"
         },
         "placeholders": {
           "select-fulfillment": "フルフィルメントを選択するか、デフォルトのままにします...",
@@ -23,26 +24,27 @@
         }
       },
       "catalog-CSV-import": {
-            "title": "CSVからインポート",
-            "labels": {
-                "select-fulfillment": "エクスポートされた在庫のフルフィルメントセンターを選択",
-                "select-pricelist": "エクスポートされた価格の価格表を選択",
-                "start": "開始",
-                "end": "終了",
-                "total": "合計数",
-                "processed": "処理済み数",
-                "errors-count": "エラー数",
-                "errors": "エラー"
-            }
-        },
+        "title": "CSVからインポート",
+        "labels": {
+          "select-fulfillment": "エクスポートされた在庫のフルフィルメントセンターを選択",
+          "select-pricelist": "エクスポートされた価格の価格表を選択",
+          "start": "開始",
+          "end": "終了",
+          "total": "合計数",
+          "processed": "処理済み数",
+          "errors-count": "エラー数",
+          "errors": "エラー",
+          "virtual-catalog-warning": "仮想カタログではインポートは利用できません。"
+        }
+      },
       "history": {
         "export": {
-            "title": "カタログエクスポートの詳細",
-            "subtitle": "詳細"
+          "title": "カタログエクスポートの詳細",
+          "subtitle": "詳細"
         },
         "import": {
-            "title": "カタログインポートの詳細",
-            "subtitle": "詳細"
+          "title": "カタログインポートの詳細",
+          "subtitle": "詳細"
         }
       }
     },

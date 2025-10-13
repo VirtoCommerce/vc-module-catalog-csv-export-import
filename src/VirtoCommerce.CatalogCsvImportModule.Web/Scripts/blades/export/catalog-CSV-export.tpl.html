@@ -1,11 +1,11 @@
 <div class="blade-static __bottom">
-  <button class="btn" ng-click="startExport()" ng-disabled="blade.notification">
+  <button class="btn" ng-click="startExport()" ng-disabled="blade.notification" ng-if="!blade.catalog.isVirtual">
     {{ 'catalogCsvImportModule.commands.start-export' | translate }}
   </button>
 </div>
 <div class="blade-content">
   <div class="blade-inner">
-    <div class="inner-block">
+    <div class="inner-block" ng-if="!blade.catalog.isVirtual">
       <div class="form">
         <div class="block">
           <div>
@@ -80,6 +80,12 @@
             <p class="text" ng-if="blade.notification.downloadUrl">{{ 'catalogCsvImportModule.blades.catalog-CSV-export.labels.download-url' | translate }}: <a href="{{blade.notification.downloadUrl}}" target="_blank">{{blade.notification.downloadUrl}}</a></p>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="is-virtual-catalog" ng-if="blade.catalog.isVirtual">
+      <div class="warning-block">
+        <i class="fas fa-exclamation-triangle triangle-warning-icon"></i>
+        <span class="note-t"> {{ 'catalogCsvImportModule.blades.catalog-CSV-export.labels.virtual-catalog-warning' | translate }}</span>
       </div>
     </div>
   </div>

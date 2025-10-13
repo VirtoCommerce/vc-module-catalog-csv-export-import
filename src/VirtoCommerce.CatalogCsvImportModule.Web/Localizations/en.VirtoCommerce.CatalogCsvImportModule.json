@@ -15,7 +15,8 @@
           "download-url": "Download URL",
           "note": "All catalog products information should be exported to CSV file, download URL will be available after export is finished",
           "caution": "Caution:",
-          "caution-description": "Sorting your CSV file in a spreadsheet program can cause product variants or image URLs to become disassociated. Importing a sorted CSV file may overwrite your existing products with bad data, which cannot be recovered"
+          "caution-description": "Sorting your CSV file in a spreadsheet program can cause product variants or image URLs to become disassociated. Importing a sorted CSV file may overwrite your existing products with bad data, which cannot be recovered",
+          "virtual-catalog-warning": "Export is not available for virtual catalogs."
         },
         "placeholders": {
           "select-fulfillment": "Select fulfillment or leave blank for default...",
@@ -23,26 +24,27 @@
         }
       },
       "catalog-CSV-import": {
-            "title": "Importing from CSV",
-            "labels": {
-                "select-fulfillment": "Select fulfillment center for exported inventory",
-                "select-pricelist": "Select price list for exported prices",
-                "start": "Start",
-                "end": "End",
-                "total": "Total count",
-                "processed": "Processed count",
-                "errors-count": "Error count",
-                "errors": "Errors"
-            }
-        },
+        "title": "Importing from CSV",
+        "labels": {
+          "select-fulfillment": "Select fulfillment center for exported inventory",
+          "select-pricelist": "Select price list for exported prices",
+          "start": "Start",
+          "end": "End",
+          "total": "Total count",
+          "processed": "Processed count",
+          "errors-count": "Error count",
+          "errors": "Errors",
+          "virtual-catalog-warning": "Import is not available for virtual catalogs."
+        }
+      },
       "history": {
         "export": {
-            "title": "Catalog export detail",
-            "subtitle": "Details"
+          "title": "Catalog export detail",
+          "subtitle": "Details"
         },
         "import": {
-            "title": "catalog import detail",
-            "subtitle": "Details"
+          "title": "catalog import detail",
+          "subtitle": "Details"
         }
       }
     },
