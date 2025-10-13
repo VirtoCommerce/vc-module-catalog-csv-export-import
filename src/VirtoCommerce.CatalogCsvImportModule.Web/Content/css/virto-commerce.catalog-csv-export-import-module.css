@@ -10,13 +10,14 @@
   line-height: 1.4;
 }
 
-.triangle-warning-icon {
+.warning-block .icon {
   font-size: 1.6em;
   color: goldenrod;
   margin-right: 8px;
 }
 
-.warning-block .note-t {
+.warning-block .note {
   flex: 1;
+  color: #000000;
 }
 

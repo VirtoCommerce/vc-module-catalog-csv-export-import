@@ -1,5 +1,5 @@
-<div class="blade-static __bottom">
-  <button class="btn" ng-click="startImport()" ng-disabled="!blade.canImport" ng-if="!blade.catalog.isVirtual">
+<div class="blade-static __bottom" ng-if="!blade.catalog.isVirtual">
+  <button class="btn" ng-click="startImport()" ng-disabled="!blade.canImport">
     {{ 'catalogCsvImportModule.commands.start-import' | translate }}
   </button>
 </div>
@@ -43,11 +43,9 @@
         </li>
       </ul>
     </div>
-    <div class="is-virtual-catalog" ng-if="blade.catalog.isVirtual">
-      <div class="warning-block">
-        <i class="fas fa-exclamation-triangle triangle-warning-icon"></i>
-        <span class="note-t"> {{ 'catalogCsvImportModule.blades.catalog-CSV-import.labels.virtual-catalog-warning' | translate }}</span>
-      </div>
+    <div class="warning-block" ng-if="blade.catalog.isVirtual">
+      <i class="fas fa-exclamation-triangle icon"></i>
+      <span class="note"> {{ 'catalogCsvImportModule.blades.catalog-CSV-import.labels.virtual-catalog-warning' | translate }}</span>
     </div>
   </div>
 </div>
