@@ -15,7 +15,8 @@
           "download-url": "URL pobierania",
           "note": "Wszystkie informacje o produktach katalogu powinny być eksportowane do pliku CSV, URL pobierania będzie dostępny po zakończeniu eksportu",
           "caution": "Ostrzeżenie:",
-          "caution-description": "Sortowanie pliku CSV w programie arkusza kalkulacyjnego może spowodować rozłączenie wariantów produktów lub adresów URL obrazów. Importowanie posortowanego pliku CSV może nadpisać istniejące produkty błędnymi danymi, które nie mogą zostać odzyskane"
+          "caution-description": "Sortowanie pliku CSV w programie arkusza kalkulacyjnego może spowodować rozłączenie wariantów produktów lub adresów URL obrazów. Importowanie posortowanego pliku CSV może nadpisać istniejące produkty błędnymi danymi, które nie mogą zostać odzyskane",
+          "virtual-catalog-warning": "Eksport nie jest dostępny dla katalogów wirtualnych."
         },
         "placeholders": {
           "select-fulfillment": "Wybierz realizację lub pozostaw puste dla domyślnego...",
@@ -23,26 +24,27 @@
         }
       },
       "catalog-CSV-import": {
-            "title": "Importuj z CSV",
-            "labels": {
-                "select-fulfillment": "Wybierz centrum realizacji dla eksportowanego inwentarza",
-                "select-pricelist": "Wybierz cennik dla eksportowanych cen",
-                "start": "Start",
-                "end": "Koniec",
-                "total": "Całkowita liczba",
-                "processed": "Przetworzona liczba",
-                "errors-count": "Liczba błędów",
-                "errors": "Błędy"
-            }
-        },
+        "title": "Importuj z CSV",
+        "labels": {
+          "select-fulfillment": "Wybierz centrum realizacji dla eksportowanego inwentarza",
+          "select-pricelist": "Wybierz cennik dla eksportowanych cen",
+          "start": "Start",
+          "end": "Koniec",
+          "total": "Całkowita liczba",
+          "processed": "Przetworzona liczba",
+          "errors-count": "Liczba błędów",
+          "errors": "Błędy",
+          "virtual-catalog-warning": "Import nie jest dostępny dla katalogów wirtualnych."
+        }
+      },
       "history": {
         "export": {
-            "title": "Szczegóły eksportu katalogu",
-            "subtitle": "Szczegóły"
+          "title": "Szczegóły eksportu katalogu",
+          "subtitle": "Szczegóły"
         },
         "import": {
-            "title": "Szczegóły importu katalogu",
-            "subtitle": "Szczegóły"
+          "title": "Szczegóły importu katalogu",
+          "subtitle": "Szczegóły"
         }
       }
     },

@@ -15,7 +15,8 @@
           "download-url": "URL de download",
           "note": "Todas as informações dos produtos do catálogo devem ser exportadas para um arquivo CSV, a URL de download estará disponível após a conclusão da exportação",
           "caution": "Cuidado:",
-          "caution-description": "Ordenar seu arquivo CSV em um programa de planilhas pode fazer com que variantes de produtos ou URLs de imagens se desassociem. Importar um arquivo CSV ordenado pode sobrescrever seus produtos existentes com dados incorretos, que não podem ser recuperados"
+          "caution-description": "Ordenar seu arquivo CSV em um programa de planilhas pode fazer com que variantes de produtos ou URLs de imagens se desassociem. Importar um arquivo CSV ordenado pode sobrescrever seus produtos existentes com dados incorretos, que não podem ser recuperados",
+          "virtual-catalog-warning": "A exportação não está disponível para catálogos virtuais."
         },
         "placeholders": {
           "select-fulfillment": "Selecione o atendimento ou deixe em branco para o padrão...",
@@ -23,26 +24,27 @@
         }
       },
       "catalog-CSV-import": {
-            "title": "Importar de CSV",
-            "labels": {
-                "select-fulfillment": "Selecione o centro de atendimento para o inventário exportado",
-                "select-pricelist": "Selecione a lista de preços para os preços exportados",
-                "start": "Iniciar",
-                "end": "Fim",
-                "total": "Contagem total",
-                "processed": "Contagem processada",
-                "errors-count": "Contagem de erros",
-                "errors": "Erros"
-            }
-        },
+        "title": "Importar de CSV",
+        "labels": {
+          "select-fulfillment": "Selecione o centro de atendimento para o inventário exportado",
+          "select-pricelist": "Selecione a lista de preços para os preços exportados",
+          "start": "Iniciar",
+          "end": "Fim",
+          "total": "Contagem total",
+          "processed": "Contagem processada",
+          "errors-count": "Contagem de erros",
+          "errors": "Erros",
+          "virtual-catalog-warning": "A importação não está disponível para catálogos virtuais."
+        }
+      },
       "history": {
         "export": {
-            "title": "Detalhe da exportação do catálogo",
-            "subtitle": "Detalhes"
+          "title": "Detalhe da exportação do catálogo",
+          "subtitle": "Detalhes"
         },
         "import": {
-            "title": "Detalhe da importação do catálogo",
-            "subtitle": "Detalhes"
+          "title": "Detalhe da importação do catálogo",
+          "subtitle": "Detalhes"
         }
       }
     },
