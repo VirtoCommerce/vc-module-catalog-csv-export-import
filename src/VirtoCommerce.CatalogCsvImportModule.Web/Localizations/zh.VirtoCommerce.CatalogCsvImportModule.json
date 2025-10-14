@@ -15,7 +15,8 @@
           "download-url": "下载 URL",
           "note": "所有目录产品信息应导出到 CSV 文件，导出完成后将提供下载 URL",
           "caution": "注意：",
-          "caution-description": "在电子表格程序中排序 CSV 文件可能导致产品变体或图像 URL 失去关联。导入排序后的 CSV 文件可能会用错误的数据覆盖现有产品，这些数据无法恢复"
+          "caution-description": "在电子表格程序中排序 CSV 文件可能导致产品变体或图像 URL 失去关联。导入排序后的 CSV 文件可能会用错误的数据覆盖现有产品，这些数据无法恢复",
+          "virtual-catalog-warning": "导出不适用于虚拟目录。"
         },
         "placeholders": {
           "select-fulfillment": "选择履行或留空以使用默认值...",
@@ -23,26 +24,27 @@
         }
       },
       "catalog-CSV-import": {
-            "title": "从 CSV 导入",
-            "labels": {
-                "select-fulfillment": "选择导出库存的履行中心",
-                "select-pricelist": "选择导出价格的价格表",
-                "start": "开始",
-                "end": "结束",
-                "total": "总计",
-                "processed": "已处理计数",
-                "errors-count": "错误计数",
-                "errors": "错误"
-            }
-        },
+        "title": "从 CSV 导入",
+        "labels": {
+          "select-fulfillment": "选择导出库存的履行中心",
+          "select-pricelist": "选择导出价格的价格表",
+          "start": "开始",
+          "end": "结束",
+          "total": "总计",
+          "processed": "已处理计数",
+          "errors-count": "错误计数",
+          "errors": "错误",
+          "virtual-catalog-warning": "虚拟目录不支持导入。"
+        }
+      },
       "history": {
         "export": {
-            "title": "目录导出详情",
-            "subtitle": "详情"
+          "title": "目录导出详情",
+          "subtitle": "详情"
         },
         "import": {
-            "title": "目录导入详情",
-            "subtitle": "详情"
+          "title": "目录导入详情",
+          "subtitle": "详情"
         }
       }
     },
