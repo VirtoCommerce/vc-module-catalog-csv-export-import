@@ -1690,13 +1690,20 @@ public class ImporterTests
         #region IInventoryService
 
         var inventoryService = new Mock<IInventoryService>();
-        inventoryService
-            .Setup(x => x.GetProductsInventoryInfosAsync(It.IsAny<IEnumerable<string>>(), null))
-            .ReturnsAsync((IEnumerable<string> _, string _) => []);
 
         inventoryService
-            .Setup(x => x.SaveChangesAsync(It.IsAny<IEnumerable<InventoryInfo>>()))
+            .Setup(x => x.SaveChangesAsync(It.IsAny<IList<InventoryInfo>>()))
             .Callback((IEnumerable<InventoryInfo> _) => { });
+
+        #endregion
+
+        #region IInventorySearchService
+
+        var inventorySearchService = new Mock<IInventorySearchService>();
+
+        inventorySearchService
+            .Setup(x => x.SearchAsync(It.IsAny<InventorySearchCriteria>(), It.IsAny<bool>()))
+            .ReturnsAsync((InventorySearchCriteria _, bool _) => new InventoryInfoSearchResult());
 
         #endregion
 
@@ -1746,6 +1753,7 @@ public class ImporterTests
             skuGeneratorService.Object,
             pricingService.Object,
             inventoryService.Object,
+            inventorySearchService.Object,
             fulfillmentCenterSearchService.Object,
             () => catalogRepository.Object,
             pricingSearchService.Object,

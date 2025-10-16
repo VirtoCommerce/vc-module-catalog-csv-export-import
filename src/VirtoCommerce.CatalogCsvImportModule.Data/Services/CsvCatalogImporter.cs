@@ -34,6 +34,7 @@ public class CsvCatalogImporter(
     ISkuGenerator skuGenerator,
     IPriceService priceService,
     IInventoryService inventoryService,
+    IInventorySearchService inventorySearchService,
     IFulfillmentCenterSearchService fulfillmentCenterSearchService,
     Func<ICatalogRepository> catalogRepositoryFactory,
     IPriceSearchService priceSearchService,
@@ -429,8 +430,10 @@ public class CsvCatalogImporter(
             }
         }
 
-        var productIds = csvProducts.Select(x => x.Id).ToArray();
-        var existingInventories = await inventoryService.GetProductsInventoryInfosAsync(productIds);
+        var searchCriteria = AbstractTypeFactory<InventorySearchCriteria>.TryCreateInstance();
+        searchCriteria.ProductIds = csvProducts.Select(x => x.Id).ToArray();
+
+        var existingInventories = await inventorySearchService.SearchAllNoCloneAsync(searchCriteria);
 
         var inventories = csvProducts
             .Where(x => !string.IsNullOrEmpty(x.Inventory?.ProductId))
