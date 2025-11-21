@@ -1989,11 +1989,7 @@ public class ImporterTests
 
         return new CsvProduct
         {
-            Category = new Category
-            {
-                Parents = [],
-                Path = "TestCategory",
-            },
+            CategoryPath = "TestCategory",
             Code = "TST1",
             Currency = "USD",
             EditorialReview = review,
@@ -2018,11 +2014,7 @@ public class ImporterTests
 
         return new CsvProduct
         {
-            Category = new Category
-            {
-                Parents = [],
-                Path = "TestCategory",
-            },
+            CategoryPath = "TestCategory",
             Code = "TST2",
             Currency = "USD",
             EditorialReview = review,
@@ -2048,8 +2040,7 @@ public class ImporterTests
             Id = Guid.NewGuid().ToString(),
             Catalog = _catalog,
             CatalogId = _catalog.Id,
-            Name = existingProduct.Category.Path,
-            Path = existingProduct.CategoryPath,
+            Name = existingProduct.CategoryPath,
             Properties = new List<Property>(),
         };
 
