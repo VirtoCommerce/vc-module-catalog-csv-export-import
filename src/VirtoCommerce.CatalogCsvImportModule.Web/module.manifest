@@ -4,14 +4,14 @@
   <version>3.817.0</version>
   <version-tag />
 
-  <platformVersion>3.916.0-alpha.13164-vcst-4203-cleanup</platformVersion>
+  <platformVersion>3.917.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Assets" version="3.814.0-alpha.161-vcst-4203-cleanup" />
-    <dependency id="VirtoCommerce.Catalog" version="3.904.0-alpha.2432-vcst-4203-cleanup" />
-    <dependency id="VirtoCommerce.Core" version="3.823.0-alpha.1666-vcst-4203-cleanup" />
-    <dependency id="VirtoCommerce.Inventory" version="3.815.0-alpha.498-vcst-4203-cleanup" />
-    <dependency id="VirtoCommerce.Pricing" version="3.822.0-alpha.781-vcst-4203-cleanup" />
-    <dependency id="VirtoCommerce.Store" version="3.823.0-alpha.763-vcst-4203-cleanup" />
+    <dependency id="VirtoCommerce.Assets" version="3.814.0" />
+    <dependency id="VirtoCommerce.Catalog" version="3.904.0" />
+    <dependency id="VirtoCommerce.Core" version="3.824.0" />
+    <dependency id="VirtoCommerce.Inventory" version="3.815.0" />
+    <dependency id="VirtoCommerce.Pricing" version="3.822.0" />
+    <dependency id="VirtoCommerce.Store" version="3.823.0" />
   </dependencies>
 
   <title>CSV Catalog Export and Import Module</title>
