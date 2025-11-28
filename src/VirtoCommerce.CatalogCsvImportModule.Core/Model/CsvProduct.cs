@@ -432,6 +432,7 @@ public class CsvProduct : CatalogProduct
         Height ??= product.Height;
         Length ??= product.Length;
         Width ??= product.Width;
+        Links ??= product.Links;
 
         MaxQuantity ??= product.MaxQuantity;
         MinQuantity ??= product.MinQuantity;
