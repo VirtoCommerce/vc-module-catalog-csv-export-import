@@ -297,7 +297,7 @@ public class CsvCatalogImporter(
         var cachedCategoryMap = new Dictionary<string, Category>();
         var outline = new StringBuilder();
 
-        foreach (var csvProduct in csvProducts.Where(x => !string.IsNullOrEmpty(x.CategoryPath)))
+        foreach (var csvProduct in csvProducts.Where(x => x.Category is null && !string.IsNullOrEmpty(x.CategoryPath)))
         {
             outline.Clear();
             string parentCategoryId = null;
