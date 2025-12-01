@@ -1535,6 +1535,30 @@ public class ImporterTests
         Assert.Equal(expectedProductName, product.Name);
     }
 
+    [Fact]
+    public async Task DoImport_ProductShouldBePlacedInCorrectCategory()
+    {
+        // Arrange
+        var product = GetCsvProductBase();
+        product.CategoryPath = "Category1/Category2/Category3";
+        product.Category = null;
+
+        var target = GetImporter();
+        var exportInfo = new ExportImportProgressInfo();
+
+        // Act
+        await target.DoImport([product], GetCsvImportInfo(), exportInfo, _ => { });
+
+        // Assert
+        Assert.NotNull(product.Category);
+        Assert.Equal("Category3", product.Category.Name);
+
+        Assert.Equal(3, _categoriesInternal.Count);
+        Assert.Equal("Category1", _categoriesInternal[0].Name);
+        Assert.Equal("Category2", _categoriesInternal[1].Name);
+        Assert.Equal("Category3", _categoriesInternal[2].Name);
+    }
+
 
     private CsvCatalogImporter GetImporter(IPropertyDictionaryItemService propertyDictionaryItemService = null, bool? createDictionaryValues = false)
     {
@@ -1560,8 +1584,8 @@ public class ImporterTests
 
         var categoryService = new Mock<ICategoryService>();
         categoryService
-            .Setup(x => x.SaveChangesAsync(It.IsAny<Category[]>()))
-            .Returns((Category[] cats) =>
+            .Setup(x => x.SaveChangesAsync(It.IsAny<IList<Category>>()))
+            .Returns((IList<Category> cats) =>
             {
                 foreach (var category in cats.Where(x => x.Id == null))
                 {
@@ -1602,7 +1626,24 @@ public class ImporterTests
             .ReturnsAsync((CategorySearchCriteria criteria, bool _) =>
             {
                 var result = new CategorySearchResult();
-                var categories = _categoriesInternal.Where(x => criteria.CatalogIds.Contains(x.CatalogId) || criteria.ObjectIds.Contains(x.Id)).ToList();
+                var query = _categoriesInternal.AsQueryable();
+
+                if (!criteria.CatalogIds.IsNullOrEmpty())
+                {
+                    query = query.Where(x => criteria.CatalogIds.Contains(x.CatalogId));
+                }
+
+                if (!string.IsNullOrEmpty(criteria.CategoryId) && !criteria.SearchOnlyInRoot)
+                {
+                    query = query.Where(x => x.ParentId == criteria.CategoryId);
+                }
+
+                if (criteria.SearchOnlyInRoot)
+                {
+                    query = query.Where(x => x.ParentId == null);
+                }
+
+                var categories = query.ToList();
                 var cloned = categories.Select(x => x.CloneTyped()).ToList();
                 foreach (var category in cloned)
                 {

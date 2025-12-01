@@ -297,12 +297,12 @@ public class CsvCatalogImporter(
         var cachedCategoryMap = new Dictionary<string, Category>();
         var outline = new StringBuilder();
 
-        foreach (var csvProduct in csvProducts.Where(x => x.Category != null && !string.IsNullOrEmpty(x.Category.Path)))
+        foreach (var csvProduct in csvProducts.Where(x => !string.IsNullOrEmpty(x.CategoryPath)))
         {
             outline.Clear();
             string parentCategoryId = null;
             var count = progressInfo.ProcessedCount;
-            var productCategoryNames = csvProduct.Category.Path.Split(_categoryDelimiters);
+            var productCategoryNames = csvProduct.CategoryPath.Split(_categoryDelimiters);
 
             foreach (var categoryName in productCategoryNames)
             {
