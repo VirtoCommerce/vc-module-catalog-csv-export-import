@@ -265,12 +265,12 @@ public class CsvProduct : CatalogProduct
     {
         get
         {
-            if (_categoryPath != null)
+            if (Category != null)
             {
-                return _categoryPath;
+                return Category.Path;
             }
 
-            return Category?.Path;
+            return _categoryPath;
         }
         set
         {
