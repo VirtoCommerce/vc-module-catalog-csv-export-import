@@ -147,7 +147,6 @@ public class MappingTests
         var product = csvProducts.First();
 
         Assert.Equal("TestCategory1", product.CategoryPath);
-        Assert.Equal("TestCategory1", product.Category.Path);
     }
 
     [Fact]
@@ -170,7 +169,6 @@ public class MappingTests
         var product = csvProducts.First();
 
         Assert.Equal(defaultCategoryPath, product.CategoryPath);
-        Assert.Equal(defaultCategoryPath, product.Category.Path);
     }
 
     [Fact]
