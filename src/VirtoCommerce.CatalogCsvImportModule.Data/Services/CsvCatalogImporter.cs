@@ -290,7 +290,7 @@ public class CsvCatalogImporter(
     }
 
     /// <summary>
-    /// Try to find (create if not) categories for products with Category.Path
+    /// Try to find (create if not) categories for products with CategoryPath
     /// </summary>
     private async Task SaveCategoryTree(Catalog catalog, IEnumerable<CsvProduct> csvProducts, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback)
     {
