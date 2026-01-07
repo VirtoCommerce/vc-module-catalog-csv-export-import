@@ -260,20 +260,21 @@ public class CsvProduct : CatalogProduct
 
     public string ParentSku { get; set; }
 
+    private string _categoryPath;
     public string CategoryPath
     {
         get
         {
-            if (Category == null)
+            if (Category != null)
             {
-                return null;
+                return Category.Path;
             }
 
-            return Category.Path;
+            return _categoryPath;
         }
         set
         {
-            Category = new Category { Path = value };
+            _categoryPath = value;
         }
     }
 

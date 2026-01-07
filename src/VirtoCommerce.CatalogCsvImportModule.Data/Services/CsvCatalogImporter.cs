@@ -34,6 +34,7 @@ public class CsvCatalogImporter(
     ISkuGenerator skuGenerator,
     IPriceService priceService,
     IInventoryService inventoryService,
+    IInventorySearchService inventorySearchService,
     IFulfillmentCenterSearchService fulfillmentCenterSearchService,
     Func<ICatalogRepository> catalogRepositoryFactory,
     IPriceSearchService priceSearchService,
@@ -289,19 +290,19 @@ public class CsvCatalogImporter(
     }
 
     /// <summary>
-    /// Try to find (create if not) categories for products with Category.Path
+    /// Try to find (create if not) categories for products with CategoryPath
     /// </summary>
     private async Task SaveCategoryTree(Catalog catalog, IEnumerable<CsvProduct> csvProducts, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback)
     {
         var cachedCategoryMap = new Dictionary<string, Category>();
         var outline = new StringBuilder();
 
-        foreach (var csvProduct in csvProducts.Where(x => x.Category != null && !string.IsNullOrEmpty(x.Category.Path)))
+        foreach (var csvProduct in csvProducts.Where(x => x.Category is null && !string.IsNullOrEmpty(x.CategoryPath)))
         {
             outline.Clear();
             string parentCategoryId = null;
             var count = progressInfo.ProcessedCount;
-            var productCategoryNames = csvProduct.Category.Path.Split(_categoryDelimiters);
+            var productCategoryNames = csvProduct.CategoryPath.Split(_categoryDelimiters);
 
             foreach (var categoryName in productCategoryNames)
             {
@@ -429,8 +430,10 @@ public class CsvCatalogImporter(
             }
         }
 
-        var productIds = csvProducts.Select(x => x.Id).ToArray();
-        var existingInventories = await inventoryService.GetProductsInventoryInfosAsync(productIds);
+        var searchCriteria = AbstractTypeFactory<InventorySearchCriteria>.TryCreateInstance();
+        searchCriteria.ProductIds = csvProducts.Select(x => x.Id).ToArray();
+
+        var existingInventories = await inventorySearchService.SearchAllNoCloneAsync(searchCriteria);
 
         var inventories = csvProducts
             .Where(x => !string.IsNullOrEmpty(x.Inventory?.ProductId))
