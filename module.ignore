@@ -1,6 +1,5 @@
 Google.Apis.dll
 Google.Apis.Auth.dll
-Google.Apis.Auth.PlatformServices.dll
 Google.Apis.Core.dll
 Google.Apis.YouTube.v3.dll
 TimeZoneConverter.dll
