@@ -99,6 +99,8 @@ public class CsvCatalogImporter(
 
         csvProducts = MergeCsvProducts(csvProducts, catalog);
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         await MergeFromExistingProducts(csvProducts, catalog);
 
         cancellationToken.ThrowIfCancellationRequested();
