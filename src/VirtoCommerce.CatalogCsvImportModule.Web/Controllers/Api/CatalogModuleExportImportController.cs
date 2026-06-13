@@ -222,7 +222,7 @@ public class ExportImportController(
             notifyEvent.Finished = DateTime.UtcNow;
             notifyEvent.Description = canceled
                 ? "Import canceled"
-                : "Import finished" + (notifyEvent.Errors.Any() ? " with errors" : " successfully");
+                : "Import finished" + (notifyEvent.Errors.Count > 0 ? " with errors" : " successfully");
             await pushNotificationManager.SendAsync(notifyEvent);
         }
 

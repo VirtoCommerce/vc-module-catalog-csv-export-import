@@ -44,6 +44,7 @@ angular.module('virtoCommerce.catalogCsvImportModule')
 
                 uploader.onSuccessItem = function (fileItem, asset, status, headers) {
                     blade.csvFileUrl = asset[0].relativeUrl;
+                    blade.csvFileName = asset[0].name;
 
                     importResource.getMappingConfiguration({ fileUrl: blade.csvFileUrl, delimiter: encodeURIComponent(blade.columnDelimiter) }, function (data) {
                         if ($localStorage.lastKnownImportData && $localStorage.lastKnownImportData.eTag === data.eTag) {
