@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Catalog CSV Import">
+  <title>Catalog CSV Import</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="92%" y2="100%">
+      <stop offset="0%" stop-color="#3FD8B4"/>
+      <stop offset="100%" stop-color="#0E9E80"/>
+    </linearGradient>
+    <filter id="lift" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#064F40" flood-opacity="0.30"/>
+    </filter>
+    <clipPath id="sheet"><rect x="-34" y="-48" width="68" height="44" rx="6"/></clipPath>
+  </defs>
+
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+
+  <g transform="translate(64,66)" filter="url(#lift)">
+    <!-- CSV / spreadsheet sheet -->
+    <rect x="-34" y="-48" width="68" height="44" rx="6" fill="#ffffff"/>
+    <g clip-path="url(#sheet)">
+      <rect x="-34" y="-48" width="23" height="13" fill="#FFC24D"/>
+      <rect x="-11" y="-48" width="22" height="13" fill="#5FC8F5"/>
+      <rect x="11" y="-48" width="23" height="13" fill="#E5484D"/>
+      <line x1="-11" y1="-48" x2="-11" y2="-4" stroke="#CBD8E6" stroke-width="2"/>
+      <line x1="11" y1="-48" x2="11" y2="-4" stroke="#CBD8E6" stroke-width="2"/>
+      <line x1="-34" y1="-23" x2="34" y2="-23" stroke="#CBD8E6" stroke-width="2"/>
+      <line x1="-34" y1="-13" x2="34" y2="-13" stroke="#CBD8E6" stroke-width="2"/>
+    </g>
+
+    <!-- Import tray -->
+    <path d="M-32,26 V40 a4,4 0 0 0 4,4 H28 a4,4 0 0 0 4,-4 V26" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Import arrow (down) -->
+    <rect x="-5" y="2" width="10" height="14" fill="#F2A81E"/>
+    <polygon points="-15,13 15,13 0,30" fill="#F2A81E"/>
+  </g>
+</svg>
