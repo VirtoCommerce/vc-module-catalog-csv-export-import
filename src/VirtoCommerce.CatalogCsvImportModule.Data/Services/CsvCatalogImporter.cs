@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.CatalogCsvImportModule.Core;
@@ -67,15 +68,15 @@ public class CsvCatalogImporter(
         }
     }
 
-    public async Task DoImportAsync(Stream inputStream, CsvImportInfo importInfo, Action<ExportImportProgressInfo> progressCallback)
+    public async Task DoImportAsync(Stream inputStream, CsvImportInfo importInfo, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken = default)
     {
-        var csvProducts = await csvProductReader.ReadProducts(inputStream, importInfo.Configuration, progressCallback);
+        var csvProducts = await csvProductReader.ReadProducts(inputStream, importInfo.Configuration, progressCallback, cancellationToken);
         var progressInfo = new ExportImportProgressInfo();
 
-        await DoImport(csvProducts, importInfo, progressInfo, progressCallback);
+        await DoImport(csvProducts, importInfo, progressInfo, progressCallback, cancellationToken);
     }
 
-    public async Task DoImport(List<CsvProduct> csvProducts, CsvImportInfo importInfo, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback)
+    public async Task DoImport(List<CsvProduct> csvProducts, CsvImportInfo importInfo, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken = default)
     {
         var catalog = await catalogService.GetByIdAsync(importInfo.CatalogId);
         if (catalog == null)
@@ -94,20 +95,26 @@ public class CsvCatalogImporter(
             return;
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         csvProducts = MergeCsvProducts(csvProducts, catalog);
 
         await MergeFromExistingProducts(csvProducts, catalog);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         await SaveCategoryTree(catalog, csvProducts, progressInfo, progressCallback);
 
         await LoadProductDependencies(csvProducts, catalog, importInfo);
         await ResolvePropertyDictionaryItems(csvProducts, progressInfo, progressCallback);
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         // Save main products first
         progressInfo.TotalCount = csvProducts.Count;
 
         var mainProducts = csvProducts.Where(x => x.MainProduct == null).ToList();
-        await SaveProducts(mainProducts, progressInfo, progressCallback);
+        await SaveProducts(mainProducts, progressInfo, progressCallback, cancellationToken);
 
         // Save variations (needed to be able to save variation with SKU as MainProductId)
         var variations = csvProducts.Except(mainProducts).ToList();
@@ -117,7 +124,7 @@ public class CsvCatalogImporter(
             variation.MainProductId = variation.MainProduct.Id;
         }
 
-        await SaveProducts(variations, progressInfo, progressCallback);
+        await SaveProducts(variations, progressInfo, progressCallback, cancellationToken);
     }
 
 
@@ -356,12 +363,14 @@ public class CsvCatalogImporter(
         return code;
     }
 
-    private async Task SaveProducts(List<CsvProduct> csvProducts, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback)
+    private async Task SaveProducts(List<CsvProduct> csvProducts, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
     {
         var defaultFulfilmentCenter = await GetDefaultFulfilmentCenter();
 
         foreach (var csvProductsBatch in csvProducts.Paginate(_saveProductsBatchSize))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 var catalogProducts = csvProductsBatch.Select(csvProductConverter.GetCatalogProduct).ToArray();
