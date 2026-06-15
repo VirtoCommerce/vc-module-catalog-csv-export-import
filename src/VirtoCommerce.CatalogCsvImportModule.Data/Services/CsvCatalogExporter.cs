@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -37,7 +38,7 @@ public class CsvCatalogExporter(
 {
     private const int _batchSize = 50;
 
-    public async Task DoExportAsync(Stream outStream, CsvExportInfo exportInfo, Action<ExportImportProgressInfo> progressCallback)
+    public async Task DoExportAsync(Stream outStream, CsvExportInfo exportInfo, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken = default)
     {
         var progressInfo = new ExportImportProgressInfo
         {
@@ -55,7 +56,7 @@ public class CsvCatalogExporter(
 
         await ProcessProductsByPage(exportInfo, progressInfo, progressCallback,
             "Collecting properties for {0} of {1} products...",
-            products => CollectCsvColumns(exportInfo, products));
+            products => CollectCsvColumns(exportInfo, products), cancellationToken);
 
         // Second time: fetch and save products to CSV file
         progressInfo.Description = "Exporting...";
@@ -77,7 +78,7 @@ public class CsvCatalogExporter(
 
         await ProcessProductsByPage(exportInfo, progressInfo, progressCallback,
             "Exporting {0} of {1} products...",
-            products => ExportProducts(exportInfo, progressInfo, progressCallback, csvWriter, products));
+            products => ExportProducts(exportInfo, progressInfo, progressCallback, csvWriter, products, cancellationToken), cancellationToken);
 
         progressInfo.Description = "Done.";
         progressCallback(progressInfo);
@@ -110,7 +111,8 @@ public class CsvCatalogExporter(
         ExportImportProgressInfo progressInfo,
         Action<ExportImportProgressInfo> progressCallback,
         CsvWriter csvWriter,
-        IList<CatalogProduct> products)
+        IList<CatalogProduct> products,
+        CancellationToken cancellationToken)
     {
         var productIds = products.Select(x => x.Id).ToArray();
 
@@ -136,6 +138,8 @@ public class CsvCatalogExporter(
 
         foreach (var product in products)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 var price = pricesByProductIds.GetValueSafe(product.Id);
@@ -164,7 +168,8 @@ public class CsvCatalogExporter(
         ExportImportProgressInfo progressInfo,
         Action<ExportImportProgressInfo> progressCallback,
         string progressMessageTemplate,
-        Func<IList<CatalogProduct>, Task> action)
+        Func<IList<CatalogProduct>, Task> action,
+        CancellationToken cancellationToken)
     {
         await ProcessProducts(GetDistinctProductIds(exportInfo));
 
@@ -172,6 +177,8 @@ public class CsvCatalogExporter(
         {
             await foreach (var searchResult in productSearchService.SearchBatchesNoCloneAsync(criteria))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var productIds = searchResult.Results.Select(x => x.Id).ToArray();
                 await ProcessProducts(productIds);
             }
@@ -191,6 +198,8 @@ public class CsvCatalogExporter(
             // Pass no more than _batchSize products to the action
             await foreach (var products in GetProductsWithVariations(productIds, _batchSize).Paginate(_batchSize))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await action(products);
 
                 // Need to rewrite with caching disabled

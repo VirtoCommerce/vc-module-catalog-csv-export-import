@@ -23,7 +23,7 @@ angular.module('virtoCommerce.catalogCsvImportModule')
                 var uploader = $scope.uploader = new FileUploader({
                     scope: $scope,
                     headers: { Accept: 'application/json' },
-                    url: 'api/assets?folderUrl=tmp',
+                    url: 'api/assets?folderUrl=temp',
                     method: 'POST',
                     autoUpload: true,
                     removeAfterUpload: true
@@ -44,17 +44,9 @@ angular.module('virtoCommerce.catalogCsvImportModule')
 
                 uploader.onSuccessItem = function (fileItem, asset, status, headers) {
                     blade.csvFileUrl = asset[0].relativeUrl;
+                    blade.csvFileName = asset[0].name;
 
-                    importResource.getMappingConfiguration({ fileUrl: blade.csvFileUrl, delimiter: encodeURIComponent(blade.columnDelimiter) }, function (data) {
-                        if ($localStorage.lastKnownImportData && $localStorage.lastKnownImportData.eTag === data.eTag) {
-                            angular.extend(data, $localStorage.lastKnownImportData);
-                        }
-
-                        blade.initialImportConfiguration = data;
-                        blade.isLoading = false;
-                    }, function (error) {
-                        bladeNavigationService.setError('Error ' + error.status, blade);
-                    });
+                    loadMappingConfiguration();
                 };
 
                 uploader.onAfterAddingAll = function (addedItems) {
@@ -64,6 +56,37 @@ angular.module('virtoCommerce.catalogCsvImportModule')
                 uploader.onErrorItem = function (item, response, status, headers) {
                     bladeNavigationService.setError(item._file.name + ' failed: ' + (response.message ? response.message : status), blade);
                 };
+            }
+
+            // Re-initialize the column mapping whenever the delimiter changes after a file has been
+            // uploaded, so a wrong delimiter can be corrected and the re-parsed columns reviewed again.
+            $scope.$watch('blade.columnDelimiter', function (newValue, oldValue) {
+                if (newValue === oldValue || !blade.csvFileUrl) {
+                    return;
+                }
+
+                loadMappingConfiguration();
+            });
+
+            function loadMappingConfiguration() {
+                blade.isLoading = true;
+
+                // Drop the previous (now stale) mapping so the user must review the re-parsed columns again.
+                blade.initialImportConfiguration = null;
+                blade.importConfiguration = null;
+                blade.canImport = false;
+
+                importResource.getMappingConfiguration({ fileUrl: blade.csvFileUrl, delimiter: encodeURIComponent(blade.columnDelimiter) }, function (data) {
+                    if ($localStorage.lastKnownImportData && $localStorage.lastKnownImportData.eTag === data.eTag) {
+                        angular.extend(data, $localStorage.lastKnownImportData);
+                    }
+
+                    blade.initialImportConfiguration = data;
+                    blade.isLoading = false;
+                }, function (error) {
+                    blade.isLoading = false;
+                    bladeNavigationService.setError('Error ' + error.status, blade);
+                });
             }
 
             $scope.canMapColumns = function () {

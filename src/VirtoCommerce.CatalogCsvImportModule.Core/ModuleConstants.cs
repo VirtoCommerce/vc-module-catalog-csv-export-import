@@ -7,6 +7,34 @@ namespace VirtoCommerce.CatalogCsvImportModule.Core;
 [ExcludeFromCodeCoverage]
 public static class ModuleConstants
 {
+    public static class BackgroundJobs
+    {
+        /// <summary>
+        /// Distributed lock resource that serializes catalog CSV import jobs so only one runs at a time.
+        /// Prevents concurrent imports touching the same SKU from overwriting each other (lost-write race).
+        /// </summary>
+        public const string ImportLockKey = "CatalogCsvImport";
+
+        /// <summary>
+        /// Maximum time (seconds) an import job waits to acquire <see cref="ImportLockKey"/> before failing.
+        /// Sized for the worst-case queue duration so queued imports block-then-run instead of timing out.
+        /// </summary>
+        public const int ImportLockTimeoutSeconds = 60 * 60 * 24; // 1 day
+
+        /// <summary>
+        /// Distributed lock resource that serializes catalog CSV export jobs so only one runs at a time.
+        /// Prevents concurrent exports touching the same SKU from overwriting each other (lost-write race).
+        /// </summary>
+        public const string ExportLockKey = "CatalogCsvExport";
+
+        /// <summary>
+        /// Maximum time (seconds) an export job waits to acquire <see cref="ExportLockKey"/> before failing.
+        /// Sized for the worst-case queue duration so queued exports block-then-run instead of timing out.
+        /// </summary>
+        public const int ExportLockTimeoutSeconds = 60 * 60 * 24; // 1 day
+
+    }
+
     public static class Settings
     {
         public static class General
