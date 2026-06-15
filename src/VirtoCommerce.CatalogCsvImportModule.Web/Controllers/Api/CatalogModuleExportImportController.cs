@@ -1,12 +1,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Omu.ValueInjecter;
 using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
@@ -42,7 +44,8 @@ public class ExportImportController(
     IUserNameResolver userNameResolver,
     ISettingsManager settingsManager,
     IItemService itemService,
-    ICategoryService categoryService)
+    ICategoryService categoryService,
+    ILogger<ExportImportController> logger)
     : Controller
 {
     [HttpGet]
@@ -105,7 +108,7 @@ public class ExportImportController(
 
         await pushNotificationManager.SendAsync(notification);
 
-        BackgroundJob.Enqueue(() => BackgroundExport(exportInfo, notification));
+        BackgroundJob.Enqueue(() => BackgroundExport(exportInfo, notification, CancellationToken.None));
 
         return Ok(notification);
     }
@@ -182,29 +185,44 @@ public class ExportImportController(
 
         await pushNotificationManager.SendAsync(notification);
 
-        BackgroundJob.Enqueue(() => BackgroundImport(importInfo, notification));
+        BackgroundJob.Enqueue(() => BackgroundImport(importInfo, notification, CancellationToken.None));
 
         return Ok(notification);
     }
 
+    [DisableConcurrentExecution(CsvModuleConstants.BackgroundJobs.ImportLockKey, CsvModuleConstants.BackgroundJobs.ImportLockTimeoutSeconds)]
     [ApiExplorerSettings(IgnoreApi = true)]
     // Only public methods can be invoked in the background. (Hangfire)
-    public async Task BackgroundImport(CsvImportInfo importInfo, ImportNotification notifyEvent)
+    public async Task BackgroundImport(CsvImportInfo importInfo, ImportNotification notifyEvent, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Starting background import process for file {FileUrl}", importInfo.FileUrl);
+
+        var canceled = false;
+
         await using var stream = await blobStorageProvider.OpenReadAsync(importInfo.FileUrl);
         try
         {
-            await csvImporter.DoImportAsync(stream, importInfo, ProgressCallback);
+            await csvImporter.DoImportAsync(stream, importInfo, ProgressCallback, cancellationToken);
+
+            logger.LogInformation("Import process completed for file {FileUrl}", importInfo.FileUrl);
+        }
+        catch (OperationCanceledException)
+        {
+            canceled = true;
+            logger.LogWarning("Import process canceled for file {FileUrl}", importInfo.FileUrl);
         }
         catch (Exception ex)
         {
-            notifyEvent.Description = "Export error";
+            logger.LogError(ex, "Import process failed for file {FileUrl}", importInfo.FileUrl);
+
             notifyEvent.Errors.Add(ex.ToString());
         }
         finally
         {
             notifyEvent.Finished = DateTime.UtcNow;
-            notifyEvent.Description = "Import finished" + (notifyEvent.Errors.Any() ? " with errors" : " successfully");
+            notifyEvent.Description = canceled
+                ? "Import canceled"
+                : "Import finished" + (notifyEvent.Errors.Count > 0 ? " with errors" : " successfully");
             await pushNotificationManager.SendAsync(notifyEvent);
         }
 
@@ -217,10 +235,13 @@ public class ExportImportController(
         }
     }
 
+    [DisableConcurrentExecution(CsvModuleConstants.BackgroundJobs.ExportLockKey, CsvModuleConstants.BackgroundJobs.ExportLockTimeoutSeconds)]
     [ApiExplorerSettings(IgnoreApi = true)]
     // Only public methods can be invoked in the background. (Hangfire)
-    public async Task BackgroundExport(CsvExportInfo exportInfo, ExportNotification notifyEvent)
+    public async Task BackgroundExport(CsvExportInfo exportInfo, ExportNotification notifyEvent, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Starting background export process for catalog {CatalogId}", exportInfo.CatalogId);
+
         try
         {
             var currencies = await currencyService.GetAllCurrenciesAsync();
@@ -250,7 +271,7 @@ public class ExportImportController(
             // Upload result csv to blob storage
             await using (var blobStream = await blobStorageProvider.OpenWriteAsync(blobRelativeUrl))
             {
-                await csvExporter.DoExportAsync(blobStream, exportInfo, ProgressCallback);
+                await csvExporter.DoExportAsync(blobStream, exportInfo, ProgressCallback, cancellationToken);
             }
 
             // Get a download url
@@ -262,9 +283,19 @@ public class ExportImportController(
                 notifyEvent.InjectFrom(x);
                 pushNotificationManager.SendAsync(notifyEvent);
             }
+
+            logger.LogInformation("Export process completed for catalog {CatalogId}", exportInfo.CatalogId);
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogWarning("Export process canceled for catalog {CatalogId}", exportInfo.CatalogId);
+
+            notifyEvent.Description = "Export canceled";
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Export process failed for catalog {CatalogId}", exportInfo.CatalogId);
+
             notifyEvent.Description = "Export failed";
             notifyEvent.Errors.Add(ex.ExpandExceptionMessage());
         }

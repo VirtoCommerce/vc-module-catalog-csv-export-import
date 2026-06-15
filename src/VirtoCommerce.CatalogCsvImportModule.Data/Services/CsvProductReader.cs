@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -30,7 +31,7 @@ public class CsvProductReader : ICsvProductReader
         return [];
     }
 
-    public virtual async Task<List<CsvProduct>> ReadProducts(Stream stream, CsvProductMappingConfiguration configuration, Action<ExportImportProgressInfo> progressCallback)
+    public virtual async Task<List<CsvProduct>> ReadProducts(Stream stream, CsvProductMappingConfiguration configuration, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken = default)
     {
         var csvProducts = new List<CsvProduct>();
 
@@ -48,6 +49,8 @@ public class CsvProductReader : ICsvProductReader
 
         while (await csvReader.ReadAsync())
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 var csvProduct = (CsvProduct)csvReader.GetRecord(csvProductType);

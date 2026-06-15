@@ -21,3 +21,15 @@
   color: #000000;
 }
 
+.csv-import-file-name {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drag-area.csv-import-drop-zone {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
