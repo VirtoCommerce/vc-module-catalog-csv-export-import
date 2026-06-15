@@ -18,14 +18,19 @@
         </fieldset>
 
         <fieldset ng-disabled="!blade.columnDelimiter">
-          <div class="form-group">
-            <label class="form-label">{{ 'catalogCsvImportModule.wizards.catalog-CSV-import.labels.upload' | translate }}</label>
-            <div class="form-input">
-              <input type="file" uploader="uploader" nv-file-select style="z-index: 0;" tabindex="-1">
-              <input type="text" readonly="" ng-model="blade.csvFileUrl">
-              <button class="btn __file" type="button" onclick="$('input[type=file]').trigger('click')">
-                <i class="btn-ico fas fa-image"></i>
-              </button>
+          <label class="form-label">{{ 'catalogCsvImportModule.wizards.catalog-CSV-import.labels.upload' | translate }}</label>
+          <div ng-show="!uploader.isUploading">
+            <input type="file" id="csvFileInput" nv-file-select uploader="uploader" accept=".csv" style="display: none">
+            <label for="csvFileInput" class="well my-drop-zone panel drag-area drag-area--clickable csv-import-drop-zone" uploader="uploader" nv-file-drop nv-file-over>
+              <div class="drag-content">
+                <i class="fas fa-cloud-upload-alt drag-area-icon"></i>
+                <div class="drag-area-primary">{{ 'catalogCsvImportModule.wizards.catalog-CSV-import.labels.drag-or-browse' | translate }}</div>
+                <div class="drag-area-secondary">{{ 'catalogCsvImportModule.wizards.catalog-CSV-import.labels.drag-note-detail' | translate }}</div>
+              </div>
+            </label>
+            <div class="form-group" ng-if="blade.csvFileName">
+              <label class="form-label">{{ 'catalogCsvImportModule.wizards.catalog-CSV-import.labels.uploaded-file' | translate }}</label>
+              <div class="form-text csv-import-file-name" title="{{ blade.csvFileName }}">{{ blade.csvFileName }}</div>
             </div>
           </div>
           <div ng-show="uploader.isUploading">
