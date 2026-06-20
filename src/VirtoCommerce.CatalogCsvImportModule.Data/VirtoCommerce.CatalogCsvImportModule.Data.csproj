@@ -18,8 +18,8 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="CsvHelper" Version="33.1.0" />
     
-    <PackageReference Include="VirtoCommerce.CatalogModule.Data" Version="3.1000.0" />
-    <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.1000.0" />
+    <PackageReference Include="VirtoCommerce.CatalogModule.Data" Version="3.1029.0" />
+    <PackageReference Include="VirtoCommerce.StoreModule.Core" Version="3.1005.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.CatalogCsvImportModule.Core\VirtoCommerce.CatalogCsvImportModule.Core.csproj" />
@@ -27,7 +27,7 @@
 
   <!--Workaround for vulnerable transitive packages-->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.9" />
   </ItemGroup>
 
 </Project>

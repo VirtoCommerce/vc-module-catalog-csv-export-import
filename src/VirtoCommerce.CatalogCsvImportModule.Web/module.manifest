@@ -4,14 +4,14 @@
   <version>3.1002.0</version>
   <version-tag />
 
-  <platformVersion>3.1002.0</platformVersion>
+  <platformVersion>3.1039.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Assets" version="3.1000.0" />
-    <dependency id="VirtoCommerce.Catalog" version="3.1000.0" />
-    <dependency id="VirtoCommerce.Core" version="3.1000.0" />
-    <dependency id="VirtoCommerce.Inventory" version="3.1000.0" />
-    <dependency id="VirtoCommerce.Pricing" version="3.1000.0" />
-    <dependency id="VirtoCommerce.Store" version="3.1000.0" />
+    <dependency id="VirtoCommerce.Assets" version="3.1005.0" />
+    <dependency id="VirtoCommerce.Catalog" version="3.1029.0" />
+    <dependency id="VirtoCommerce.Core" version="3.1007.0" />
+    <dependency id="VirtoCommerce.Inventory" version="3.1003.0" />
+    <dependency id="VirtoCommerce.Pricing" version="3.1003.0" />
+    <dependency id="VirtoCommerce.Store" version="3.1005.0" />
   </dependencies>
 
   <title>CSV Catalog Export and Import Module</title>
