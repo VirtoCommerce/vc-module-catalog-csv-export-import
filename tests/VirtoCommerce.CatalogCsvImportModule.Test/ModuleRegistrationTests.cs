@@ -19,7 +19,7 @@ public class ModuleRegistrationTests
         var descriptor = services.SingleOrDefault(x => x.ServiceType == typeof(ICatalogCsvImportModuleMapper));
 
         descriptor.Should().NotBeNull();
-        descriptor.ImplementationType.Should().Be(typeof(CatalogCsvImportModuleMapper));
+        descriptor.ImplementationType.Should().Be<CatalogCsvImportModuleMapper>();
         descriptor.Lifetime.Should().Be(ServiceLifetime.Singleton);
     }
 }
