@@ -2,11 +2,11 @@ using AutoMapper;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model;
 
-namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
+namespace VirtoCommerce.CatalogCsvImportModule.Tests;
 
-public class CatalogProductMappingProfile : Profile
+public class LegacyCatalogProductMappingProfile : Profile
 {
-    public CatalogProductMappingProfile()
+    public LegacyCatalogProductMappingProfile()
     {
         CreateMap<CsvProduct, CatalogProduct>();
     }

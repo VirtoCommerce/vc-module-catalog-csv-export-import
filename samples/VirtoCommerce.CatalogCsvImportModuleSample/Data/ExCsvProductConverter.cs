@@ -1,4 +1,3 @@
-using AutoMapper;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogCsvImportModuleSample.Core;
@@ -6,7 +5,7 @@ using VirtoCommerce.CatalogModule.Core.Model;
 
 namespace VirtoCommerce.CatalogCsvImportModuleSample.Data;
 
-public class ExCsvProductConverter(IMapper mapper)
+public class ExCsvProductConverter(ICatalogCsvImportModuleMapper mapper)
     : CsvProductConverter(mapper)
 {
     public override CatalogProduct GetCatalogProduct(CsvProduct csvProduct)

@@ -20,7 +20,6 @@ public class Module : IModule
         AbstractTypeFactory<CsvProduct>.OverrideType<CsvProduct, ExCsvProduct>();
         AbstractTypeFactory<CsvProductMappingConfiguration>.OverrideType<CsvProductMappingConfiguration, ExCsvProductMappingConfiguration>();
 
-        serviceCollection.AddAutoMapper(typeof(ExDataAssemblyMarker).Assembly);
         serviceCollection.AddTransient<ICsvProductConverter, ExCsvProductConverter>();
     }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
 using FluentAssertions;
 using MockQueryable.Moq;
 using Moq;
@@ -33,7 +32,6 @@ namespace VirtoCommerce.CatalogCsvImportModule.Tests;
 
 public class ImporterTests
 {
-    private readonly IMapper _mapper;
     private readonly Catalog _catalog = CreateCatalog();
     private readonly List<Category> _categoriesInternal = [];
     private List<CatalogProduct> _productsInternal = [];
@@ -45,13 +43,6 @@ public class ImporterTests
         // To fix the error: 'Cyrillic' is not a supported encoding name. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method. (Parameter 'name')
         // https://github.com/dotnet/runtime/issues/17516
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-        var configuration = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<CatalogProductMappingProfile>();
-        });
-
-        _mapper = configuration.CreateMapper();
     }
 
     [Theory]
@@ -1784,7 +1775,7 @@ public class ImporterTests
 
         #endregion IFulfillmentCenterSearchService
 
-        var csvProductConverter = new CsvProductConverter(_mapper);
+        var csvProductConverter = new CsvProductConverter(new CatalogCsvImportModuleMapper());
 
         return new CsvCatalogImporter(
             new CsvProductReader(),
