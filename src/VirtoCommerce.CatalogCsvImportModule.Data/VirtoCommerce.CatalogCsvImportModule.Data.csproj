@@ -14,8 +14,6 @@
     <SonarQubeTestProject>false</SonarQubeTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="CsvHelper" Version="33.1.0" />
     
     <PackageReference Include="VirtoCommerce.CatalogModule.Data" Version="3.1029.0" />
