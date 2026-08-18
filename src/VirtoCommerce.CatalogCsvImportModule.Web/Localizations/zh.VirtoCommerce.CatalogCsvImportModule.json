@@ -110,7 +110,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "导出文件名模板",
-        "description": "指定用于生成导出文件名的模板（模式）。模板可以包括诸如文件生成的 UTC 时间的 '0' 之类的参数"
+        "description": "指定用于生成导出文件名的模板（模式）。支持的参数：{0} - 生成文件时的 UTC 日期和时间，可选择使用 .NET 格式字符串，例如 {0:yyyy-MM-dd_HH-mm-ss}；{1} - 6 位随机数字，使下载链接难以被猜到。例如，模板 products_{0:yyyy-MM-dd_HH-mm-ss}_{1} 生成 products_2026-08-13_09-13-19_481750.csv。扩展名 .csv 会自动添加。"
       }
     }
   },

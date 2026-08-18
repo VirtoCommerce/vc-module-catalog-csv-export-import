@@ -110,7 +110,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Exportdateinamen-Vorlage",
-        "description": "Geben Sie die Vorlage (Muster) an, die zur Generierung des exportierten Dateinamens verwendet wird. Die Vorlage kann Parameter wie '0' für die UTC-Zeit der Dateierstellung enthalten"
+        "description": "Geben Sie die Vorlage (Muster) an, die zur Generierung des exportierten Dateinamens verwendet wird. Unterstützte Parameter: {0} - UTC-Datum und -Uhrzeit der Dateierstellung, optional mit einer .NET-Formatzeichenfolge, zum Beispiel {0:yyyy-MM-dd_HH-mm-ss}; {1} - eine zufällige 6-stellige Zahl, die den Download-Link schwer erratbar macht. Die Vorlage products_{0:yyyy-MM-dd_HH-mm-ss}_{1} erzeugt zum Beispiel products_2026-08-13_09-13-19_481750.csv. Die Erweiterung .csv wird automatisch hinzugefügt."
       }
     }
   },

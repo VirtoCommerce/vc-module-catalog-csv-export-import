@@ -108,7 +108,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Mall för exportfilnamn",
-        "description": "Ange mallen (mönstret) som används för att generera det exporterade filnamnet. Mallen kan inkludera parametrar som '0' för UTC-tiden för filgenerering"
+        "description": "Ange mallen (mönstret) som används för att generera det exporterade filnamnet. Parametrar som stöds: {0} - UTC-datum och -tid för filgenereringen, eventuellt med en .NET-formatsträng, till exempel {0:yyyy-MM-dd_HH-mm-ss}; {1} - ett slumpmässigt sexsiffrigt tal som gör nedladdningslänken svår att gissa. Mallen products_{0:yyyy-MM-dd_HH-mm-ss}_{1} ger till exempel products_2026-08-13_09-13-19_481750.csv. Filnamnstillägget .csv läggs till automatiskt."
       }
     }
   },

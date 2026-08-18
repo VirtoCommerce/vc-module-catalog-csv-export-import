@@ -108,7 +108,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Vientitiedoston nimen malli",
-        "description": "Määritä malli (kaava), jota käytetään viedyn tiedoston nimen luomiseen. Malli voi sisältää parametreja, kuten '0' tiedoston luonnin UTC-ajalle"
+        "description": "Määritä malli (kaava), jota käytetään viedyn tiedoston nimen luomiseen. Tuetut parametrit: {0} - tiedoston luonnin UTC-päivämäärä ja -aika, valinnaisesti .NET-muotoilumerkkijonolla, esimerkiksi {0:yyyy-MM-dd_HH-mm-ss}; {1} - satunnainen 6-numeroinen luku, joka tekee latauslinkin vaikeasti arvattavaksi. Esimerkiksi malli products_{0:yyyy-MM-dd_HH-mm-ss}_{1} tuottaa products_2026-08-13_09-13-19_481750.csv. Pääte .csv lisätään automaattisesti."
       }
     }
   },

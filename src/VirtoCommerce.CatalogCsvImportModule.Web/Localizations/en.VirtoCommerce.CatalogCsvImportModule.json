@@ -110,7 +110,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Export file name template",
-        "description": "Specify the template (pattern) used to generate the exported file name. The template can include parameters such as '0' for the UTC time of file generation"
+        "description": "Specify the template (pattern) used to generate the exported file name. Supported parameters: {0} - UTC date and time of file generation, optionally with a .NET format string, for example {0:yyyy-MM-dd_HH-mm-ss}; {1} - a random 6-digit number that makes the download link hard to guess. For example, the template products_{0:yyyy-MM-dd_HH-mm-ss}_{1} produces products_2026-08-13_09-13-19_481750.csv. The .csv extension is added automatically."
       }
     }
   },
