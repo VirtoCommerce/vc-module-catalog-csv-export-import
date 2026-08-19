@@ -56,6 +56,14 @@ public class CatalogCsvImportModuleMapperTests
     }
 
     [Fact]
+    public void MapTo_NullTarget_Throws()
+    {
+        var source = new CsvProduct { Id = "id-1" };
+
+        FluentActions.Invoking(() => _mapper.MapTo(source, null)).Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
     public void MapTo_CopiesScalarAndReferenceFields()
     {
         var source = new CsvProduct

@@ -1,4 +1,5 @@
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
+using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogCsvImportModuleSample.Core;
 using VirtoCommerce.CatalogModule.Core.Model;

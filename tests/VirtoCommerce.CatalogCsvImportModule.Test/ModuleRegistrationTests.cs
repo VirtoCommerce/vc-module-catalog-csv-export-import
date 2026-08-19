@@ -1,6 +1,7 @@
 using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
 using VirtoCommerce.CatalogCsvImportModule.Web;
 using Xunit;
