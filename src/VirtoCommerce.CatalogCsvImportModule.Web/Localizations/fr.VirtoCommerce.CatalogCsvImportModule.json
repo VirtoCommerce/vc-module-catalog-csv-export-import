@@ -110,7 +110,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Modèle de nom de fichier d'exportation",
-        "description": "Spécifiez le modèle (schéma) utilisé pour générer le nom du fichier exporté. Le modèle peut inclure des paramètres tels que '0' pour l'heure UTC de génération du fichier"
+        "description": "Spécifiez le modèle (schéma) utilisé pour générer le nom du fichier exporté. Paramètres pris en charge : {0} - date et heure UTC de génération du fichier, éventuellement avec une chaîne de format .NET, par exemple {0:yyyy-MM-dd_HH-mm-ss} ; {1} - un nombre aléatoire à 6 chiffres qui rend le lien de téléchargement difficile à deviner. Par exemple, le modèle products_{0:yyyy-MM-dd_HH-mm-ss}_{1} produit products_2026-08-13_09-13-19_481750.csv. L'extension .csv est ajoutée automatiquement."
       }
     }
   },

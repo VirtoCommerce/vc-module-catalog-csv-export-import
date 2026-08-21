@@ -110,7 +110,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Szablon nazwy pliku eksportu",
-        "description": "Określ szablon (wzór) używany do generowania nazwy pliku eksportowanego. Szablon może zawierać parametry takie jak '0' dla czasu UTC generowania pliku"
+        "description": "Określ szablon (wzorzec) używany do generowania nazwy eksportowanego pliku. Obsługiwane parametry: {0} - data i godzina UTC wygenerowania pliku, opcjonalnie z ciągiem formatującym .NET, na przykład {0:yyyy-MM-dd_HH-mm-ss}; {1} - losowa liczba 6-cyfrowa, która utrudnia odgadnięcie linku do pobrania. Na przykład szablon products_{0:yyyy-MM-dd_HH-mm-ss}_{1} tworzy products_2026-08-13_09-13-19_481750.csv. Rozszerzenie .csv jest dodawane automatycznie."
       }
     }
   },

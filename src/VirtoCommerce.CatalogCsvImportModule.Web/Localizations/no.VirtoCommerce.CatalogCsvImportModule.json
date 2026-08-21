@@ -108,7 +108,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Mal for eksportfilnavn",
-        "description": "Angi malen (mønsteret) som brukes til å generere det eksporterte filnavnet. Malen kan inkludere parametere som '0' for UTC-tiden for filgenerering"
+        "description": "Angi malen (mønsteret) som brukes til å generere det eksporterte filnavnet. Støttede parametere: {0} - UTC-dato og -klokkeslett for filgenerering, eventuelt med en .NET-formatstreng, for eksempel {0:yyyy-MM-dd_HH-mm-ss}; {1} - et tilfeldig sekssifret tall som gjør nedlastingslenken vanskelig å gjette. Malen products_{0:yyyy-MM-dd_HH-mm-ss}_{1} gir for eksempel products_2026-08-13_09-13-19_481750.csv. Filtypen .csv legges til automatisk."
       }
     }
   },

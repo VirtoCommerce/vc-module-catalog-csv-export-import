@@ -52,7 +52,7 @@ public static class ModuleConstants
                 Name = "CatalogCsvImport.ExportFileNameTemplate",
                 ValueType = SettingValueType.ShortText,
                 GroupName = "CatalogCsvImport|General",
-                DefaultValue = "products_{0:yyyy-MM-dd_HH-mm-ss}",
+                DefaultValue = "products_{0:yyyy-MM-dd_HH-mm-ss}_{1}",
             };
         }
 
