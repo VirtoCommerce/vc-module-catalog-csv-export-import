@@ -24,7 +24,6 @@ using VirtoCommerce.Platform.Core.Exceptions;
 using VirtoCommerce.Platform.Core.ExportImport;
 using VirtoCommerce.Platform.Core.PushNotifications;
 using VirtoCommerce.Platform.Core.Security;
-using VirtoCommerce.Platform.Core.Settings;
 using CatalogModuleConstants = VirtoCommerce.CatalogModule.Core.ModuleConstants;
 using CsvModuleConstants = VirtoCommerce.CatalogCsvImportModule.Core.ModuleConstants;
 
@@ -42,7 +41,7 @@ public class ExportImportController(
     ICsvCatalogExporter csvExporter,
     ICsvCatalogImporter csvImporter,
     IUserNameResolver userNameResolver,
-    ISettingsManager settingsManager,
+    IExportFileNameBuilder exportFileNameBuilder,
     IItemService itemService,
     ICategoryService categoryService,
     ILogger<ExportImportController> logger)
@@ -262,10 +261,7 @@ public class ExportImportController(
 
             exportInfo.Configuration ??= CsvProductMappingConfiguration.GetDefaultConfiguration();
 
-            var fileNameTemplate = await settingsManager.GetValueAsync<string>(CsvModuleConstants.Settings.General.ExportFileNameTemplate);
-            var fileName = string.Format(fileNameTemplate, DateTime.UtcNow);
-            fileName = Path.ChangeExtension(fileName, ".csv");
-
+            var fileName = await exportFileNameBuilder.GetFileName(CsvModuleConstants.Settings.General.ExportFileNameTemplate) + ".csv";
             var blobRelativeUrl = Path.Combine("temp", fileName);
 
             // Upload result csv to blob storage

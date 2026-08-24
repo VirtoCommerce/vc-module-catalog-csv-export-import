@@ -110,7 +110,7 @@
       },
       "ExportFileNameTemplate": {
         "title": "Plantilla de nombre de archivo de exportación",
-        "description": "Especifique la plantilla (patrón) utilizada para generar el nombre del archivo exportado. La plantilla puede incluir parámetros como '0' para la hora UTC de generación del archivo"
+        "description": "Especifique la plantilla (patrón) utilizada para generar el nombre del archivo exportado. Parámetros admitidos: {0} - fecha y hora UTC de generación del archivo, opcionalmente con una cadena de formato .NET, por ejemplo {0:yyyy-MM-dd_HH-mm-ss}; {1} - un número aleatorio de 6 dígitos que hace que el enlace de descarga sea difícil de adivinar. Por ejemplo, la plantilla products_{0:yyyy-MM-dd_HH-mm-ss}_{1} genera products_2026-08-13_09-13-19_481750.csv. La extensión .csv se añade automáticamente."
       }
     }
   },
