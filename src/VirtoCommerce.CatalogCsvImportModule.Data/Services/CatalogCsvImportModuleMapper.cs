@@ -1,4 +1,6 @@
+using System;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
+using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogModule.Core.Model;
 
 namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
@@ -7,6 +9,8 @@ public class CatalogCsvImportModuleMapper : ICatalogCsvImportModuleMapper
 {
     public virtual void MapTo(CsvProduct source, CatalogProduct target)
     {
+        ArgumentNullException.ThrowIfNull(target);
+
         if (source == null)
         {
             return;

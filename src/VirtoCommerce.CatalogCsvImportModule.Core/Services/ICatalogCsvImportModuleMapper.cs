@@ -1,7 +1,7 @@
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model;
 
-namespace VirtoCommerce.CatalogCsvImportModule.Data.Services;
+namespace VirtoCommerce.CatalogCsvImportModule.Core.Services;
 
 public interface ICatalogCsvImportModuleMapper
 {
