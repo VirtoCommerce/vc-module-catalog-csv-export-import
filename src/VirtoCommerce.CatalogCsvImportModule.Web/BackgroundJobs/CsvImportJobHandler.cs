@@ -74,9 +74,14 @@ public class CsvImportJobHandler(
         finally
         {
             notifyEvent.Finished = DateTime.UtcNow;
-            notifyEvent.Description = canceled
-                ? "Import canceled"
-                : "Import finished" + (notifyEvent.Errors.Count > 0 ? " with errors" : " successfully");
+            if (canceled)
+            {
+                notifyEvent.Description = "Import canceled";
+            }
+            else
+            {
+                notifyEvent.Description = notifyEvent.Errors.Count > 0 ? "Import finished with errors" : "Import finished successfully";
+            }
             await pushNotificationManager.SendAsync(notifyEvent);
         }
 
