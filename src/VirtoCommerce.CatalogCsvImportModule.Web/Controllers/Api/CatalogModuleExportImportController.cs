@@ -1,27 +1,22 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Omu.ValueInjecter;
 using VirtoCommerce.AssetsModule.Core.Assets;
 using VirtoCommerce.CatalogCsvImportModule.Core.Model;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
+using VirtoCommerce.CatalogCsvImportModule.Web.BackgroundJobs;
 using VirtoCommerce.CatalogCsvImportModule.Web.Model.PushNotifications;
 using VirtoCommerce.CatalogModule.Core.Model;
 using VirtoCommerce.CatalogModule.Core.Model.Search;
 using VirtoCommerce.CatalogModule.Core.Services;
 using VirtoCommerce.CatalogModule.Data.Authorization;
-using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Exceptions;
-using VirtoCommerce.Platform.Core.ExportImport;
+using VirtoCommerce.Platform.Core.Jobs;
 using VirtoCommerce.Platform.Core.PushNotifications;
 using VirtoCommerce.Platform.Core.Security;
 using CatalogModuleConstants = VirtoCommerce.CatalogModule.Core.ModuleConstants;
@@ -34,17 +29,11 @@ public class ExportImportController(
     ICatalogService catalogService,
     IPushNotificationManager pushNotificationManager,
     IAuthorizationService authorizationService,
-    ICurrencyService currencyService,
     IBlobStorageProvider blobStorageProvider,
-    IBlobUrlResolver blobUrlResolver,
     ICsvProductReader csvProductReader,
-    ICsvCatalogExporter csvExporter,
-    ICsvCatalogImporter csvImporter,
     IUserNameResolver userNameResolver,
-    IExportFileNameBuilder exportFileNameBuilder,
     IItemService itemService,
-    ICategoryService categoryService,
-    ILogger<ExportImportController> logger)
+    ICategoryService categoryService)
     : Controller
 {
     [HttpGet]
@@ -107,7 +96,7 @@ public class ExportImportController(
 
         await pushNotificationManager.SendAsync(notification);
 
-        BackgroundJob.Enqueue(() => BackgroundExport(exportInfo, notification, CancellationToken.None));
+        await EnqueueExport(exportInfo, notification);
 
         return Ok(notification);
     }
@@ -184,122 +173,53 @@ public class ExportImportController(
 
         await pushNotificationManager.SendAsync(notification);
 
-        BackgroundJob.Enqueue(() => BackgroundImport(importInfo, notification, CancellationToken.None));
+        await EnqueueImport(importInfo, notification);
 
         return Ok(notification);
     }
 
-    [DisableConcurrentExecution(CsvModuleConstants.BackgroundJobs.ImportLockKey, CsvModuleConstants.BackgroundJobs.ImportLockTimeoutSeconds)]
+    /// <summary>
+    /// Kept for background jobs enqueued by an earlier version, which reference this method by name.
+    /// Hands the work to <see cref="CsvImportJobHandler"/>; remove this once no such job can still be pending.
+    /// </summary>
+    // Signature is byte-identical on purpose: Hangfire persists a queued job as type name + method name +
+    // parameter types + serialized args, so changing any of them would strand already-queued entries as Failed.
     [ApiExplorerSettings(IgnoreApi = true)]
-    // Only public methods can be invoked in the background. (Hangfire)
-    public async Task BackgroundImport(CsvImportInfo importInfo, ImportNotification notifyEvent, CancellationToken cancellationToken)
+    [Obsolete("Enqueued indirectly by legacy Hangfire jobs only; new work uses CsvImportJobHandler.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+    public Task BackgroundImport(CsvImportInfo importInfo, ImportNotification notifyEvent, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Starting background import process for file {FileUrl}", importInfo.FileUrl);
-
-        var canceled = false;
-
-        await using var stream = await blobStorageProvider.OpenReadAsync(importInfo.FileUrl);
-        try
-        {
-            await csvImporter.DoImportAsync(stream, importInfo, ProgressCallback, cancellationToken);
-
-            logger.LogInformation("Import process completed for file {FileUrl}", importInfo.FileUrl);
-        }
-        catch (OperationCanceledException)
-        {
-            canceled = true;
-            logger.LogWarning("Import process canceled for file {FileUrl}", importInfo.FileUrl);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Import process failed for file {FileUrl}", importInfo.FileUrl);
-
-            notifyEvent.Errors.Add(ex.ToString());
-        }
-        finally
-        {
-            notifyEvent.Finished = DateTime.UtcNow;
-            notifyEvent.Description = canceled
-                ? "Import canceled"
-                : "Import finished" + (notifyEvent.Errors.Count > 0 ? " with errors" : " successfully");
-            await pushNotificationManager.SendAsync(notifyEvent);
-        }
-
-        return;
-
-        void ProgressCallback(ExportImportProgressInfo x)
-        {
-            notifyEvent.InjectFrom(x);
-            pushNotificationManager.SendAsync(notifyEvent);
-        }
+        return EnqueueImport(importInfo, notifyEvent);
     }
 
-    [DisableConcurrentExecution(CsvModuleConstants.BackgroundJobs.ExportLockKey, CsvModuleConstants.BackgroundJobs.ExportLockTimeoutSeconds)]
+    /// <summary>
+    /// Kept for background jobs enqueued by an earlier version, which reference this method by name.
+    /// Hands the work to <see cref="CsvExportJobHandler"/>; remove this once no such job can still be pending.
+    /// </summary>
     [ApiExplorerSettings(IgnoreApi = true)]
-    // Only public methods can be invoked in the background. (Hangfire)
-    public async Task BackgroundExport(CsvExportInfo exportInfo, ExportNotification notifyEvent, CancellationToken cancellationToken)
+    [Obsolete("Enqueued indirectly by legacy Hangfire jobs only; new work uses CsvExportJobHandler.", DiagnosticId = "VC0015", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+    public Task BackgroundExport(CsvExportInfo exportInfo, ExportNotification notifyEvent, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Starting background export process for catalog {CatalogId}", exportInfo.CatalogId);
+        return EnqueueExport(exportInfo, notifyEvent);
+    }
 
-        try
-        {
-            var currencies = await currencyService.GetAllCurrenciesAsync();
-            var defaultCurrency = currencies.FirstOrDefault(x => x.IsPrimary);
+    // The static facade rather than an injected IBackgroundJob avoids another constructor parameter, and it
+    // also works when Hangfire activates this controller outside a request to run a legacy job.
+    private static Task EnqueueImport(CsvImportInfo importInfo, ImportNotification notification)
+    {
+        var payload = AbstractTypeFactory<CsvImportJobPayload>.TryCreateInstance();
+        payload.ImportInfo = importInfo;
+        payload.Notification = notification;
 
-            if (defaultCurrency == null)
-            {
-                throw new InvalidOperationException("Primary currency not found");
-            }
+        return BackgroundJob.Enqueue<CsvImportJobHandler>(payload);
+    }
 
-            exportInfo.Currency ??= defaultCurrency.Code;
+    private static Task EnqueueExport(CsvExportInfo exportInfo, ExportNotification notification)
+    {
+        var payload = AbstractTypeFactory<CsvExportJobPayload>.TryCreateInstance();
+        payload.ExportInfo = exportInfo;
+        payload.Notification = notification;
 
-            var catalog = await catalogService.GetNoCloneAsync([exportInfo.CatalogId]);
-            if (catalog == null)
-            {
-                throw new InvalidOperationException($"Cannot get catalog with id '{exportInfo.CatalogId}'");
-            }
-
-            exportInfo.Configuration ??= CsvProductMappingConfiguration.GetDefaultConfiguration();
-
-            var fileName = await exportFileNameBuilder.GetFileName(CsvModuleConstants.Settings.General.ExportFileNameTemplate) + ".csv";
-            var blobRelativeUrl = Path.Combine("temp", fileName);
-
-            // Upload result csv to blob storage
-            await using (var blobStream = await blobStorageProvider.OpenWriteAsync(blobRelativeUrl))
-            {
-                await csvExporter.DoExportAsync(blobStream, exportInfo, ProgressCallback, cancellationToken);
-            }
-
-            // Get a download url
-            notifyEvent.DownloadUrl = blobUrlResolver.GetAbsoluteUrl(blobRelativeUrl);
-            notifyEvent.Description = "Export finished";
-
-            void ProgressCallback(ExportImportProgressInfo x)
-            {
-                notifyEvent.InjectFrom(x);
-                pushNotificationManager.SendAsync(notifyEvent);
-            }
-
-            logger.LogInformation("Export process completed for catalog {CatalogId}", exportInfo.CatalogId);
-        }
-        catch (OperationCanceledException)
-        {
-            logger.LogWarning("Export process canceled for catalog {CatalogId}", exportInfo.CatalogId);
-
-            notifyEvent.Description = "Export canceled";
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Export process failed for catalog {CatalogId}", exportInfo.CatalogId);
-
-            notifyEvent.Description = "Export failed";
-            notifyEvent.Errors.Add(ex.ExpandExceptionMessage());
-        }
-        finally
-        {
-            notifyEvent.Finished = DateTime.UtcNow;
-            await pushNotificationManager.SendAsync(notifyEvent);
-        }
+        return BackgroundJob.Enqueue<CsvExportJobHandler>(payload);
     }
 
     private async Task<bool> CheckCatalogPermission(object checkedEntities, string permission)

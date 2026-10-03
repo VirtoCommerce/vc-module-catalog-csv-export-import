@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using VirtoCommerce.CatalogCsvImportModule.Core;
 using VirtoCommerce.CatalogCsvImportModule.Core.Services;
 using VirtoCommerce.CatalogCsvImportModule.Data.Services;
+using VirtoCommerce.CatalogCsvImportModule.Web.BackgroundJobs;
+using VirtoCommerce.Platform.Core.Jobs;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
 
@@ -24,6 +26,10 @@ public class Module : IModule
 
         serviceCollection.AddSingleton<ICatalogCsvImportModuleMapper, CatalogCsvImportModuleMapper>();
         serviceCollection.AddTransient<ICsvProductConverter, CsvProductConverter>();
+
+        serviceCollection.AddTransient<CsvExportRunner>();
+        serviceCollection.AddBackgroundJob<CsvImportJobHandler, CsvImportJobPayload>(triggerable: false);
+        serviceCollection.AddBackgroundJob<CsvExportJobHandler, CsvExportJobPayload>(triggerable: false);
     }
 
     public void PostInitialize(IApplicationBuilder appBuilder)
