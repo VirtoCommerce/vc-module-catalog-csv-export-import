@@ -273,3 +273,5 @@ dist/
 /build/Build.cs
 dist
 /.serena
+# Admin Shell plugin build output (built from src/VirtoCommerce.CatalogCsvImportModule.Web/vue)
+src/VirtoCommerce.CatalogCsvImportModule.Web/plugins/
