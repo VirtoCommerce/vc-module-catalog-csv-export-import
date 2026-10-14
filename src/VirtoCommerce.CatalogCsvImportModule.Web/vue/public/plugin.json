@@ -1,4 +1,3 @@
 {
-  // Catalog CSV export/import admin UI for the Admin Shell host (Module Federation remote): extends the Catalog blades
   "remote": { "name": "csvimport_admin", "exposed": "./Module" }
 }
