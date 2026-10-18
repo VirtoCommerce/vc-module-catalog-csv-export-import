@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "CSV をエクスポート",
+    "IMPORT": "CSV をインポート",
+    "EXPORT_TITLE": "CSV エクスポート",
+    "IMPORT_TITLE": "CSV インポート",
+    "VIRTUAL": "仮想カタログでは CSV のインポートとエクスポートは利用できません。",
+    "SCOPE_ALL": "カタログ全体がエクスポートされます。",
+    "SCOPE_SELECTED": "選択済み: カテゴリ {categories} 件、製品 {products} 件。",
+    "DELIMITER": "列の区切り文字",
+    "FULFILLMENT_CENTER": "フルフィルメントセンター（在庫）",
+    "PRICELIST": "価格表",
+    "START_EXPORT": "エクスポートを開始",
+    "START_IMPORT": "インポートを開始",
+    "DROP": "ここに CSV ファイルをドロップするか、",
+    "BROWSE": "参照",
+    "FILE": "ファイル: {name}",
+    "MAPPING": "列のマッピング",
+    "PROPERTY_COLUMNS": "製品プロパティとしてインポートする列",
+    "FIELD": "製品フィールド",
+    "COLUMN": "CSV 列",
+    "CUSTOM_VALUE": "または固定値",
+    "JOB": {
+      "TITLE": "進行状況",
+      "STARTED": "開始",
+      "FINISHED": "終了",
+      "ELAPSED": "経過時間",
+      "PROCESSED": "処理済み",
+      "ERRORS": "エラー",
+      "DOWNLOAD": "ファイルをダウンロード"
+    }
+  }
+}

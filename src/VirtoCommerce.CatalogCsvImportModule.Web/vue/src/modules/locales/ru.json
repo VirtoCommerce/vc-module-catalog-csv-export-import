@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Экспорт в CSV",
+    "IMPORT": "Импорт из CSV",
+    "EXPORT_TITLE": "Экспорт CSV",
+    "IMPORT_TITLE": "Импорт CSV",
+    "VIRTUAL": "Импорт и экспорт CSV недоступны для виртуальных каталогов.",
+    "SCOPE_ALL": "Будет экспортирован весь каталог.",
+    "SCOPE_SELECTED": "Выбрано: категорий — {categories}, продуктов — {products}.",
+    "DELIMITER": "Разделитель столбцов",
+    "FULFILLMENT_CENTER": "Центр выполнения (остатки)",
+    "PRICELIST": "Прайс-лист",
+    "START_EXPORT": "Начать экспорт",
+    "START_IMPORT": "Начать импорт",
+    "DROP": "Перетащите файл CSV сюда или",
+    "BROWSE": "выберите",
+    "FILE": "Файл: {name}",
+    "MAPPING": "Сопоставление столбцов",
+    "PROPERTY_COLUMNS": "Столбцы, импортируемые как свойства продукта",
+    "FIELD": "Поле продукта",
+    "COLUMN": "Столбец CSV",
+    "CUSTOM_VALUE": "Или фиксированное значение",
+    "JOB": {
+      "TITLE": "Ход выполнения",
+      "STARTED": "Начало",
+      "FINISHED": "Конец",
+      "ELAPSED": "Прошло",
+      "PROCESSED": "Обработано",
+      "ERRORS": "Ошибки",
+      "DOWNLOAD": "Скачать файл"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Exportera CSV",
+    "IMPORT": "Importera CSV",
+    "EXPORT_TITLE": "CSV-export",
+    "IMPORT_TITLE": "CSV-import",
+    "VIRTUAL": "CSV-import och -export är inte tillgängliga för virtuella kataloger.",
+    "SCOPE_ALL": "Hela katalogen exporteras.",
+    "SCOPE_SELECTED": "Valda: {categories} kategorier, {products} produkter.",
+    "DELIMITER": "Kolumnavgränsare",
+    "FULFILLMENT_CENTER": "Distributionscenter (lager)",
+    "PRICELIST": "Prislista",
+    "START_EXPORT": "Starta export",
+    "START_IMPORT": "Starta import",
+    "DROP": "Släpp en CSV-fil här eller",
+    "BROWSE": "bläddra",
+    "FILE": "Fil: {name}",
+    "MAPPING": "Kolumnmappning",
+    "PROPERTY_COLUMNS": "Kolumner som importeras som produktegenskaper",
+    "FIELD": "Produktfält",
+    "COLUMN": "CSV-kolumn",
+    "CUSTOM_VALUE": "Eller fast värde",
+    "JOB": {
+      "TITLE": "Förlopp",
+      "STARTED": "Start",
+      "FINISHED": "Slut",
+      "ELAPSED": "Förfluten tid",
+      "PROCESSED": "Bearbetade",
+      "ERRORS": "Fel",
+      "DOWNLOAD": "Ladda ned fil"
+    }
+  }
+}

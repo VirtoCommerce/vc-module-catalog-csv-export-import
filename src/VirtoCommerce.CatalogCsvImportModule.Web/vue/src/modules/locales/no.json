@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Eksporter CSV",
+    "IMPORT": "Importer CSV",
+    "EXPORT_TITLE": "CSV-eksport",
+    "IMPORT_TITLE": "CSV-import",
+    "VIRTUAL": "CSV-import og -eksport er ikke tilgjengelig for virtuelle kataloger.",
+    "SCOPE_ALL": "Hele katalogen blir eksportert.",
+    "SCOPE_SELECTED": "Valgt: {categories} kategorier, {products} produkter.",
+    "DELIMITER": "Kolonneavgrenser",
+    "FULFILLMENT_CENTER": "Distribusjonssenter (lager)",
+    "PRICELIST": "Prisliste",
+    "START_EXPORT": "Start eksport",
+    "START_IMPORT": "Start import",
+    "DROP": "Slipp en CSV-fil her eller",
+    "BROWSE": "bla gjennom",
+    "FILE": "Fil: {name}",
+    "MAPPING": "Kolonnekartlegging",
+    "PROPERTY_COLUMNS": "Kolonner som importeres som produktegenskaper",
+    "FIELD": "Produktfelt",
+    "COLUMN": "CSV-kolonne",
+    "CUSTOM_VALUE": "Eller fast verdi",
+    "JOB": {
+      "TITLE": "Fremdrift",
+      "STARTED": "Start",
+      "FINISHED": "Slutt",
+      "ELAPSED": "Medgått tid",
+      "PROCESSED": "Behandlet",
+      "ERRORS": "Feil",
+      "DOWNLOAD": "Last ned fil"
+    }
+  }
+}
