@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Eksportuj CSV",
+    "IMPORT": "Importuj CSV",
+    "EXPORT_TITLE": "Eksport CSV",
+    "IMPORT_TITLE": "Import CSV",
+    "VIRTUAL": "Import i eksport CSV nie są dostępne dla katalogów wirtualnych.",
+    "SCOPE_ALL": "Zostanie wyeksportowany cały katalog.",
+    "SCOPE_SELECTED": "Wybrano: kategorie: {categories}, produkty: {products}.",
+    "DELIMITER": "Separator kolumn",
+    "FULFILLMENT_CENTER": "Centrum realizacji (zapasy)",
+    "PRICELIST": "Cennik",
+    "START_EXPORT": "Rozpocznij eksport",
+    "START_IMPORT": "Rozpocznij import",
+    "DROP": "Upuść plik CSV tutaj lub",
+    "BROWSE": "przeglądaj",
+    "FILE": "Plik: {name}",
+    "MAPPING": "Mapowanie kolumn",
+    "PROPERTY_COLUMNS": "Kolumny importowane jako właściwości produktu",
+    "FIELD": "Pole produktu",
+    "COLUMN": "Kolumna CSV",
+    "CUSTOM_VALUE": "Lub stała wartość",
+    "JOB": {
+      "TITLE": "Postęp",
+      "STARTED": "Start",
+      "FINISHED": "Koniec",
+      "ELAPSED": "Upłynęło",
+      "PROCESSED": "Przetworzono",
+      "ERRORS": "Błędy",
+      "DOWNLOAD": "Pobierz plik"
+    }
+  }
+}

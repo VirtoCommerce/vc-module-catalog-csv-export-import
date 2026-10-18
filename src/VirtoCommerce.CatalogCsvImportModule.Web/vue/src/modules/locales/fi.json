@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Vie CSV",
+    "IMPORT": "Tuo CSV",
+    "EXPORT_TITLE": "CSV-vienti",
+    "IMPORT_TITLE": "CSV-tuonti",
+    "VIRTUAL": "CSV-tuonti ja -vienti eivät ole käytettävissä virtuaalisille katalogeille.",
+    "SCOPE_ALL": "Koko katalogi viedään.",
+    "SCOPE_SELECTED": "Valittu: {categories} kategoriaa, {products} tuotetta.",
+    "DELIMITER": "Sarake-erotin",
+    "FULFILLMENT_CENTER": "Jakelukeskus (varasto)",
+    "PRICELIST": "Hinnasto",
+    "START_EXPORT": "Aloita vienti",
+    "START_IMPORT": "Aloita tuonti",
+    "DROP": "Pudota CSV-tiedosto tähän tai",
+    "BROWSE": "selaa",
+    "FILE": "Tiedosto: {name}",
+    "MAPPING": "Sarakkeiden kartoitus",
+    "PROPERTY_COLUMNS": "Tuotteen ominaisuuksiksi tuotavat sarakkeet",
+    "FIELD": "Tuotekenttä",
+    "COLUMN": "CSV-sarake",
+    "CUSTOM_VALUE": "Tai kiinteä arvo",
+    "JOB": {
+      "TITLE": "Edistyminen",
+      "STARTED": "Alku",
+      "FINISHED": "Loppu",
+      "ELAPSED": "Kulunut aika",
+      "PROCESSED": "Käsitelty",
+      "ERRORS": "Virheet",
+      "DOWNLOAD": "Lataa tiedosto"
+    }
+  }
+}

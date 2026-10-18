@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "تصدير إلى CSV",
+    "IMPORT": "استيراد من CSV",
+    "EXPORT_TITLE": "تصدير CSV",
+    "IMPORT_TITLE": "استيراد CSV",
+    "VIRTUAL": "لا يتوفر استيراد CSV وتصديره للكتالوجات الافتراضية.",
+    "SCOPE_ALL": "سيتم تصدير الكتالوج بالكامل.",
+    "SCOPE_SELECTED": "المحدد: الفئات ({categories})، المنتجات ({products}).",
+    "DELIMITER": "فاصل الأعمدة",
+    "FULFILLMENT_CENTER": "مركز التوزيع (المخزون)",
+    "PRICELIST": "قائمة الأسعار",
+    "START_EXPORT": "بدء التصدير",
+    "START_IMPORT": "بدء الاستيراد",
+    "DROP": "أفلت ملف CSV هنا أو",
+    "BROWSE": "اختره",
+    "FILE": "الملف: {name}",
+    "MAPPING": "مطابقة الأعمدة",
+    "PROPERTY_COLUMNS": "الأعمدة المستوردة كخصائص للمنتج",
+    "FIELD": "حقل المنتج",
+    "COLUMN": "عمود CSV",
+    "CUSTOM_VALUE": "أو قيمة ثابتة",
+    "JOB": {
+      "TITLE": "التقدم",
+      "STARTED": "البداية",
+      "FINISHED": "النهاية",
+      "ELAPSED": "المدة المنقضية",
+      "PROCESSED": "تمت المعالجة",
+      "ERRORS": "الأخطاء",
+      "DOWNLOAD": "تنزيل الملف"
+    }
+  }
+}
