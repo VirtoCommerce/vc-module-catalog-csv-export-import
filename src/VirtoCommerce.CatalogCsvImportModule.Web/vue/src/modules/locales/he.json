@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "ייצוא CSV",
+    "IMPORT": "ייבוא CSV",
+    "EXPORT_TITLE": "ייצוא CSV",
+    "IMPORT_TITLE": "ייבוא CSV",
+    "VIRTUAL": "ייבוא וייצוא CSV אינם זמינים לקטלוגים וירטואליים.",
+    "SCOPE_ALL": "הקטלוג כולו ייוצא.",
+    "SCOPE_SELECTED": "נבחרו קטגוריות: {categories}, מוצרים: {products}.",
+    "DELIMITER": "מפריד עמודות",
+    "FULFILLMENT_CENTER": "מרכז הפצה (מלאי)",
+    "PRICELIST": "מחירון",
+    "START_EXPORT": "התחלת ייצוא",
+    "START_IMPORT": "התחלת ייבוא",
+    "DROP": "יש לגרור קובץ CSV לכאן או",
+    "BROWSE": "לבחור מהמחשב",
+    "FILE": "קובץ: {name}",
+    "MAPPING": "מיפוי עמודות",
+    "PROPERTY_COLUMNS": "עמודות שמיובאות כמאפייני מוצר",
+    "FIELD": "שדה מוצר",
+    "COLUMN": "עמודת CSV",
+    "CUSTOM_VALUE": "או ערך קבוע",
+    "JOB": {
+      "TITLE": "התקדמות",
+      "STARTED": "התחלה",
+      "FINISHED": "סיום",
+      "ELAPSED": "זמן שחלף",
+      "PROCESSED": "עובדו",
+      "ERRORS": "שגיאות",
+      "DOWNLOAD": "הורדת קובץ"
+    }
+  }
+}
