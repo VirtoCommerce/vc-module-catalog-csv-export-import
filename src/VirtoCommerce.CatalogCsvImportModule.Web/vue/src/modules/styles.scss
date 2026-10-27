@@ -1,0 +1,21 @@
+// Layout shared by the CSV export and import blades.
+
+.csv-form {
+  padding: 20px 22px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* body of a VcCard section */
+.csv-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.csv-hint {
+  color: var(--neutrals-500);
+  font-size: 13px;
+}

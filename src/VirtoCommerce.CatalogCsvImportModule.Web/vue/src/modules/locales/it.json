@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Esporta CSV",
+    "IMPORT": "Importa CSV",
+    "EXPORT_TITLE": "Esportazione CSV",
+    "IMPORT_TITLE": "Importazione CSV",
+    "VIRTUAL": "L'importazione e l'esportazione CSV non sono disponibili per i cataloghi virtuali.",
+    "SCOPE_ALL": "Verrà esportato l'intero catalogo.",
+    "SCOPE_SELECTED": "Selezionati: {categories} categorie, {products} prodotti.",
+    "DELIMITER": "Delimitatore di colonna",
+    "FULFILLMENT_CENTER": "Centro di evasione (giacenze)",
+    "PRICELIST": "Listino prezzi",
+    "START_EXPORT": "Avvia esportazione",
+    "START_IMPORT": "Avvia importazione",
+    "DROP": "Rilascia qui un file CSV oppure",
+    "BROWSE": "sfoglia",
+    "FILE": "File: {name}",
+    "MAPPING": "Mappatura delle colonne",
+    "PROPERTY_COLUMNS": "Colonne importate come proprietà del prodotto",
+    "FIELD": "Campo del prodotto",
+    "COLUMN": "Colonna CSV",
+    "CUSTOM_VALUE": "Oppure valore fisso",
+    "JOB": {
+      "TITLE": "Avanzamento",
+      "STARTED": "Inizio",
+      "FINISHED": "Fine",
+      "ELAPSED": "Trascorso",
+      "PROCESSED": "Elaborati",
+      "ERRORS": "Errori",
+      "DOWNLOAD": "Scarica file"
+    }
+  }
+}

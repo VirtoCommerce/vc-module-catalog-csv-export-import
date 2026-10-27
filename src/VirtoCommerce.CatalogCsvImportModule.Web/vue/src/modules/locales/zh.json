@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "导出 CSV",
+    "IMPORT": "导入 CSV",
+    "EXPORT_TITLE": "CSV 导出",
+    "IMPORT_TITLE": "CSV 导入",
+    "VIRTUAL": "虚拟目录不支持 CSV 导入和导出。",
+    "SCOPE_ALL": "将导出整个目录。",
+    "SCOPE_SELECTED": "已选择：{categories} 个类别，{products} 个产品。",
+    "DELIMITER": "列分隔符",
+    "FULFILLMENT_CENTER": "履行中心（库存）",
+    "PRICELIST": "价格表",
+    "START_EXPORT": "开始导出",
+    "START_IMPORT": "开始导入",
+    "DROP": "将 CSV 文件拖放到此处，或",
+    "BROWSE": "浏览",
+    "FILE": "文件：{name}",
+    "MAPPING": "列映射",
+    "PROPERTY_COLUMNS": "作为产品属性导入的列",
+    "FIELD": "产品字段",
+    "COLUMN": "CSV 列",
+    "CUSTOM_VALUE": "或固定值",
+    "JOB": {
+      "TITLE": "进度",
+      "STARTED": "开始",
+      "FINISHED": "结束",
+      "ELAPSED": "已用时间",
+      "PROCESSED": "已处理",
+      "ERRORS": "错误",
+      "DOWNLOAD": "下载文件"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "CSVIMPORT": {
+    "EXPORT": "Export CSV",
+    "IMPORT": "Import CSV",
+    "EXPORT_TITLE": "CSV export",
+    "IMPORT_TITLE": "CSV import",
+    "VIRTUAL": "CSV import and export are not available for virtual catalogs.",
+    "SCOPE_ALL": "The whole catalog will be exported.",
+    "SCOPE_SELECTED": "Selected: {categories} categories, {products} products.",
+    "DELIMITER": "Column delimiter",
+    "FULFILLMENT_CENTER": "Fulfillment center (stock)",
+    "PRICELIST": "Price list",
+    "START_EXPORT": "Start export",
+    "START_IMPORT": "Start import",
+    "DROP": "Drop a CSV file here or",
+    "BROWSE": "browse",
+    "FILE": "File: {name}",
+    "MAPPING": "Column mapping",
+    "PROPERTY_COLUMNS": "Columns imported as product properties",
+    "FIELD": "Product field",
+    "COLUMN": "CSV column",
+    "CUSTOM_VALUE": "Or fixed value",
+    "JOB": {
+      "TITLE": "Progress",
+      "STARTED": "Start",
+      "FINISHED": "End",
+      "ELAPSED": "Elapsed",
+      "PROCESSED": "Processed",
+      "ERRORS": "Errors",
+      "DOWNLOAD": "Download file"
+    }
+  }
+}
