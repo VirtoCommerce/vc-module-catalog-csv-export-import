@@ -26,15 +26,66 @@ jobs:
     secrets:
       envPAT: ${{ secrets.REPO_TOKEN }}
 
+  # Trusted Publishing (same as dev): mint the OIDC key and push in ONE job.
+  # job_workflow_ref here is publish-nugets.yml, which matches the nuget.org trust policy.
   publish-nuget:
-    needs:
-      [build, test]
+    needs: [build, test]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+    steps:
+      - name: Install VirtoCommerce.GlobalTool
+        uses: VirtoCommerce/.github/actions/setup-vcbuild@v3.1000.4
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Get package from cache
+        id: restore-build
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ needs.build.outputs.packageFullKey }}
+          path: |
+            ${{ github.workspace }}/artifacts
+            ${{ github.workspace }}/publish
+
+      - name: Exit if cache not restored
+        if: steps.restore-build.outputs.cache-hit != 'true'
+        env:
+          FULL_KEY: ${{ needs.build.outputs.packageFullKey }}
+        run: |
+          echo "::error::Package cache not found for key ${FULL_KEY}"
+          exit 1
+
+      - name: NuGet login (OIDC -> temp API key)
+        id: nuget_login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: virto
+
+      - name: Publish Nuget
+        uses: VirtoCommerce/.github/actions/publish-nuget@v3.1000.4
+        with:
+          skipString: 'Clean+Restore+Compile+Test+Pack'
+        env:
+          NUGET_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+
+  # Blob upload + PR-body link. forceNuget: false — the push is done by publish-nuget above.
+  publish-blob:
+    needs: [build, test, publish-nuget]
+    permissions:
+      contents: write
+      pull-requests: write
     uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@v3.800.24
     with:
       fullKey: ${{ needs.build.outputs.packageFullKey }}
       forceGithub: false
+      forceNuget: false
       forceBlob: true
     secrets:
       envPAT: ${{ secrets.GITHUB_TOKEN }}
-      nugetKey: ${{ secrets.NUGET_KEY }}
       BLOB_TOKEN: ${{ secrets.BLOB_TOKEN }}
