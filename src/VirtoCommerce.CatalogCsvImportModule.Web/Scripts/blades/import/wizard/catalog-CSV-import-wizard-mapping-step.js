@@ -17,6 +17,21 @@ angular.module('virtoCommerce.catalogCsvImportModule')
             };
 
             $scope.saveChanges = function () {
+                // A cleared ui-select leaves the model undefined/empty; normalize it to null so the
+                // field is explicitly unmapped (and not silently dropped when serialized).
+                angular.forEach(blade.importConfiguration.propertyMaps, function (mappingItem) {
+                    if (!mappingItem.csvColumnName) {
+                        mappingItem.csvColumnName = null;
+                    }
+                    if (mappingItem.customValue === '' || mappingItem.customValue === undefined) {
+                        mappingItem.customValue = null;
+                    }
+                });
+
+                if (angular.isFunction(blade.onSave)) {
+                    blade.onSave(blade.importConfiguration);
+                }
+
                 $scope.bladeClose();
             };
 
