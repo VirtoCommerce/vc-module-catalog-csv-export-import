@@ -94,10 +94,20 @@ angular.module('virtoCommerce.catalogCsvImportModule')
             };
 
             $scope.openMappingStep = function () {
-                blade.importConfiguration = angular.copy(blade.initialImportConfiguration);
+                // Seed the import configuration from the auto-mapping only once (it is reset whenever a new
+                // file is uploaded or the delimiter changes). Re-opening the mapping step must show the
+                // user's saved edits instead of the initial auto-mapping.
+                if (!blade.importConfiguration) {
+                    blade.importConfiguration = angular.copy(blade.initialImportConfiguration);
+                }
+
                 var newBlade = {
                     id: "importMapping",
-                    importConfiguration: blade.importConfiguration,
+                    // Edit a working copy so changes are applied only when the user clicks OK
+                    importConfiguration: angular.copy(blade.importConfiguration),
+                    onSave: function (importConfiguration) {
+                        blade.importConfiguration = importConfiguration;
+                    },
                     title: 'catalogCsvImportModule.wizards.catalog-CSV-import-wizard-mapping-step.title',
                     subtitle: 'catalogCsvImportModule.wizards.catalog-CSV-import-wizard-mapping-step.subtitle',
                     controller: 'virtoCommerce.catalogCsvImportModule.catalogCSVimportWizardMappingStepController',
