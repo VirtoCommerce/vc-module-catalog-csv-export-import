@@ -107,7 +107,7 @@ public class CsvCatalogImporter(
 
         await SaveCategoryTree(catalog, csvProducts, progressInfo, progressCallback);
 
-        await LoadProductDependencies(csvProducts, catalog, importInfo);
+        await LoadProductDependencies(csvProducts, catalog, importInfo, progressInfo, progressCallback);
         await ResolvePropertyDictionaryItems(csvProducts, progressInfo, progressCallback);
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -611,30 +611,22 @@ public class CsvCatalogImporter(
         return result;
     }
 
-    private async Task LoadProductDependencies(List<CsvProduct> csvProducts, Catalog catalog, CsvImportInfo importInfo)
+    private async Task LoadProductDependencies(List<CsvProduct> csvProducts, Catalog catalog, CsvImportInfo importInfo, ExportImportProgressInfo progressInfo, Action<ExportImportProgressInfo> progressCallback)
     {
-        var categoryIds = csvProducts.Select(x => x.CategoryId).Distinct().ToArray();
-        var categoryById = (await categoryService.GetAsync(categoryIds, nameof(CategoryResponseGroup.Full))).ToDictionary(x => x.Id);
+        var categoryById = await GetCategoriesByIdAsync(csvProducts);
+        var hasCategoryErrors = false;
 
         foreach (var csvProduct in csvProducts)
         {
             csvProduct.Catalog = catalog;
             csvProduct.CatalogId = catalog.Id;
 
-            if (csvProduct.CategoryId != null)
+            if (!TryResolveCategory(csvProduct, catalog, categoryById, progressInfo))
             {
-                csvProduct.Category = categoryById[csvProduct.CategoryId];
+                hasCategoryErrors = true;
             }
 
-            if (!csvProduct.MainProductId.IsNullOrEmpty())
-            {
-                var mainProduct = csvProducts.FirstOrDefault(x =>
-                    x.Id.EqualsIgnoreCase(csvProduct.MainProductId) ||
-                    x.Code.EqualsIgnoreCase(csvProduct.MainProductId));
-
-                csvProduct.MainProduct = mainProduct;
-                csvProduct.MainProductId = mainProduct?.Id;
-            }
+            ResolveMainProduct(csvProduct, csvProducts);
 
             if (string.IsNullOrEmpty(csvProduct.Code))
             {
@@ -643,6 +635,76 @@ public class CsvCatalogImporter(
 
             UpdateCsvProductProperties(csvProduct, importInfo);
         }
+
+        if (hasCategoryErrors)
+        {
+            progressCallback(progressInfo);
+        }
+    }
+
+    private async Task<Dictionary<string, Category>> GetCategoriesByIdAsync(List<CsvProduct> csvProducts)
+    {
+        var categoryIds = csvProducts
+            .Where(x => !string.IsNullOrEmpty(x.CategoryId))
+            .Select(x => x.CategoryId)
+            .Distinct()
+            .ToArray();
+
+        if (categoryIds.Length == 0)
+        {
+            return new Dictionary<string, Category>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        var categories = await categoryService.GetAsync(categoryIds, nameof(CategoryResponseGroup.Full));
+
+        return categories.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// A product can only be linked to a category of the catalog it is imported into.
+    /// Otherwise it becomes invisible in the catalog tree and blocks the catalog deletion
+    /// (FK_Item_Catalog_CatalogId), so such products are put to the catalog root instead.
+    /// </summary>
+    /// <returns>false if the product's CategoryId was not found in the catalog (an error is added to the progress info).</returns>
+    private static bool TryResolveCategory(CsvProduct csvProduct, Catalog catalog, Dictionary<string, Category> categoryById, ExportImportProgressInfo progressInfo)
+    {
+        if (string.IsNullOrEmpty(csvProduct.CategoryId))
+        {
+            if (csvProduct.Category != null && !csvProduct.Category.CatalogId.EqualsIgnoreCase(catalog.Id))
+            {
+                csvProduct.Category = null;
+            }
+
+            return true;
+        }
+
+        if (categoryById.TryGetValue(csvProduct.CategoryId, out var category) && category.CatalogId.EqualsIgnoreCase(catalog.Id))
+        {
+            csvProduct.Category = category;
+            return true;
+        }
+
+        progressInfo.Errors.Add($"Category with Id '{csvProduct.CategoryId}' is not found in catalog '{catalog.Name}'. The product '{csvProduct.Code ?? csvProduct.Name}' is imported to the catalog root. Line number: {csvProduct.LineNumber}");
+
+        csvProduct.CategoryId = null;
+        csvProduct.Category = null;
+
+        return false;
+    }
+
+    private static void ResolveMainProduct(CsvProduct csvProduct, List<CsvProduct> csvProducts)
+    {
+        if (csvProduct.MainProductId.IsNullOrEmpty())
+        {
+            return;
+        }
+
+        var mainProduct = csvProducts.FirstOrDefault(x =>
+            x.Id.EqualsIgnoreCase(csvProduct.MainProductId) ||
+            x.Code.EqualsIgnoreCase(csvProduct.MainProductId));
+
+        csvProduct.MainProduct = mainProduct;
+        csvProduct.MainProductId = mainProduct?.Id;
     }
 
     private static void UpdateCsvProductProperties(CsvProduct csvProduct, CsvImportInfo importInfo)
