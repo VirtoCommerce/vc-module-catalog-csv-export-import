@@ -12,5 +12,6 @@
   <ItemGroup>
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-pgww-w46g-26qg" />
+    <NuGetAuditMode>direct</NuGetAuditMode>
   </ItemGroup>
 </Project>
