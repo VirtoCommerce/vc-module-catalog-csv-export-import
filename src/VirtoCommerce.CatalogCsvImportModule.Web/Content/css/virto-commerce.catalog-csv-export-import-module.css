@@ -33,3 +33,31 @@
   padding-bottom: 10px;
 }
 
+/* Drop-zone styles for platforms whose admin CSS predates them (added in Platform 3.1035) */
+.csv-import-drop-zone.drag-area--clickable {
+  cursor: pointer;
+  display: block;
+}
+
+.csv-import-drop-zone.drag-area--clickable:hover {
+  border-color: #43b0e6;
+  background: #fbfdfe;
+}
+
+.csv-import-drop-zone .drag-area-icon {
+  font-size: 32px;
+  color: #43b0e6;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.csv-import-drop-zone .drag-area-primary {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.csv-import-drop-zone .drag-area-secondary {
+  font-size: 12px;
+  color: #999;
+}
