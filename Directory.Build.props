@@ -8,6 +8,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NuGetAuditMode>direct</NuGetAuditMode>
   </PropertyGroup>
   <ItemGroup>
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
