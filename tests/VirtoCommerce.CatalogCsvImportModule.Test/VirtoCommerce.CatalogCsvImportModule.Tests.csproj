@@ -29,6 +29,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <!-- AutoMapper 12.0.1 (NU1903) is referenced only by the tests that compare against the legacy AutoMapper profiles; never shipped. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6vhm-j9h7-f9gh" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gpwp-5797-mjff" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\VirtoCommerce.CatalogCsvImportModule.Core\VirtoCommerce.CatalogCsvImportModule.Core.csproj" />
     <ProjectReference Include="..\..\src\VirtoCommerce.CatalogCsvImportModule.Data\VirtoCommerce.CatalogCsvImportModule.Data.csproj" />
     <ProjectReference Include="..\..\src\VirtoCommerce.CatalogCsvImportModule.Web\VirtoCommerce.CatalogCsvImportModule.Web.csproj" />
